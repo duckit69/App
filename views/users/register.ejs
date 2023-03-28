@@ -1,0 +1,68 @@
+<% layout('layouts/boilerplate') %>
+    <div class="row">
+        <div class="col-4 offset-4">
+            <form method="post" action="/users/register" id="form">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="name" name="user[name]">
+                </div>
+                <div class="mb-3">
+                    <select class="form-select" aria-label="Default select example" name="user[gender]">
+                        <option selected class="text-muted">pick one...</option>
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="date" class="form-label">Birth date</label>
+                    <input type="date" class="form-control" name="user[date]" id="date">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="username">Username</label>
+                    <input type="text" class="form-control" id="username" name="user[username]">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="text" class="form-control" id="password" name="user[password]">
+                </div>
+                <div class="mb-3">
+                    <select class="form-select" id="role">
+                        <option selected disabled>Pick a role</option>
+                        <option value="doctor">Doctor</option>
+                        <option value="patient">Patient</option>
+                    </select>
+                </div>
+                <div class="mb-3" id="patient-role" style="display: none;">
+                    <label class="form-label" for="phone">Phone number</label>
+                    <input type="text" class="form-control" id="phone" name="user[phone]">
+                </div>
+                <div class="mb-3" id="doctor-role" style="display: none;">
+                    <label class="form-label" for="speciality">Speciality</label>
+                    <input type="text" class="form-control" id="speciality" name="user[speciality]">
+                </div>
+                <button type="submit" class="btn btn-primary">Sign up</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        const check = document.getElementById('role');
+        check.addEventListener('change', (e) => {
+            const role = document.getElementById('role').value;
+            const form = document.getElementById('form');
+            form.attributes[1].nodeValue = `/users/${role}/register/${role}`;
+            console.dir(form.attributes[1].nodeValue);
+            if (role == 'doctor') {
+                document.getElementById('doctor-role').style.display = 'block';
+                document.getElementById('patient-role').style.display = 'none';
+                document.getElementById('phone').removeAttribute('name');
+            } else if (role == 'patient') {
+                document.getElementById('doctor-role').style.display = 'none';
+                document.getElementById('patient-role').style.display = 'block';
+                document.getElementById('speciality').removeAttribute('name');
+            } else {
+                document.getElementById('doctor-role').style.display = 'none';
+                document.getElementById('patient-role').style.display = 'none';
+            }
+        });
+    </script>

@@ -1,0 +1,50 @@
+<% layout('layouts/boilerplate') %>
+    <h1>Doctor Dashboard</h1>
+    <div class="row">
+        <div class="col-6">
+            <div class="row">
+                <div class="col-6 offset-3">
+                    <form id="search-form" method="get" action="" class="d-flex flex-column" role="search">
+                        <input class="form-control me-2" placeholder="Search" name="q" id="search-input">
+                        <div id="search-results" class="d-flex flex-column"></div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row fixed-height mt-5 mx-auto">
+                <% for(let p of result.rows){ %>
+                    <div class="card col-5 mx-auto my-2">
+                        <div class="card-body d-flex flex-column justify-content-center">
+                            <h5 class="card-title">
+                                <%= p.person_name %>
+                            </h5>
+                            <span class="d-block">
+                                <%= p.person_gender %>
+                            </span>
+                            <a href="/users/doctor/patient_full_details/<%= p.person_id %>" class="btn btn-primary">go</a>
+                        </div>
+                    </div>
+                    <% } %>
+            </div>
+        </div>
+        <div class="col-6"></div>
+    </div>
+
+    <script>
+        const searchForm = document.getElementById('search-form');
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+
+        searchInput.addEventListener('input', async () => {
+            const query = searchInput.value;
+            const doctor_id = "<%= doctorObject.person_id %>"
+            if (query.length === 0){
+                searchResults.innerHTML = '';
+            }
+            else {
+                const result = await fetch(`/users/doctor/search/patient?person_name=${query}&doctor_id=${doctor_id}`);
+                const result2 = await result.text();
+                searchResults.innerHTML = result2;
+            }
+        })
+    </script>

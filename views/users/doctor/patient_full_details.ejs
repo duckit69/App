@@ -1,0 +1,60 @@
+<%- layout('layouts/boilerplate') %>
+<h1>Patient Full details</h1>
+<div class="row">
+    <div class="col-4">
+        <div class="card p-2">
+            <div class="card-body">
+              <h5 class="card-title"><%= result.patient[0].person_name %></h5>
+              <h5 class="card-title">Age: <%= age.rows[0].age %> years</h5>
+              <h5 class="card-title">Sex: <%= result.patient[0].person_gender.toLowerCase() %></h5>
+              <% for(let p of patient_recorded_data){ %>
+                <h5 class="card-title">
+                    <%= p.sensor_name %>: 
+                    <span><%= p.recorded_data_value %></span>
+                    <span><%= p.recorded_data_unit %></span>
+                </h5>
+              <% } %>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              <%= console.log(patient_recorded_data) %>
+            </div>
+            <form action="" method="post">
+                <button class="btn btn-info text-white fw-bold">evaluate</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-4 vstack gap-3">
+        <div class="card max-height">
+            <div class="card-body">
+            <% for(const m of result.medical_history){ %>
+                <div class="p-2">
+                    <div class="hstack gap-3 d-flex justify-content-between">
+                        <label class="form-label"><%= m.medical_history_diagnosis %></label>
+                        <a class="btn btn-secondary search-treatment" href="/treatment/search/<%= m.treatment_id %>" onclick="return false;">Open Treatment</a>               
+                    </div>
+                </div>
+            <% } %>
+            </div>
+        </div>  
+        <div class="btn btn-success text-white">Add Treatment</div>
+    </div>
+    <div class="col-4" id="search-result"></div>
+</div>
+
+<script>
+    const searchTreatment = document.querySelectorAll('.search-treatment');
+    const searchResult = document.getElementById('search-result');
+    let l = '';
+    searchTreatment.forEach(e => {
+        e.addEventListener('click' , async (ele) => {
+            if (!(l==='')){
+                l.classList.remove('btn-success');
+            }
+            l = ele.target;
+            ele.target.classList.add('btn-success');
+            const link = ele.target.attributes[1].value;
+            const result = await fetch(link);
+            const result1 = await result.text();
+            searchResult.innerHTML = result1;
+        })
+    })
+</script>
