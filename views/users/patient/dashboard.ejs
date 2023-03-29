@@ -22,8 +22,9 @@
                                 <%= d.doctor_speciality %>
                             </span>
                             <a href="/users/patient/doctor_full_details/<%= d.person_id %>"
-                                class="btn btn-primary">go</a>
-                            <a href="" class="btn btn-sm btn-info msg text-white fw-bold mt-2">Send a message</a>
+                                class="btn btn-primary">go</a> 
+                            <a href="#" class="btn btn-sm btn-info msg text-white fw-bold mt-2">Send a message<span class="d-none doctorID"><%= d.person_id %></span></a>
+                            
                         </div>
                     </div>
                     <% } %>
@@ -41,16 +42,56 @@
         searchInput.addEventListener('input', async () => {
             const query = searchInput.value;
             const patient_id = "<%= patientObject.person_id %>"
-            console.log(query);
-            console.log(patient_id);
             if (query.length === 0) {
                 searchResults.innerHTML = '';
             }
             else {
                 const result = await fetch(`/users/patient/search/doctor?person_name=${query}&patient_id=${patient_id}`);
                 const result2 = await result.text();
-                console.log(result2);
                 searchResults.innerHTML = result2;
             }
         })
+    </script>
+    <script>
+        const socket = new WebSocket('ws://localhost:8080/chat');
+
+        const doctors = document.querySelectorAll('.doctorID');
+        // Establish a socket between all doctors of this patient
+        socket.addEventListener('open', (event) => {
+            console.log('WebSocket connection opened');
+            for(const d of doctors) {
+                const message = {
+                type: "login",
+                sender_id: "<%= patientObject.person_id %>",
+                receiver_id: d.innerText,
+                role: "patient"
+            }
+            socket.send(JSON.stringify(message));
+            }        
+        });
+        // Send a message to specific doctor
+        doctors.forEach(e => {
+            e.parentNode.addEventListener('click', () =>{
+                const content = prompt('Enter message');
+                const doctor_id = e.innerHTML;
+                const message = {
+                type: "message",
+                sender_id: "<%= patientObject.person_id %>",
+                receiver_id: doctor_id,
+                role: "patient",
+                content
+                }
+                socket.send(JSON.stringify(message));
+            })
+        });        
+        // Receives A message from Certain Doctor
+        socket.addEventListener('message', (event) => {
+            const data = JSON.parse(event);
+            console.log(`Received message from server: ${data.content}`);
+        });
+        // End
+        // socket.addEventListener('close', (event) => {
+        //     console.log('WebSocket connection closed');
+        // });
+
     </script>
