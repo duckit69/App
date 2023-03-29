@@ -5,6 +5,7 @@ const session = require('express-session');
 const userRoute = require('./routes/User/userRoute');
 const treatmentRoute = require('./routes/Treatment/treatmentRoute');
 const ejsMate = require('ejs-mate');
+const http = require('http');
 const app = express();
 
 app.set('view engine', 'ejs');
