@@ -23,7 +23,7 @@ s.on('connection', (socket, req) => {
     socket.on('message', (message) => {
         try {
             const data = JSON.parse(message);
-            const { type, sender_id, receiver_id, content, role } = data;
+            const { type, sender_id, sender_name, receiver_id, content, role } = data;
             if (type === 'login') {
                 if (role === 'patient') {
                     patients.set(sender_id, socket);
@@ -33,7 +33,7 @@ s.on('connection', (socket, req) => {
             } else if (type === 'message') {
                 const receiverSocket = role === 'patient' ? doctors.get(receiver_id) : patients.get(receiver_id)
                 if (receiverSocket) {
-                    const msg = JSON.stringify({type, sender_id, receiver_id, content})
+                    const msg = JSON.stringify({type, sender_id, sender_name,receiver_id, content})
                     receiverSocket.send(msg);
                 }
             }

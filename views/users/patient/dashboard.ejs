@@ -22,15 +22,30 @@
                                 <%= d.doctor_speciality %>
                             </span>
                             <a href="/users/patient/doctor_full_details/<%= d.person_id %>"
-                                class="btn btn-primary">go</a> 
-                            <a href="#" class="btn btn-sm btn-info msg text-white fw-bold mt-2">Send a message<span class="d-none doctorID"><%= d.person_id %></span></a>
-                            
+                                class="btn btn-primary">go</a>
+                            <a href="#" class="btn btn-sm btn-info startChat text-white fw-bold mt-2">Send a
+                                message<span class="d-none doctorID">
+                                    <%= d.person_id %>
+                                </span></a>
                         </div>
                     </div>
                     <% } %>
             </div>
         </div>
         <div class="col-6">
+            <div class="card text-center">
+                <h3>Chat With doctors</h3>
+                <div class="card-header" id="chatBoxHeader">
+                </div>
+                <div class="card-body">
+                    <div class="card-text" id="chatDiv">
+                    </div>
+                    <div class="d-flex">
+                        <input id="chatInput" type="text" placeholder="Send a message" class="form-control">
+                        <button id="chatSend" class="btn btn-primary ms-2">Send</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -55,40 +70,144 @@
     <script>
         const socket = new WebSocket('ws://localhost:8080/chat');
 
+        const startChatBtns = document.querySelectorAll('.startChat');
         const doctors = document.querySelectorAll('.doctorID');
-        // Establish a socket between all doctors of this patient
+        const chatDiv = document.querySelector('#chatDiv');
+        const chatInput = document.querySelector('#chatInput');
+        const chatSend = document.querySelector('#chatSend');
+        const chatHeader = document.querySelector('#chatBoxHeader');
+        // Start ==> Establish a socket between This patient and his doctors
         socket.addEventListener('open', (event) => {
             console.log('WebSocket connection opened');
-            for(const d of doctors) {
+            for (const d of doctors) {
                 const message = {
-                type: "login",
-                sender_id: "<%= patientObject.person_id %>",
-                receiver_id: d.innerText,
-                role: "patient"
-            }
-            socket.send(JSON.stringify(message));
-            }        
-        });
-        // Send a message to specific doctor
-        doctors.forEach(e => {
-            e.parentNode.addEventListener('click', () =>{
-                const content = prompt('Enter message');
-                const doctor_id = e.innerHTML;
-                const message = {
-                type: "message",
-                sender_id: "<%= patientObject.person_id %>",
-                receiver_id: doctor_id,
-                role: "patient",
-                content
+                    type: "login",
+                    sender_id: "<%= patientObject.person_id %>",
+                    sender_name: "<%= patientObject.person_name %>",
+                    receiver_id: d.innerText,
+                    role: "patient"
                 }
                 socket.send(JSON.stringify(message));
+            }
+        });
+        // END ==> Establishing a socket
+
+        // START ==> Sending a Message
+        let activeTab1 = null;
+
+        startChatBtns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const doctor_id = btn.childNodes[1].innerHTML;
+                const doctorName = btn.parentNode.childNodes[1].innerText;
+                chatSend.addEventListener('click', () => {
+                    const content = chatInput.value;
+                    const message = {
+                        type: "message",
+                        sender_id: "<%= patientObject.person_id %>",
+                        sender_name: "<%= patientObject.person_name %>",
+                        receiver_id: "348",
+                        role: "patient",
+                        content
+                    }
+                    const html = `<p class="lead">You: ${message.content}</p>`;
+                    chatDiv.innerHTML += html;
+                    console.log("SENT MESSAGE FROM PATIENT");
+                    socket.send(JSON.stringify(message));
+                    chatInput.value = '';
+                })
+                // create first tab 
+                if (!activeTab1) {
+                    activeTab1 = document.createElement('div');
+                    activeTab1.classList.add('chatBoxTab', 'btn', 'btn-primary', 'active');
+                    activeTab1.textContent = doctorName;
+                    activeTab1.setAttribute('data-doctor', doctorName);
+                    chatHeader.appendChild(activeTab1);
+                } else {
+                    // if there are tabs 
+                    // check if this doctor has a tab opened
+                    let existTab = null;
+                    for (let i = 0; i < chatHeader.childElementCount; i++) {
+                        if (chatHeader.children[i].innerText === doctorName) {
+                            existTab = chatHeader.children[i];
+                            break;
+                        }
+                    }
+                    if (existTab) {
+                        // remove the highlight from the current tab 
+                        // make the new tab highlighed
+                        activeTab1.classList.remove('btn-primary');
+                        activeTab1.classList.add('btn-secondary');
+                        activeTab1 = existTab;
+                        activeTab1.classList.remove('btn-secondary');
+                        activeTab1.classList.add('btn-primary');
+                    } else {
+                        // if tab doesnt exist
+                        const newTab = document.createElement('div');
+                        newTab.classList.add('chatBoxTab', 'btn', 'btn-primary');
+                        newTab.textContent = doctorName;
+                        newTab.setAttribute('data-doctor', doctorName);
+                        chatHeader.appendChild(newTab);
+
+                        //Hightlight the new tab
+                        activeTab1.classList.remove('btn-primary');
+                        activeTab1.classList.add('btn-secondary');
+                        activeTab1 = newTab;
+                        activeTab1.classList.add('btn-primary');
+                    }
+                }
+                chatDiv.innerHTML = '';
             })
-        });        
+
+        })
         // Receives A message from Certain Doctor
         socket.addEventListener('message', (event) => {
-            const data = JSON.parse(event);
-            console.log(`Received message from server: ${data.content}`);
-        });
+            console.log("Message Received");
+            const data = JSON.parse(event.data);
+
+            const html = `<p class="lead">${data.sender_name}: ${data.content}</p>`
+            chatDiv.innerHTML += html;
+            if (!activeTab1) {
+                activeTab1 = document.createElement('div');
+                activeTab1.classList.add('chatBoxTab', 'btn', 'btn-primary', 'active');
+                activeTab1.textContent = data.sender_name;
+                chatHeader.appendChild(activeTab1);
+            } else {
+                // if there are tabs 
+                // check if this patient has a tab opened
+                let existTab = null;
+                for (let i = 0; i < chatHeader.childElementCount; i++) {
+                    if (chatHeader.children[i].innerText === data.sender_name) {
+                        existTab = chatHeader.children[i];
+                        break;
+                    }
+                }
+                if (existTab) {
+                    // remove the highlight from the current tab 
+                    // make the new tab highlighed
+                    activeTab1.classList.remove('btn-primary');
+                    activeTab1.classList.add('btn-secondary');
+                    activeTab1 = existTab;
+                    activeTab1.classList.remove('btn-secondary');
+                    activeTab1.classList.add('btn-primary');
+                } else {
+                    // if tab doesnt exist
+                    const newTab = document.createElement('div');
+                    newTab.classList.add('chatBoxTab', 'btn', 'btn-primary');
+                    newTab.textContent = data.sender_name;
+                    chatHeader.appendChild(newTab);
+
+                    //Hightlight the new tab
+                    activeTab1.classList.remove('btn-primary');
+                    activeTab1.classList.add('btn-secondary');
+                    activeTab1 = newTab;
+                    activeTab1.classList.add('btn-primary');
+                }
+                // TODO: Load previous messages from database (backend code)
+
+                // TODO: Send new messages to database (backend code)
+            }
+        }
+        );
         // End
         // socket.addEventListener('close', (event) => {
         //     console.log('WebSocket connection closed');

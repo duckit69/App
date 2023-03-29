@@ -24,3 +24,7 @@
    max-height: 40vh;
    overflow: scroll;
  }
+ .active-tab {
+   background-color: #007bff !important;
+   color: #fff;
+ }
