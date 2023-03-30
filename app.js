@@ -6,6 +6,8 @@ const userRoute = require('./routes/User/userRoute');
 const treatmentRoute = require('./routes/Treatment/treatmentRoute');
 const ejsMate = require('ejs-mate');
 
+const db = require('./config/db');
+
 const app = express();
 // WEB SOCKET RElATED STUFF
 const http = require('http');
@@ -20,9 +22,10 @@ s.on('connection', (socket, req) => {
 
     console.log('WebSocket Connected');
 
-    socket.on('message', (message) => {
+    socket.on('message', async (message) => {
         try {
             const data = JSON.parse(message);
+            // sender_id , sender_name, receiver_id, content
             const { type, sender_id, sender_name, receiver_id, content, role } = data;
             if (type === 'login') {
                 if (role === 'patient') {
@@ -31,6 +34,7 @@ s.on('connection', (socket, req) => {
                     doctors.set(sender_id, socket);
                 }
             } else if (type === 'message') {
+                await db.query('INSERT INTO message(message_sender, message_receiver, message_content) values($1, $2, $3)', [data.sender_id, data.receiver_id, data.content]);
                 const receiverSocket = role === 'patient' ? doctors.get(receiver_id) : patients.get(receiver_id)
                 if (receiverSocket) {
                     const msg = JSON.stringify({type, sender_id, sender_name,receiver_id, content})
@@ -38,7 +42,7 @@ s.on('connection', (socket, req) => {
                 }
             }
         } catch (e) {
-            console.log(err);
+            console.log(e);
         }
     });
 
