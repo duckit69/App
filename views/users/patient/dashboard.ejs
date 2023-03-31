@@ -94,6 +94,13 @@
 
         chatHeader.addEventListener('click', async (e) => {
             const clicked = e.target;
+            if (activeTab1 != e.target) {
+                activeTab1.classList.remove('btn-primary');
+                activeTab1.classList.add('btn-secondary');
+                activeTab1 = e.target;
+                activeTab1.classList.remove('btn-secondary');
+                activeTab1.classList.add('btn-primary');
+            }
             if (clicked.classList.contains('chatBoxTab')){
                 chatDiv.innerHTML = '';
                 const result = await fetch(`/message?sender=${patient_id}&receiver=${clicked.getAttribute('data-doctor-id')}`);
