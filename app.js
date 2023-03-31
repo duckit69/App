@@ -74,6 +74,12 @@ app.use(passport.session());
 app.use('/users', userRoute);
 app.use('/treatment', treatmentRoute)
 
+app.get('/message', async(req, res) => {
+    const {sender, receiver} = req.query;
+    const { rows } = await db.query('select * from message where (message_sender = $1 and message_receiver = $2) or (message_sender = $2 and message_receiver = $1) ORDER BY message_date ASC;', [sender, receiver]);
+    res.send(rows);
+})
+
 app.get('/', (req, res) => {
     res.render('home');
 });

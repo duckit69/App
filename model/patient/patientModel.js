@@ -22,7 +22,6 @@ module.exports.registerPatient = async (req, res) => {
 
 module.exports.getDoctorByNameForOnePatient = async (req, res) => {
     const { rows } = await findDoctorByNameForOnePatient(req.query.person_name, req.query.patient_id);
-    console.log(rows);
     const html = rows.map(doctor => {
         return `<a href="/users/patient_full_details/${doctor.person_id}" class="search-result"><h5>${doctor.person_name}</h5></a><span>. Speciality${doctor.doctor_speciality}</span>`
     }).join('');

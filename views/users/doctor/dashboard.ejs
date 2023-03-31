@@ -75,6 +75,7 @@
         const startChatBtns = document.querySelectorAll('.startChat');
         const sendBTN = document.querySelector('.sendBTN');
 
+        const doctor_id = "<%= doctorObject.person_id %>";
         // Establish a socket between all doctors of this patient
         socket.addEventListener('open', (event) => {
             console.log('WebSocket connection opened');
@@ -82,7 +83,7 @@
             for (const p of patientIds) {
                 const message = {
                     type: "login",
-                    sender_id: "<%= doctorObject.person_id %>",
+                    sender_id: doctor_id,
                     receiver_id: p.innerText,
                     role: "doctor"
                 }
@@ -92,11 +93,42 @@
         // Send a message to specific patient
         let activeTab1 = null;
 
+        chatHeader.addEventListener('click', async (e) => {
+            const clicked = e.target;
+            if (clicked.classList.contains('chatBoxTab')){
+                chatDiv.innerHTML = '';
+                const result = await fetch(`/message?sender=${doctor_id}&receiver=${clicked.getAttribute('data-patient-id')}`);
+                const result1 = await result.text();
+                const messagesArray = JSON.parse(result1);
+                for (const m of messagesArray) {
+                    if (m.message_sender == doctor_id){
+                        chatDiv.innerHTML += `<p class="lead">You: ${m.message_content}</p>`;
+                    }
+                    else {
+                        chatDiv.innerHTML += `<p class="lead">${m.message_sender}: ${m.message_content}</p>`;
+                    }
+                }
+            }
+        })
+
         startChatBtns.forEach((btn) => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
+                chatDiv.innerHTML = '';
                 const patient_id = btn.getAttribute('data-patient-id');
                 const patientName = btn.parentNode.childNodes[1].innerText;
                 const receiver_id = btn.getAttribute('data-patient-id');
+                const result = await fetch(`/message?sender=${doctor_id}&receiver=${patient_id}`);
+                const result1 = await result.text();
+                const messagesArray = JSON.parse(result1);
+                const doctorName = btn.parentNode.childNodes[1].innerText;
+                for (const m of messagesArray) {
+                    if (m.message_sender == doctor_id){
+                        chatDiv.innerHTML += `<p class="lead">You: ${m.message_content}</p>`;
+                    }
+                    else {
+                        chatDiv.innerHTML += `<p class="lead">${doctorName}: ${m.message_content}</p>`;
+                    }
+                }
                 chatSend.addEventListener('click', () => {
                     const content = chatInput.value;
                     const message = {
@@ -119,6 +151,8 @@
                     activeTab1 = document.createElement('div');
                     activeTab1.classList.add('chatBoxTab', 'btn', 'btn-primary', 'active');
                     activeTab1.textContent = patientName;
+                    activeTab1.setAttribute('data-patient', patientName);
+                    activeTab1.setAttribute('data-patient-id', patient_id);
                     chatHeader.appendChild(activeTab1);
                 } else {
                     // if there are tabs 
@@ -144,6 +178,8 @@
                         const newTab = document.createElement('div');
                         newTab.classList.add('chatBoxTab', 'btn', 'btn-primary');
                         newTab.textContent = patientName;
+                        newTab.setAttribute('data-patient', patientName);
+                        newTab.setAttribute('data-patient-id', patient_id)
                         chatHeader.appendChild(newTab);
 
                         //Hightlight the new tab
@@ -153,22 +189,30 @@
                         activeTab1.classList.add('btn-primary');
                     }
                 }
-
             })
 
         })
         // Receives A message from Certain patient
-        socket.addEventListener('message', (event) => {
-
+        socket.addEventListener('message', async (event) => {
+            chatDiv.innerHTML = '';
             const data = JSON.parse(event.data);
+            const patient_id = data.sender_id;
+            const result = await fetch(`/message?sender=${data.sender_id}&receiver=${data.receiver_id}`);
+            const result1 = await result.text();
+            const messagesArray = JSON.parse(result1);
 
-            const html = `<p class="lead">${data.sender_name}: ${data.content}</p>`
-            chatDiv.innerHTML += html;
+            for (const m of messagesArray) {
+                if(!(m.message_sender == doctor_id)){
+                    chatDiv.innerHTML += `<p class="lead">${data.sender_name}: ${m.message_content}</p>`;
+                }else {
+                    chatDiv.innerHTML += `<p class="lead">You: ${m.message_content}</p>`;
+                }
+            }
             // console.dir(patientIds[0].parentElement.childNodes[1].childNodes[1].innerText === data.sender_id)
             sendBTN.addEventListener('click', () => {
                 const message = {
                     type: "message",
-                    sender_id: "<%= doctorObject.person_id %>",
+                    sender_id: doctor_id,
                     sender_name: "<%= doctorObject.person_name %>",
                     receiver_id: data.sender_id,
                     role: "doctor",
@@ -185,6 +229,8 @@
                 activeTab1 = document.createElement('div');
                 activeTab1.classList.add('chatBoxTab', 'btn', 'btn-primary', 'active');
                 activeTab1.textContent = data.sender_name;
+                activeTab1.setAttribute('data-patient-id', data.sender_id);
+                activeTab1.setAttribute('data-patient', data.sender_name);
                 chatHeader.appendChild(activeTab1);
             } else {
                 // if there are tabs 
@@ -209,6 +255,8 @@
                     const newTab = document.createElement('div');
                     newTab.classList.add('chatBoxTab', 'btn', 'btn-primary');
                     newTab.textContent = data.sender_name;
+                    newTab.setAttribute('data-patient-id', data.sender_id)
+                    newTab.setAttribute('data-patient', data.sender_name)
                     chatHeader.appendChild(newTab);
 
                     //Hightlight the new tab
