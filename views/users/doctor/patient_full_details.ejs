@@ -43,13 +43,13 @@
 <script>
     const searchTreatment = document.querySelectorAll('.search-treatment');
     const searchResult = document.getElementById('search-result');
-    let l = '';
+    let activeTab = '';
     searchTreatment.forEach(e => {
         e.addEventListener('click' , async (ele) => {
-            if (!(l==='')){
-                l.classList.remove('btn-success');
+            if (!(activeTab==='')){
+                activeTab.classList.remove('btn-success');
             }
-            l = ele.target;
+            activeTab = ele.target;
             ele.target.classList.add('btn-success');
             const link = ele.target.attributes[1].value;
             const result = await fetch(link);

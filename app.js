@@ -4,6 +4,7 @@ const path = require('path');
 const session = require('express-session');
 const userRoute = require('./routes/User/userRoute');
 const treatmentRoute = require('./routes/Treatment/treatmentRoute');
+const appointmentRoute = require('./routes/Appointment/appointmentRoute');
 const ejsMate = require('ejs-mate');
 
 const db = require('./config/db');
@@ -72,7 +73,8 @@ app.use(passport.authenticate('session'));
 app.use(passport.session());
 
 app.use('/users', userRoute);
-app.use('/treatment', treatmentRoute)
+app.use('/treatment', treatmentRoute);
+app.use('/appointment', appointmentRoute);
 
 app.get('/message', async(req, res) => {
     const {sender, receiver} = req.query;

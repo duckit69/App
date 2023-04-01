@@ -156,7 +156,7 @@
                 // create first tab 
                 if (!activeTab1) {
                     activeTab1 = document.createElement('div');
-                    activeTab1.classList.add('chatBoxTab', 'btn', 'btn-primary', 'active');
+                    activeTab1.classList.add('chatBoxTab', 'btn', 'btn-primary');
                     activeTab1.textContent = patientName;
                     activeTab1.setAttribute('data-patient', patientName);
                     activeTab1.setAttribute('data-patient-id', patient_id);
@@ -234,7 +234,7 @@
             })
             if (!activeTab1) {
                 activeTab1 = document.createElement('div');
-                activeTab1.classList.add('chatBoxTab', 'btn', 'btn-primary', 'active');
+                activeTab1.classList.add('chatBoxTab', 'btn', 'btn-primary');
                 activeTab1.textContent = data.sender_name;
                 activeTab1.setAttribute('data-patient-id', data.sender_id);
                 activeTab1.setAttribute('data-patient', data.sender_name);

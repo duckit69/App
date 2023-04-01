@@ -12,5 +12,6 @@ route.post('/login/patient', passport.authenticate('patient-login', {
     successRedirect: '/users/patient/dashboard',
     failureRedirect: '/users/login'
 }));
+route.get('/doctor_full_details/:id', utils.checkAuthenticated,Patient.getMedicalHistoryWithSpecificDoctor);
 
 module.exports = route;
