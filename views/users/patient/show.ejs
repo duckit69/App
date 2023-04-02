@@ -12,15 +12,15 @@
                                 href="/treatment/search/<%= m.treatment_id %>" onclick="return false;">Open
                                 Treatment</a></div>
                     </div>
-                <% } %>                    
+                    <% } %>
             </div>
         </div>
         <div class="col-4" id="search-result"></div>
     </div>
     <div class="row mt-5">
         <div class="col-6 offset-3">
-            <form id="form">
-                <div class="mb-3">
+            <form id="form" class="text-center">
+                <div class="mb-3 text-start">
                     <label for="diagnosisReason" class="form-label">Diagnosis Reason: </label>
                     <input type="text" class="form-control" id="diagnosisReason" name="appointment_reason">
                 </div>
@@ -33,10 +33,10 @@
                 </div>
                 <div class="mb-3">
                     <input type="datetime-local" class="form-control" id="date_time">
-                    <button id="checkDatebutton" class="btn btn-info text-white mt-1">Check</button>
                     <div id="invalid" class="d-none alert alert-warning"></div>
+                    <div id="valid" class="d-none alert alert-info"></div>
                 </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary" id="submitFormButton">Submit</button>
             </form>
         </div>
     </div>
@@ -61,35 +61,132 @@
     <script>
         const form = document.querySelector('#form');
         const dateTime = document.querySelector('#date_time');
-        const checkButton = document.querySelector('#checkDatebutton'); 
         const patientIdHolder = document.querySelector('#patient');
         const invalid = document.querySelector('#invalid');
+        const valid = document.querySelector('#valid');
+        const submitFormButton = document.querySelector('#submitFormButton');
 
         const doctor_id = window.location.pathname.split('/')[4];
         const patient_id = patientIdHolder.getAttribute('data-patient-id');
-        form.addEventListener('submit', (e) => {
+        let submitFlag = false;
+
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
         })
-
-        checkButton.addEventListener('click', async () => {
+        dateTime.addEventListener('change', async () => {
             const tmp = dateTime.value;
             const date = tmp.slice(0, 10);
-            const time = tmp.slice(11, 16); 
+            const time = tmp.slice(11, 16);
             // check if this date is Available for this doctor and this patient 
             // result must be 0 => the doctos has 0 appointments so as the patient
-            const result = await fetch(`/appointment/checkDate/search?patient_id=${patient_id}&doctor_id=${doctor_id}&date=${date}&time=${time}`);
-            const data = await result.json();
-            if (data[0].patient_id == patient_id) {
+            const dateNow = new Date();
+            let month = dateNow.getMonth();
+            let day = dateNow.getDate();
+            let year = dateNow.getFullYear();
+            let hours = dateNow.getHours();
+            let minutes = dateNow.getMinutes();
+            if (dateNow.getMonth() < 10) {
+                month = `0${dateNow.getMonth() + 1}`;
+            }
+            if (dateNow.getDate() < 10) {
+                day = `0${dateNow.getDate()}`;
+            }
+            if (dateNow.getHours() < 10) {
+                hours = `0${dateNow.getHours()}`;
+            }
+            if (dateNow.getMinutes() < 10) {
+                minutes = `0${dateNow.getMinutes()}`;
+            }
+            const fullDate = `${year}-${month}-${day}`;
+            const fullTime = `${hours}:${minutes}`;
+            if (fullDate > date) {
                 invalid.classList.remove('d-none');
                 invalid.classList.add('d-block');
-                setTimeout(()=>{
-                    invalid.innerText = 'You Have another appointment';
-                }, 2000)
-               
-            }else if(data[0].doctor_id == doctor_id){
-                invalid.classList.remove('d-none');
-                invalid.classList.add('d-block');
-                invalid.innerText = 'Doctor Has another appointment';
-            } 
+                invalid.innerText = 'INVALID DATE';
+                setTimeout(() => {
+                    invalid.innerText = '';
+                    invalid.classList.remove('d-block');
+                    invalid.classList.add('d-none');
+                }, 2000);
+            } else if (fullDate === date) {
+                if (fullTime > time) {
+                    // Can you book at the same day ??? probably not
+                    invalid.classList.remove('d-none');
+                    invalid.classList.add('d-block');
+                    invalid.innerText = 'You Want an appointment in the same day';
+                    setTimeout(() => {
+                        invalid.innerText = '';
+                        invalid.classList.remove('d-block');
+                        invalid.classList.add('d-none');
+                    }, 2000);
+                }
+            }
+            else {
+                const result = await fetch(`/appointment/checkDate/search?patient_id=${patient_id}&doctor_id=${doctor_id}&date=${date}&time=${time}`);
+                const data = await result.json();
+                if (data.length != 0) {
+                    let patientFlag = false;
+                    let doctorFlag = false;
+                    for (const d of data) {
+                        if (d.patient_id == patient_id) {
+                            patientFlag = true;
+                        }
+                        if (d.doctor_id == doctor_id) {
+                            doctorFlag = true;
+                        }
+                    }
+                    if (patientFlag) {
+                        invalid.classList.remove('d-none');
+                        invalid.classList.add('d-block');
+                        invalid.innerText = 'You already have another appointment';
+                        setTimeout(() => {
+                            invalid.innerText = '';
+                            invalid.classList.remove('d-block');
+                            invalid.classList.add('d-none');
+                        }, 2000);
+                    } else if (doctorFlag) {
+                        invalid.classList.remove('d-none');
+                        invalid.classList.add('d-block');
+                        invalid.innerText = 'Doctor Has another appointment';
+                        setTimeout(() => {
+                            invalid.innerText = '';
+                            invalid.classList.remove('d-block');
+                            invalid.classList.add('d-none');
+                        }, 2000);
+                    }
+                }
+                else {
+                    valid.classList.remove('d-none');
+                    valid.classList.add('d-block');
+                    valid.innerText = 'Good date';
+                    setTimeout(() => {
+                        valid.innerText = '';
+                        valid.classList.remove('d-block');
+                        valid.classList.add('d-none');
+                    }, 2000);
+                    submitFlag = true;
+                }
+            }
+            submitFormButton.addEventListener('click', () => {
+                if (submitFlag) {
+                    const tmp_data = {
+                        doctor_id: doctor_id,
+                        patient_id: patient_id,
+                        appointment_date: date,
+                        appointment_time: time,
+                        appointment_type: form[1].value,
+                        appointment_reason: form[0].value,
+                    }
+                    const url = `/appointment/createAppointment`;
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(tmp_data)
+                    })
+                }
+            });
         });
+
     </script>

@@ -2,29 +2,45 @@
    outline: 1px solid black;
 } */
 .fixed-height {
-    max-height: 70vh;
-    overflow: scroll;
-    scrollbar-width: thin;
-    scrollbar-color: #fff #ffffff;
- }
- 
- div::-webkit-scrollbar {
-    width: 8px;
- }
- 
- div::-webkit-scrollbar-track {
-    background-color: #ffffff;
- }
- 
- div::-webkit-scrollbar-thumb {
-    background-color: #fff;
- }
+   max-height: 70vh;
+   overflow: scroll;
+   scrollbar-width: thin;
+   scrollbar-color: #a63f3f #ffffff;
+}
 
- .max-height {
+div::-webkit-scrollbar {
+   width: 8px;
+}
+
+div::-webkit-scrollbar-track {
+   background-color: #ecffe9;
+}
+
+div::-webkit-scrollbar-thumb {
+   background-color: #b8f9ac;
+   border-radius: 5px;
+}
+
+.max-height {
    max-height: 40vh;
    overflow: scroll;
- }
- .active-tab {
-   background-color: #007bff !important;
-   color: #fff;
- }
+}
+
+.max-profiles-height {
+   max-height: 80vh;
+   overflow-y: scroll;
+   overflow-x: hidden;
+}
+.max-chat-height {
+   max-height: 250px;
+   min-height: 250px;
+   overflow: scroll;
+   overflow-x: hidden;
+}
+.max-chat-height::-webkit-scrollbar-thumb {
+   background-color: white;
+   border-radius: 5px;
+}
+.max-chat-height::-webkit-scrollbar-track {
+   background-color: white;
+}

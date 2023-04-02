@@ -1,11 +1,85 @@
-<% layout('layouts/boilerplate') %>
-    <h1>Doctor Dashboard</h1>
+<% layout('layouts/doctorBoilerplate') %>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Navbar</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">All Patients</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">My Appointments</a>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+<div class="container-fluid">
+    <!-- <h1>Doctor Dashboard</h1> -->
     <div class="row">
-        <div class="col-6">
+        <div class="col-md-3">
+            <div class="row my-3">
+                <div class="col-6 offset-3">
+                    <form id="search-form" method="get" action="" class="d-flex flex-column" role="search"> <input
+                            class="form-control me-2" placeholder="Search" name="q" id="search-input"
+                            autocomplete="off">
+                        <div id="search-results" class="d-flex flex-column"></div>
+                    </form>
+                </div>
+            </div>
+            <div class="max-profiles-height d-flex flex-column">
+                <% for(const p of result.rows){ %>
+                    <div class="my-2 profileCards" style="max-width: 300px;">
+                        <div class="card text-bg-light">
+                            <div class="card-body p-2">
+                                <h5 class="text-center">
+                                    <%= p.person_name %>
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="d-none d-flex justify-content-center gap-1 infoCard">
+                            <a href="/users/doctor/patient_full_details/<%= p.person_id %>"
+                                class="btn btn-sm btn-primary text-white fw-bold mt-2 patient-ids">Visit Profile</a>
+                            <a href="#" class="btn btn-sm btn-info startChat text-white fw-bold mt-2"
+                                data-patient-id="<%= p.person_id %>" data-patient-name="<%= p.person_name %>">Send a
+                                message</a>
+                        </div>
+
+                    </div>
+                <% } %>
+            </div>
+        </div>
+        <div class="col-md-3 ms-auto align-self-end d-none" id="chatBox">
+            <div class="card text-center">
+                <h4>Chat With patients</h4>
+                <div class="card-header" id="chatBoxHeader">
+                    
+                </div>
+                <div class="card-body">
+                    <div class="card-text max-chat-height" id="chatDiv">
+                            
+                    </div>
+                    <div class="d-flex" >
+                        <input id="chatInput" type="text" placeholder="Send a message" class="form-control">
+                        <button id="chatSend" class="btn btn-primary ms-2 sendBTN">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="col-6">
             <div class="row">
                 <div class="col-6 offset-3">
-                    <form id="search-form" method="get" action="" class="d-flex flex-column" role="search">
-                        <input class="form-control me-2" placeholder="Search" name="q" id="search-input">
+                    <form id="search-form" method="get" action="" class="d-flex flex-column" role="search"> <input
+                            class="form-control me-2" placeholder="Search" name="q" id="search-input">
                         <div id="search-results" class="d-flex flex-column"></div>
                     </form>
                 </div>
@@ -27,26 +101,12 @@
                                 data-patient-id="<%= p.person_id %>">Send a message</a>
                         </div>
                     </div>
-                    <% } %>
+                <% } %>
             </div>
-        </div>
-        <div class="col-6">
-            <div class="card text-center">
-                <h3>Chat With patients</h3>
-                <div class="card-header" id="chatBoxHeader">
-                </div>
-                <div class="card-body">
-                    <div class="card-text" id="chatDiv">
-                    </div>
-                    <div class="d-flex">
-                        <input id="chatInput" type="text" placeholder="Send a message" class="form-control">
-                        <button id="chatSend" class="btn btn-primary ms-2 sendBTN">Send</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        </div> -->
 
+    </div>
+</div>
     <script>
         const searchForm = document.getElementById('search-form');
         const searchInput = document.getElementById('search-input');
@@ -74,12 +134,33 @@
         const chatHeader = document.querySelector('#chatBoxHeader');
         const startChatBtns = document.querySelectorAll('.startChat');
         const sendBTN = document.querySelector('.sendBTN');
+        const profileCards = document.querySelectorAll('.profileCards');
+        const chatBox = document.querySelector('#chatBox');
+
+        let activeElement = null;
+        profileCards.forEach((element) => {
+            element.addEventListener('click', () => {
+                let test = element.childNodes[3];
+                if (!activeElement) {
+                    activeElement = test;
+                    activeElement.classList.remove('d-none');
+                    activeElement.classList.add('d-block');
+                } else {
+                    activeElement.classList.remove('d-block');
+                    activeElement.classList.add('d-none');
+                    activeElement = test;
+                    activeElement.classList.remove('d-none');
+                    activeElement.classList.add('d-block');
+                }
+            })
+        })
+
 
         const doctor_id = "<%= doctorObject.person_id %>";
+        const doctor_name = "<%= doctorObject.person_name%>";
         // Establish a socket between all doctors of this patient
         socket.addEventListener('open', (event) => {
             console.log('WebSocket connection opened');
-
             for (const p of patientIds) {
                 const message = {
                     type: "login",
@@ -102,17 +183,17 @@
                 activeTab1.classList.remove('btn-secondary');
                 activeTab1.classList.add('btn-primary');
             }
-            if (clicked.classList.contains('chatBoxTab')){
+            if (clicked.classList.contains('chatBoxTab')) {
                 chatDiv.innerHTML = '';
                 const result = await fetch(`/message?sender=${doctor_id}&receiver=${clicked.getAttribute('data-patient-id')}`);
                 const result1 = await result.text();
                 const messagesArray = JSON.parse(result1);
                 for (const m of messagesArray) {
-                    if (m.message_sender == doctor_id){
-                        chatDiv.innerHTML += `<p class="lead">You: ${m.message_content}</p>`;
+                    if (m.message_sender == doctor_id) {
+                        chatDiv.innerHTML += `<p class="lead text-start">You: ${m.message_content}</p>`;
                     }
                     else {
-                        chatDiv.innerHTML += `<p class="lead">${m.message_sender}: ${m.message_content}</p>`;
+                        chatDiv.innerHTML += `<p class="lead text-end">${m.message_sender}: ${m.message_content}</p>`;
                     }
                 }
             }
@@ -122,18 +203,16 @@
             btn.addEventListener('click', async () => {
                 chatDiv.innerHTML = '';
                 const patient_id = btn.getAttribute('data-patient-id');
-                const patientName = btn.parentNode.childNodes[1].innerText;
-                const receiver_id = btn.getAttribute('data-patient-id');
+                const patientName = btn.getAttribute('data-patient-name');
                 const result = await fetch(`/message?sender=${doctor_id}&receiver=${patient_id}`);
                 const result1 = await result.text();
                 const messagesArray = JSON.parse(result1);
-                const doctorName = btn.parentNode.childNodes[1].innerText;
                 for (const m of messagesArray) {
-                    if (m.message_sender == doctor_id){
-                        chatDiv.innerHTML += `<p class="lead">You: ${m.message_content}</p>`;
+                    if (m.message_sender == doctor_id) {
+                        chatDiv.innerHTML += `<p class="lead text-start">You: ${m.message_content}</p>`;
                     }
                     else {
-                        chatDiv.innerHTML += `<p class="lead">${doctorName}: ${m.message_content}</p>`;
+                        chatDiv.innerHTML += `<p class="lead text-end">${doctor_name}: ${m.message_content}</p>`;
                     }
                 }
                 chatSend.addEventListener('click', () => {
@@ -142,7 +221,7 @@
                         type: "message",
                         sender_id: "<%= doctorObject.person_id %>",
                         sender_name: "<%= doctorObject.person_name %>",
-                        receiver_id: receiver_id,
+                        receiver_id: patient_id,
                         role: "doctor",
                         content
                     }
@@ -155,6 +234,7 @@
                 })
                 // create first tab 
                 if (!activeTab1) {
+                    chatBox.classList.remove('d-none');
                     activeTab1 = document.createElement('div');
                     activeTab1.classList.add('chatBoxTab', 'btn', 'btn-primary');
                     activeTab1.textContent = patientName;
@@ -209,10 +289,10 @@
             const messagesArray = JSON.parse(result1);
 
             for (const m of messagesArray) {
-                if(!(m.message_sender == doctor_id)){
-                    chatDiv.innerHTML += `<p class="lead">${data.sender_name}: ${m.message_content}</p>`;
-                }else {
-                    chatDiv.innerHTML += `<p class="lead">You: ${m.message_content}</p>`;
+                if (!(m.message_sender == doctor_id)) {
+                    chatDiv.innerHTML += `<p class="lead text-end">${data.sender_name}: ${m.message_content}</p>`;
+                } else {
+                    chatDiv.innerHTML += `<p class="lead text-start">You: ${m.message_content}</p>`;
                 }
             }
             // console.dir(patientIds[0].parentElement.childNodes[1].childNodes[1].innerText === data.sender_id)
@@ -233,6 +313,7 @@
                 }
             })
             if (!activeTab1) {
+                chatBox.classList.remove('d-none');
                 activeTab1 = document.createElement('div');
                 activeTab1.classList.add('chatBoxTab', 'btn', 'btn-primary');
                 activeTab1.textContent = data.sender_name;
@@ -273,7 +354,7 @@
                     activeTab1.classList.add('btn-primary');
                 }
                 // TODO: Load previous messages from database (backend code)
-                
+
                 // TODO: Send new messages to database (backend code)
             }
         }
