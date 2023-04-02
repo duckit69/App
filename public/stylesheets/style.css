@@ -44,3 +44,17 @@ div::-webkit-scrollbar-thumb {
 .max-chat-height::-webkit-scrollbar-track {
    background-color: white;
 }
+
+.card-header {
+   overflow-y: hidden;
+   overflow-x: scroll;
+}
+
+.chatBoxTab {
+   max-width: 200px;
+   max-height: 100px;
+   white-space: nowrap;
+}
+.symbol:hover {
+   background-color: rgb(154, 175, 190);
+}

@@ -23,59 +23,64 @@
             </div>
         </div>
     </nav>
-<div class="container-fluid">
-    <!-- <h1>Doctor Dashboard</h1> -->
-    <div class="row">
-        <div class="col-md-3">
-            <div class="row my-3">
-                <div class="col-6 offset-3">
-                    <form id="search-form" method="get" action="" class="d-flex flex-column" role="search"> <input
-                            class="form-control me-2" placeholder="Search" name="q" id="search-input"
-                            autocomplete="off">
-                        <div id="search-results" class="d-flex flex-column"></div>
-                    </form>
+    <div class="container-fluid">
+        <!-- <h1>Doctor Dashboard</h1> -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="row my-3">
+                    <div class="col-6 offset-3">
+                        <form id="search-form" method="get" action="" class="d-flex flex-column" role="search"> <input
+                                class="form-control me-2" placeholder="Search" name="q" id="search-input"
+                                autocomplete="off">
+                            <div id="search-results" class="d-flex flex-column"></div>
+                        </form>
+                    </div>
+                </div>
+                <div class="max-profiles-height d-flex flex-column">
+                    <% for(const p of result.rows){ %>
+                        <div class="my-2 profileCards" style="max-width: 300px;">
+                            <div class="card text-bg-light">
+                                <div class="card-body p-2">
+                                    <h5 class="text-center">
+                                        <%= p.person_name %>
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="d-none d-flex justify-content-center gap-1 infoCard">
+                                <a href="/users/doctor/patient_full_details/<%= p.person_id %>"
+                                    class="btn btn-sm btn-primary text-white fw-bold mt-2 patient-ids">Visit Profile</a>
+                                <a href="#" class="btn btn-sm btn-info startChat text-white fw-bold mt-2"
+                                    data-patient-id="<%= p.person_id %>" data-patient-name="<%= p.person_name %>">Send a
+                                    message</a>
+                            </div>
+
+                        </div>
+                    <% } %>
                 </div>
             </div>
-            <div class="max-profiles-height d-flex flex-column">
-                <% for(const p of result.rows){ %>
-                    <div class="my-2 profileCards" style="max-width: 300px;">
-                        <div class="card text-bg-light">
-                            <div class="card-body p-2">
-                                <h5 class="text-center">
-                                    <%= p.person_name %>
-                                </h5>
-                            </div>
-                        </div>
-                        <div class="d-none d-flex justify-content-center gap-1 infoCard">
-                            <a href="/users/doctor/patient_full_details/<%= p.person_id %>"
-                                class="btn btn-sm btn-primary text-white fw-bold mt-2 patient-ids">Visit Profile</a>
-                            <a href="#" class="btn btn-sm btn-info startChat text-white fw-bold mt-2"
-                                data-patient-id="<%= p.person_id %>" data-patient-name="<%= p.person_name %>">Send a
-                                message</a>
-                        </div>
+            <div class="col-md-3 ms-auto align-self-end d-none" id="chatBox">
+                <div class="card text-center position-relative">
+                    <h4 class="me-5 fw-normal">Chat With patients</h4>
+                    <div class="position-absolute top-0 end-0 d-flex gap-2 p-1">
+                        <button class="btn btn-sm ms-5 symbol d-block" id="minimizeButton">&#8722;</button>
+                        <button class="btn btn-sm ms-5 symbol d-none" id="boxButton">&#9633;</button>
+                        <button class="btn btn-sm symbol" id="closeButton">&#10005;</button>
+                    </div>
+                    <div class="card-header d-flex gap-1" id="chatBoxHeader">
 
                     </div>
-                <% } %>
-            </div>
-        </div>
-        <div class="col-md-3 ms-auto align-self-end d-none" id="chatBox">
-            <div class="card text-center">
-                <h4>Chat With patients</h4>
-                <div class="card-header" id="chatBoxHeader">
-                    
-                </div>
-                <div class="card-body">
-                    <div class="card-text max-chat-height" id="chatDiv">
-                            
-                    </div>
-                    <div class="d-flex" >
-                        <input id="chatInput" type="text" placeholder="Send a message" class="form-control">
-                        <button id="chatSend" class="btn btn-primary ms-2 sendBTN">Send</button>
+                    <div class="card-body d-block" id="chatBoxBody">
+                        <div class="card-text max-chat-height" id="chatDiv">
+
+                        </div>
+                        <div class="d-flex d-block" id="messageFactory">
+                            <input id="chatInput" type="text" placeholder="Send a message" class="form-control">
+                            <button id="chatSend" class="btn btn-primary ms-2 sendBTN">Send</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- <div class="col-6">
+            <!-- <div class="col-6">
             <div class="row">
                 <div class="col-6 offset-3">
                     <form id="search-form" method="get" action="" class="d-flex flex-column" role="search"> <input
@@ -105,8 +110,8 @@
             </div>
         </div> -->
 
+        </div>
     </div>
-</div>
     <script>
         const searchForm = document.getElementById('search-form');
         const searchInput = document.getElementById('search-input');
@@ -132,11 +137,45 @@
         const chatInput = document.querySelector('#chatInput');
         const patientIds = document.querySelectorAll('.patient-ids');
         const chatHeader = document.querySelector('#chatBoxHeader');
+        const chatBody = document.querySelector('#chatBoxBody');
+        const messageFactory = document.querySelector('#messageFactory');
         const startChatBtns = document.querySelectorAll('.startChat');
         const sendBTN = document.querySelector('.sendBTN');
         const profileCards = document.querySelectorAll('.profileCards');
         const chatBox = document.querySelector('#chatBox');
+        const closeButton = document.querySelector('#closeButton');
+        const minimizeButton = document.querySelector('#minimizeButton');
+        const boxButton = document.querySelector('#boxButton');
 
+        closeButton.addEventListener('click', () => {
+            chatBox.classList.remove('d-block');
+            chatBox.classList.add('d-none');
+        });
+
+        minimizeButton.addEventListener('click', () => {
+            chatDiv.classList.add('d-none');
+            chatDiv.classList.remove('d-block');
+            chatHeader.classList.add('d-none');
+            minimizeButton.classList.remove('d-block');
+            minimizeButton.classList.add('d-none');
+            boxButton.classList.remove('d-none');
+            boxButton.classList.remove('d-block');
+            messageFactory.classList.add('d-none');
+            messageFactory.classList.remove('d-block')
+        });
+
+        boxButton.addEventListener('click', () => {
+            chatDiv.classList.add('d-block');
+            chatDiv.classList.remove('d-none');
+            chatHeader.classList.add('d-flex');
+            chatHeader.classList.remove('d-none');
+            minimizeButton.classList.add('d-block');
+            minimizeButton.classList.remove('d-none');
+            boxButton.classList.add('d-none');
+            boxButton.classList.remove('d-block');
+            messageFactory.classList.add('d-block');
+            messageFactory.classList.remove('d-none')
+        });
         let activeElement = null;
         profileCards.forEach((element) => {
             element.addEventListener('click', () => {
@@ -154,7 +193,6 @@
                 }
             })
         })
-
 
         const doctor_id = "<%= doctorObject.person_id %>";
         const doctor_name = "<%= doctorObject.person_name%>";
@@ -201,6 +239,10 @@
 
         startChatBtns.forEach((btn) => {
             btn.addEventListener('click', async () => {
+                if (chatBox.classList.contains('d-none')) {
+                    chatBox.classList.remove('d-none');
+                    chatBox.classList.add('d-block');
+                }
                 chatDiv.innerHTML = '';
                 const patient_id = btn.getAttribute('data-patient-id');
                 const patientName = btn.getAttribute('data-patient-name');
@@ -226,7 +268,7 @@
                         content
                     }
                     if (chatInput.value !== '') {
-                        const html = `<p class="lead">You: ${chatInput.value}</p>`;
+                        const html = `<p class="lead text-start">You: ${chatInput.value}</p>`;
                         chatDiv.innerHTML += html;
                         socket.send(JSON.stringify(message));
                     }
@@ -281,6 +323,10 @@
         })
         // Receives A message from Certain patient
         socket.addEventListener('message', async (event) => {
+            if (chatBox.classList.contains('d-none')) {
+                chatBox.classList.remove('d-none');
+                chatBox.classList.add('d-block');
+            }
             chatDiv.innerHTML = '';
             const data = JSON.parse(event.data);
             const patient_id = data.sender_id;
