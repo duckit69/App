@@ -7,6 +7,7 @@ const User = require('../../controller/users/usersController');
 route.use('/doctor', doctorRoute);
 route.use('/patient', patientRoute);
 
+route.get('/logout', User.logout);
 route.get('/login', User.login);
 
 route.get('/register', User.register);
