@@ -1,6 +1,9 @@
 /* * {
    outline: 1px solid black;
 } */
+body {
+   min-height: 100vh;
+}
 .fixed-height {
    max-height: 70vh;
    overflow: scroll;
@@ -22,7 +25,7 @@ div::-webkit-scrollbar-thumb {
 }
 
 .max-profiles-height {
-   max-height: 75vh;
+   max-height: 70vh;
    overflow-y: scroll;
    overflow-x: hidden;
 }
