@@ -25,7 +25,7 @@ div::-webkit-scrollbar-thumb {
 }
 
 .max-profiles-height {
-   max-height: 70vh;
+   max-height: 80vh;
    overflow-y: scroll;
    overflow-x: hidden;
 }
@@ -43,7 +43,7 @@ div::-webkit-scrollbar-thumb {
    background-color: white;
 }
 
-.card-header {
+#chatBoxHeader {
    overflow-y: hidden;
    overflow-x: scroll;
 }

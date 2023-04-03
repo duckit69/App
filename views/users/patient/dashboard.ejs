@@ -34,6 +34,36 @@
                         <% } %>
                 </div>
             </div>
+            <div class="col-md-6 offset-2 mt-4 d-flex flex-column gap-2">
+                <div class="row">
+                    <div class="card col-md-6 offset-3">
+                        <h5 class="card-title p-1 text-center">
+                            <%= patientObject.person_name %>
+                        </h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Gender: <%= patientObject.person_gender %>
+                            </li>
+                            <li class="list-group-item">Phone: <%= patientObject.patient_phone%>
+                            </li>
+                            <li class="list-group-item">A third item</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="card col-12">
+                        <h5 class="card-title p-1 text-center">
+                            <%= patientObject.person_name %>
+                        </h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Gender: <%= patientObject.person_gender %>
+                            </li>
+                            <li class="list-group-item">Phone: <%= patientObject.patient_phone%>
+                            </li>
+                            <li class="list-group-item">A third item</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-3 ms-auto align-self-end d-none" id="chatBox">
                 <div class="card text-center position-relative">
                     <h4 class="me-5 fw-normal">Chat With doctors</h4>
@@ -58,6 +88,7 @@
             </div>
         </div>
     </div>
+
     <script>
         const searchForm = document.getElementById('search-form');
         const searchInput = document.getElementById('search-input');
@@ -144,7 +175,7 @@
         let activeTab1 = null;
 
         let activeElement = null;
- 
+
         profileCards.forEach((element) => {
             element.addEventListener('click', () => {
                 let test = element.childNodes[3];
