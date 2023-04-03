@@ -1,15 +1,15 @@
 <% layout('layouts/doctorBoilerplate') %>
-    
+
     <div class="container-fluid">
         <!-- <h1>Doctor Dashboard</h1> -->
         <div class="row">
             <div class="col-md-3">
                 <div class="row my-3">
-                    <div class="col-6 offset-3">
+                    <div class="col-8 offset-2">
                         <form id="search-form" method="get" action="" class="d-flex flex-column" role="search"> <input
                                 class="form-control me-2" placeholder="Search" name="q" id="search-input"
                                 autocomplete="off">
-                            <div id="search-results" class="d-flex flex-column"></div>
+                            <div id="search-results" class="vstack gap-3 mt-2"></div>
                         </form>
                     </div>
                 </div>
@@ -32,7 +32,7 @@
                             </div>
 
                         </div>
-                    <% } %>
+                        <% } %>
                 </div>
             </div>
             <div class="col-md-3 ms-auto align-self-end d-none" id="chatBox">
@@ -59,6 +59,7 @@
             </div>
         </div>
     </div>
+
     <script>
         const searchForm = document.getElementById('search-form');
         const searchInput = document.getElementById('search-input');
@@ -94,6 +95,9 @@
         const minimizeButton = document.querySelector('#minimizeButton');
         const boxButton = document.querySelector('#boxButton');
 
+        const doctor_id = "<%= doctorObject.person_id %>";
+        const doctor_name = "<%= doctorObject.person_name%>";
+
         closeButton.addEventListener('click', () => {
             chatBox.classList.remove('d-block');
             chatBox.classList.add('d-none');
@@ -124,6 +128,7 @@
             messageFactory.classList.remove('d-none')
         });
         let activeElement = null;
+ 
         profileCards.forEach((element) => {
             element.addEventListener('click', () => {
                 let test = element.childNodes[3];
@@ -141,8 +146,7 @@
             })
         })
 
-        const doctor_id = "<%= doctorObject.person_id %>";
-        const doctor_name = "<%= doctorObject.person_name%>";
+
         // Establish a socket between all doctors of this patient
         socket.addEventListener('open', (event) => {
             console.log('WebSocket connection opened');
@@ -201,7 +205,7 @@
                         chatDiv.innerHTML += `<p class="lead text-start">You: ${m.message_content}</p>`;
                     }
                     else {
-                        chatDiv.innerHTML += `<p class="lead text-end">${doctor_name}: ${m.message_content}</p>`;
+                        chatDiv.innerHTML += `<p class="lead text-end">${patientName}: ${m.message_content}</p>`;
                     }
                 }
                 chatSend.addEventListener('click', () => {
@@ -227,7 +231,7 @@
                     activeTab1 = document.createElement('div');
                     activeTab1.classList.add('chatBoxTab', 'btn', 'btn-primary');
                     activeTab1.textContent = patientName;
-                    activeTab1.setAttribute('data-patient', patientName);
+                    activeTab1.setAttribute('data-patient-name', patientName);
                     activeTab1.setAttribute('data-patient-id', patient_id);
                     chatHeader.appendChild(activeTab1);
                 } else {
@@ -237,7 +241,6 @@
                     for (let i = 0; i < chatHeader.childElementCount; i++) {
                         if (chatHeader.children[i].innerText === patientName) {
                             existTab = chatHeader.children[i];
-                            console.log("akzlejaz");
                             break;
                         }
                     }
@@ -254,7 +257,7 @@
                         const newTab = document.createElement('div');
                         newTab.classList.add('chatBoxTab', 'btn', 'btn-primary');
                         newTab.textContent = patientName;
-                        newTab.setAttribute('data-patient', patientName);
+                        newTab.setAttribute('data-patient-name', patientName);
                         newTab.setAttribute('data-patient-id', patient_id)
                         chatHeader.appendChild(newTab);
 
@@ -270,6 +273,7 @@
         })
         // Receives A message from Certain patient
         socket.addEventListener('message', async (event) => {
+            
             if (chatBox.classList.contains('d-none')) {
                 chatBox.classList.remove('d-none');
                 chatBox.classList.add('d-block');
@@ -311,7 +315,7 @@
                 activeTab1.classList.add('chatBoxTab', 'btn', 'btn-primary');
                 activeTab1.textContent = data.sender_name;
                 activeTab1.setAttribute('data-patient-id', data.sender_id);
-                activeTab1.setAttribute('data-patient', data.sender_name);
+                activeTab1.setAttribute('data-patient-name', data.sender_name);
                 chatHeader.appendChild(activeTab1);
             } else {
                 // if there are tabs 
@@ -337,7 +341,7 @@
                     newTab.classList.add('chatBoxTab', 'btn', 'btn-primary');
                     newTab.textContent = data.sender_name;
                     newTab.setAttribute('data-patient-id', data.sender_id)
-                    newTab.setAttribute('data-patient', data.sender_name)
+                    newTab.setAttribute('data-patient-name', data.sender_name)
                     chatHeader.appendChild(newTab);
 
                     //Hightlight the new tab
@@ -346,9 +350,7 @@
                     activeTab1 = newTab;
                     activeTab1.classList.add('btn-primary');
                 }
-                // TODO: Load previous messages from database (backend code)
 
-                // TODO: Send new messages to database (backend code)
             }
         }
         );

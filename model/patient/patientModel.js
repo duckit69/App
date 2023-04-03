@@ -32,14 +32,14 @@ module.exports.getMedicalHistoryWithSpecificDoctor = async (req, res) => {
 module.exports.getDoctorByNameForOnePatient = async (req, res) => {
     const { rows } = await findDoctorByNameForOnePatient(req.query.person_name, req.query.patient_id);
     const html = rows.map(doctor => {
-        return `<a href="/users/patient_full_details/${doctor.person_id}" class="search-result"><h5>${doctor.person_name}</h5></a><span>. Speciality${doctor.doctor_speciality}</span>`
+        return `<a href="/users/patient_full_details/${doctor.person_id}" class="search-result btn btn-light"><h5>${doctor.person_name}</h5></a>`
     }).join('');
     res.send(html);
 }
 
 
 async function findDoctorByNameForOnePatient(doctor_name, patient_id) {    
-    return await db.query(`SELECT d.* FROM doctor d, patient p, treatment t, medical_history m WHERE t.doctor_id = d.person_id AND t.treatment_id = m.treatment_id AND m.patient_id = p.person_id AND p.person_id = ${patient_id} AND d.person_name ILIKE '${doctor_name}%' LIMIT 5;`);
+    return await db.query(`SELECT DISTINCT d.* FROM doctor d, patient p, treatment t, medical_history m WHERE t.doctor_id = d.person_id AND t.treatment_id = m.treatment_id AND m.patient_id = p.person_id AND p.person_id = ${patient_id} AND d.person_name ILIKE '${doctor_name}%' LIMIT 5;`);
 }
 
 async function findMedicalHistoryWithSpecificDoctor(doctor_id, patient_id) {

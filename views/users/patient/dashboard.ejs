@@ -1,52 +1,63 @@
-<%- layout('layouts/boilerplate') %>
-    <h1>Patient DashBoard</h1>
-    <div class="row">
-        <div class="col-6">
-            <div class="row">
-                <div class="col-6 offset-3">
-                    <form id="search-form" method="get" action="" class="d-flex flex-column" role="search">
-                        <input class="form-control me-2" placeholder="Name" name="q" id="search-input">
-                        <div id="search-results" class="d-flex flex-column"></div>
-                    </form>
+<%- layout('layouts/patientBoilerplate') %>
+    <div class="container-fluid">
+        <!-- <h1 class="display-5 text-center my-3">Welcome Back <%= patientObject.person_name %></h1> -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="row my-3">
+                    <div class="col-8 offset-2">
+                        <form id="search-form" method="get" action="" class="d-flex flex-column" role="search">
+                            <input class="form-control me-2" placeholder="Search" name="q" id="search-input"
+                                autocomplete="off">
+                            <div id="search-results" class="vstack gap-3 mt-2"></div>
+                        </form>
+                    </div>
                 </div>
-            </div>
+                <div class="max-profiles-height d-flex flex-column">
+                    <% for(const p of rows){ %>
+                        <div class="my-2 profileCards" style="max-width: 300px;">
+                            <div class="card text-bg-light">
+                                <div class="card-body p-2">
+                                    <h5 class="text-center">
+                                        <%= p.person_name %>
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="d-none d-flex justify-content-center gap-1 infoCard">
+                                <a href="/users/doctor/patient_full_details/<%= p.person_id %>"
+                                    class="btn btn-sm btn-primary text-white fw-bold mt-2 patient-ids">Visit Profile</a>
+                                <a href="#" class="btn btn-sm btn-info startChat text-white fw-bold mt-2"
+                                    data-doctor-id="<%= p.person_id %>" data-doctor-name="<%= p.person_name %>">Send a
+                                    message</a>
+                            </div>
 
-            <div class="row fixed-height mt-5 mx-auto">
-                <% for(let d of rows){ %>
-                    <div class="card col-5 mx-auto my-2">
-                        <div class="card-body d-flex flex-column justify-content-center">
-                            <h5 class="card-title">
-                                <%= d.person_name %>
-                            </h5>
-                            <span class="d-block">
-                                <%= d.doctor_speciality %>
-                            </span>
-                            <a href="/users/patient/doctor_full_details/<%= d.person_id %>"
-                                class="btn btn-primary doctorID">go</a>
-                            <a href="#" class="btn btn-sm btn-info startChat text-white fw-bold mt-2"
-                                data-doctor-id="<%= d.person_id %>">Send a message</a>
                         </div>
-                    </div>
-                    <% } %>
-            </div>
-        </div>
-        <div class="col-6">
-            <div class="card text-center">
-                <h3>Chat With doctors</h3>
-                <div class="card-header" id="chatBoxHeader">
+                        <% } %>
                 </div>
-                <div class="card-body">
-                    <div class="card-text" id="chatDiv">
+            </div>
+            <div class="col-md-3 ms-auto align-self-end d-none" id="chatBox">
+                <div class="card text-center position-relative">
+                    <h4 class="me-5 fw-normal">Chat With doctors</h4>
+                    <div class="position-absolute top-0 end-0 d-flex gap-2 p-1">
+                        <button class="btn btn-sm ms-5 symbol d-block" id="minimizeButton">&#8722;</button>
+                        <button class="btn btn-sm ms-5 symbol d-none" id="boxButton">&#9633;</button>
+                        <button class="btn btn-sm symbol" id="closeButton">&#10005;</button>
                     </div>
-                    <div class="d-flex">
-                        <input id="chatInput" type="text" placeholder="Send a message" class="form-control">
-                        <button id="chatSend" class="btn btn-primary ms-2">Send</button>
+                    <div class="card-header d-flex gap-1" id="chatBoxHeader">
+
+                    </div>
+                    <div class="card-body d-block" id="chatBoxBody">
+                        <div class="card-text max-chat-height" id="chatDiv">
+
+                        </div>
+                        <div class="d-flex d-block" id="messageFactory">
+                            <input id="chatInput" type="text" placeholder="Send a message" class="form-control">
+                            <button id="chatSend" class="btn btn-primary ms-2 sendBTN">Send</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <script>
         const searchForm = document.getElementById('search-form');
         const searchInput = document.getElementById('search-input');
@@ -61,6 +72,7 @@
             else {
                 const result = await fetch(`/users/patient/search/doctor?person_name=${query}&patient_id=${patient_id}`);
                 const result2 = await result.text();
+                console.log(result2);
                 searchResults.innerHTML = result2;
             }
         })
@@ -68,14 +80,53 @@
     <script>
         const socket = new WebSocket('ws://localhost:8080/chat');
 
-        const startChatBtns = document.querySelectorAll('.startChat');
-        const doctors = document.querySelectorAll('.doctorID');
-        const chatDiv = document.querySelector('#chatDiv');
         const chatInput = document.querySelector('#chatInput');
-        const chatSend = document.querySelector('#chatSend');
+        const doctors = document.querySelectorAll('.doctorID');
         const chatHeader = document.querySelector('#chatBoxHeader');
+        const chatBody = document.querySelector('#chatBoxBody');
+        const messageFactory = document.querySelector('#messageFactory');
+        const startChatBtns = document.querySelectorAll('.startChat');
+        const sendBTN = document.querySelector('.sendBTN');
+        const profileCards = document.querySelectorAll('.profileCards');
+        const chatBox = document.querySelector('#chatBox');
+        const chatDiv = document.querySelector('#chatDiv');
+        const chatSend = document.querySelector('#chatSend');
+        const closeButton = document.querySelector('#closeButton');
+        const minimizeButton = document.querySelector('#minimizeButton');
+        const boxButton = document.querySelector('#boxButton');
 
         const patient_id = "<%= patientObject.person_id %>";
+        const patient_name = "<%= patientObject.person_name %>"
+
+        closeButton.addEventListener('click', () => {
+            chatBox.classList.remove('d-block');
+            chatBox.classList.add('d-none');
+        });
+
+        minimizeButton.addEventListener('click', () => {
+            chatDiv.classList.add('d-none');
+            chatDiv.classList.remove('d-block');
+            chatHeader.classList.add('d-none');
+            minimizeButton.classList.remove('d-block');
+            minimizeButton.classList.add('d-none');
+            boxButton.classList.remove('d-none');
+            boxButton.classList.remove('d-block');
+            messageFactory.classList.add('d-none');
+            messageFactory.classList.remove('d-block')
+        });
+
+        boxButton.addEventListener('click', () => {
+            chatDiv.classList.add('d-block');
+            chatDiv.classList.remove('d-none');
+            chatHeader.classList.add('d-flex');
+            chatHeader.classList.remove('d-none');
+            minimizeButton.classList.add('d-block');
+            minimizeButton.classList.remove('d-none');
+            boxButton.classList.add('d-none');
+            boxButton.classList.remove('d-block');
+            messageFactory.classList.add('d-block');
+            messageFactory.classList.remove('d-none')
+        });
 
         // Start ==> Establish a socket between This patient and his doctors
         socket.addEventListener('open', (event) => {
@@ -84,13 +135,32 @@
                 const message = {
                     type: "login",
                     sender_id: patient_id,
-                    sender_name: "<%= patientObject.person_name %>",
+                    sender_name: patient_name,
                     role: "patient"
                 }
                 socket.send(JSON.stringify(message));
             }
         });
         let activeTab1 = null;
+
+        let activeElement = null;
+ 
+        profileCards.forEach((element) => {
+            element.addEventListener('click', () => {
+                let test = element.childNodes[3];
+                if (!activeElement) {
+                    activeElement = test;
+                    activeElement.classList.remove('d-none');
+                    activeElement.classList.add('d-block');
+                } else {
+                    activeElement.classList.remove('d-block');
+                    activeElement.classList.add('d-none');
+                    activeElement = test;
+                    activeElement.classList.remove('d-none');
+                    activeElement.classList.add('d-block');
+                }
+            })
+        })
 
         chatHeader.addEventListener('click', async (e) => {
             const clicked = e.target;
@@ -101,17 +171,17 @@
                 activeTab1.classList.remove('btn-secondary');
                 activeTab1.classList.add('btn-primary');
             }
-            if (clicked.classList.contains('chatBoxTab')){
+            if (clicked.classList.contains('chatBoxTab')) {
                 chatDiv.innerHTML = '';
                 const result = await fetch(`/message?sender=${patient_id}&receiver=${clicked.getAttribute('data-doctor-id')}`);
                 const result1 = await result.text();
                 const messagesArray = JSON.parse(result1);
                 for (const m of messagesArray) {
-                    if (m.message_sender == patient_id){
-                        chatDiv.innerHTML += `<p class="lead">You: ${m.message_content}</p>`;
+                    if (m.message_sender == patient_id) {
+                        chatDiv.innerHTML += `<p class="lead text-start">You: ${m.message_content}</p>`;
                     }
                     else {
-                        chatDiv.innerHTML += `<p class="lead">${m.message_sender}: ${m.message_content}</p>`;
+                        chatDiv.innerHTML += `<p class="lead text-end">${m.message_sender}: ${m.message_content}</p>`;
                     }
                 }
             }
@@ -119,18 +189,22 @@
 
         startChatBtns.forEach((btn) => {
             btn.addEventListener('click', async () => {
+                if (chatBox.classList.contains('d-none')) {
+                    chatBox.classList.remove('d-none');
+                    chatBox.classList.add('d-block');
+                }
                 chatDiv.innerHTML = '';
                 const doctor_id = btn.getAttribute('data-doctor-id');
+                const doctor_name = btn.getAttribute('data-doctor-name');
                 const result = await fetch(`/message?sender=${patient_id}&receiver=${doctor_id}`);
                 const result1 = await result.text();
                 const messagesArray = JSON.parse(result1);
-                const doctorName = btn.parentNode.childNodes[1].innerText;
                 for (const m of messagesArray) {
-                    if (m.message_sender == patient_id){
-                        chatDiv.innerHTML += `<p class="lead">You: ${m.message_content}</p>`;
+                    if (m.message_sender == patient_id) {
+                        chatDiv.innerHTML += `<p class="lead text-start">You: ${m.message_content}</p>`;
                     }
                     else {
-                        chatDiv.innerHTML += `<p class="lead">${doctorName}: ${m.message_content}</p>`;
+                        chatDiv.innerHTML += `<p class="lead text-end">${doctor_name}: ${m.message_content}</p>`;
                     }
                 }
                 chatSend.addEventListener('click', () => {
@@ -138,25 +212,26 @@
                     const message = {
                         type: "message",
                         sender_id: patient_id,
-                        sender_name: "<%= patientObject.person_name %>",
+                        sender_name: patient_name,
                         receiver_id: doctor_id,
                         role: "patient",
                         content
                     }
                     if (chatInput.value !== '') {
-                        const html = `<p class="lead">You: ${message.content}</p>`;
+                        const html = `<p class="lead text-start">You: ${message.content}</p>`;
                         chatDiv.innerHTML += html;
                         socket.send(JSON.stringify(message));
-                        chatInput.value = '';
                     }
+                    chatInput.value = '';
 
                 })
                 // create first tab 
                 if (!activeTab1) {
+                    chatBox.classList.remove('d-none');
                     activeTab1 = document.createElement('div');
                     activeTab1.classList.add('chatBoxTab', 'btn', 'btn-primary');
-                    activeTab1.textContent = doctorName;
-                    activeTab1.setAttribute('data-doctor', doctorName);
+                    activeTab1.textContent = doctor_name;
+                    activeTab1.setAttribute('data-doctor-name', doctor_name);
                     activeTab1.setAttribute('data-doctor-id', doctor_id);
                     chatHeader.appendChild(activeTab1);
                 } else {
@@ -164,7 +239,7 @@
                     // check if this doctor has a tab opened
                     let existTab = null;
                     for (let i = 0; i < chatHeader.childElementCount; i++) {
-                        if (chatHeader.children[i].innerText === doctorName) {
+                        if (chatHeader.children[i].innerText === doctor_name) {
                             existTab = chatHeader.children[i];
                             break;
                         }
@@ -181,8 +256,8 @@
                         // if tab doesnt exist
                         const newTab = document.createElement('div');
                         newTab.classList.add('chatBoxTab', 'btn', 'btn-primary');
-                        newTab.textContent = doctorName;
-                        newTab.setAttribute('data-doctor', doctorName);
+                        newTab.textContent = doctor_name;
+                        newTab.setAttribute('data-doctor-name', doctor_name);
                         newTab.setAttribute('data-doctor-id', doctor_id)
                         chatHeader.appendChild(newTab);
 
@@ -198,6 +273,10 @@
         })
         // Receives A message from Certain Doctor
         socket.addEventListener('message', async (event) => {
+            if (chatBox.classList.contains('d-none')) {
+                chatBox.classList.remove('d-none');
+                chatBox.classList.add('d-block');
+            }
             chatDiv.innerHTML = '';
             const data = JSON.parse(event.data);
             const doctor_id = data.sender_id;
@@ -206,24 +285,24 @@
             const messagesArray = JSON.parse(result1);
 
             for (const m of messagesArray) {
-                if(!(m.message_sender == patient_id)){
-                    chatDiv.innerHTML += `<p class="lead">${data.sender_name}: ${m.message_content}</p>`;
-                }else {
-                    chatDiv.innerHTML += `<p class="lead">You: ${m.message_content}</p>`;
+                if (!(m.message_sender == patient_id)) {
+                    chatDiv.innerHTML += `<p class="lead text-end">${data.sender_name}: ${m.message_content}</p>`;
+                } else {
+                    chatDiv.innerHTML += `<p class="lead text-start">You: ${m.message_content}</p>`;
                 }
             }
-            
+
             chatSend.addEventListener('click', () => {
                 const message = {
                     type: "message",
                     sender_id: patient_id,
-                    sender_name: "<%= patientObject.person_name %>",
+                    sender_name: patient_name,
                     receiver_id: data.sender_id,
                     role: "patient",
                     content: chatInput.value
                 }
                 if (chatInput.value !== '') {
-                    const html = `<p class="lead">You: ${chatInput.value}</p>`;
+                    const html = `<p class="lead text-start">You: ${chatInput.value}</p>`;
                     chatDiv.innerHTML += html;
                     socket.send(JSON.stringify(message));
                     chatInput.value = '';
@@ -235,7 +314,7 @@
                 activeTab1.classList.add('chatBoxTab', 'btn', 'btn-primary');
                 activeTab1.textContent = data.sender_name;
                 activeTab1.setAttribute('data-doctor-id', data.sender_id);
-                activeTab1.setAttribute('data-doctor', data.sender_name);
+                activeTab1.setAttribute('data-doctor-name', data.sender_name);
                 chatHeader.appendChild(activeTab1);
             } else {
                 // if there are tabs 
@@ -261,7 +340,7 @@
                     newTab.classList.add('chatBoxTab', 'btn', 'btn-primary');
                     newTab.textContent = data.sender_name;
                     newTab.setAttribute('data-doctor-id', doctor_id)
-                    newTab.setAttribute('data-doctor', data.sender_name)
+                    newTab.setAttribute('data-doctor-name', data.sender_name)
                     chatHeader.appendChild(newTab);
 
                     //Hightlight the new tab
@@ -270,9 +349,7 @@
                     activeTab1 = newTab;
                     activeTab1.classList.add('btn-primary');
                 }
-                // TODO: Load previous messages from database (backend code)
 
-                // TODO: Send new messages to database (backend code)
             }
         }
         );

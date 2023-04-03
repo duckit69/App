@@ -15,7 +15,13 @@ module.exports.registerDoctor = async (req, res) => {
 module.exports.getPatientByNameForOneDoctor = async (req, res) => {
     const { rows } = await findPatientByNameForOneDoctor(req.query.person_name, req.query.doctor_id);
     const html = rows.map(patient => {
-        return `<a href="/users/patient_full_details/${patient.person_id}" class="search-result"><h5>${patient.person_name}</h5></a>`
+        return `<a href="#" class="search-result btn btn-light"><h5>${patient.person_name}</h5></a><div class="d-none d-flex justify-content-center gap-1 infoCard">
+        <a href="/users/doctor/patient_full_details/${patient.person_id}"
+            class="btn btn-sm btn-primary text-white fw-bold mt-2 patient-ids">Visit Profile</a>
+        <a href="#" class="btn btn-sm btn-info startChat text-white fw-bold mt-2"
+            data-patient-id=${patient.person_id} data-patient-name=${patient.person_name}>Send a
+            message</a>
+    </div>`
     }).join('');
     res.send(html);
 }
@@ -33,7 +39,7 @@ module.exports.getPatientById = async (req, res) => {
     res.render('users/doctor/patient_full_details', {result, age, patient_recorded_data});
 }
 async function findPatientByNameForOneDoctor(patient_name, doctor_id) {    
-    return await db.query(`SELECT p.* FROM doctor d, patient p, treatment t, medical_history m WHERE t.doctor_id = d.person_id AND t.treatment_id = m.treatment_id AND m.patient_id = p.person_id AND d.person_id = ${doctor_id} AND p.person_name ILIKE '${patient_name}%' LIMIT 5;`);
+    return await db.query(`SELECT DISTINCT p.* FROM doctor d, patient p, treatment t, medical_history m WHERE t.doctor_id = d.person_id AND t.treatment_id = m.treatment_id AND m.patient_id = p.person_id AND d.person_id = ${doctor_id} AND p.person_name ILIKE '${patient_name}%' LIMIT 5;`);
 }
 async function findPatientFullDetailsById(person_id) {
     //get patient
@@ -45,5 +51,5 @@ async function findPatientFullDetailsById(person_id) {
     return {patient, medical_history}
 }
 async function findAllPatientForCeratinDoctor(person_id) {
-    return await db.query('SELECT p.* FROM doctor d, patient p, treatment t, medical_history m WHERE t.doctor_id = d.person_id AND t.treatment_id = m.treatment_id AND m.patient_id = p.person_id AND d.person_id = $1', [person_id]);
+    return await db.query('SELECT DISTINCT p.* FROM doctor d, patient p, treatment t, medical_history m WHERE t.doctor_id = d.person_id AND t.treatment_id = m.treatment_id AND m.patient_id = p.person_id AND d.person_id = $1', [person_id]);
 }
