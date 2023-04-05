@@ -7,6 +7,7 @@ const utils  = require('../../utils/utils');
 
 route.get('/dashboard', utils.checkAuthenticated, Patient.patientDashboard);
 route.get('/search/doctor', Patient.getDoctorByNameForOnePatient);
+route.get('/allDoctors', Patient.getAllDoctors);
 route.post('/register/patient', Patient.registerPatient);
 route.post('/login/patient', passport.authenticate('patient-login', {
     successRedirect: '/users/patient/dashboard',

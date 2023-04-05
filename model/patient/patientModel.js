@@ -12,11 +12,12 @@ module.exports.patientDashboard = async (req, res) => {
 };
 
 module.exports.registerPatient = async (req, res) => {
-    //fullname + gender + date + username + password + phone
-    let params = Object.values(req.body.user);
-    const hashedPasswored = await bcrypt.hash(params[4], salt);
-    params[4] = hashedPasswored;
-    const { rows } = await db.query('INSERT INTO patient(person_name, person_gender, person_birth_date, person_username, person_password, patient_phone) values($1, $2, $3, $4, $5, $6)', params);
+    // //fullname + gender + date + username + password + phone
+    const { name, gender, date, phone, ATCD, smokeState, cigarettePerDay, IRC, sedentary, sportsMinutesPerDay, alchool, alchoolConsomation, username, password } = req.body.user;
+    const params = [name, password, gender, date, phone, ATCD, smokeState, cigarettePerDay, IRC, sedentary, sportsMinutesPerDay, alchool, alchoolConsomation, username];
+    const hashedPasswored = await bcrypt.hash(params[1], salt);
+    params[1] = hashedPasswored;
+    await db.query('INSERT INTO patient(person_name, person_password, person_gender, person_birth_date, person_phone, patient_atcd, patient_smokestate, patient_cigaretteConsomation, patient_irc, patient_sedentary, patient_sportminutesperday, patient_alchoolstate, patient_alchoolconsomation, person_username) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)', params);
     res.redirect('/users/login');
 }
 
@@ -37,6 +38,15 @@ module.exports.getDoctorByNameForOnePatient = async (req, res) => {
     res.send(html);
 }
 
+module.exports.getAllDoctors = async (req, res) => {
+    const doctorsArray = await findAllDoctors();
+    res.render('users/patient/allDoctors', { doctorsArray } );
+}
+
+async function findAllDoctors() {
+    const { rows } = await db.query('SELECT DISTINCT * FROM doctor');
+    return rows;
+}
 
 async function findDoctorByNameForOnePatient(doctor_name, patient_id) {    
     return await db.query(`SELECT DISTINCT d.* FROM doctor d, patient p, treatment t, medical_history m WHERE t.doctor_id = d.person_id AND t.treatment_id = m.treatment_id AND m.patient_id = p.person_id AND p.person_id = ${patient_id} AND d.person_name ILIKE '${doctor_name}%' LIMIT 5;`);

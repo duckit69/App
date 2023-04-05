@@ -1,68 +1,202 @@
 <% layout('layouts/boilerplate') %>
     <div class="row">
         <div class="col-4 offset-4">
-            <form method="post" action="/users/register" id="form">
-                <div class="mb-3">
-                    <label for="name" class="form-label">Full Name</label>
-                    <input type="text" class="form-control" id="name" name="user[name]">
+            <form action="users/register" id="form" method="post" class="card p-1">
+                <select class="form-select w-50 align-self-center" aria-label="Default select example" name="role"
+                    id="role" >
+                    <option selected disabled>Chose your role</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="patient">Patient</option>
+                </select>
+                <div class="card-body d-flex flex-column">
+                    <div class="card formSection mb-2 d-none" id="personal-informations">
+                        <h3 class="text-center fw-normal card-header formSectionBody">Personal Informations</h3>
+                        <div class="card-body d-none formSectionTitle">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="name" name="user[name]">
+                            </div>
+                            <div class="mb-3">
+                                <select class="form-select" name="user[gender]">
+                                    <option value="MALE">Male</option>
+                                    <option value="FEMALE">Female</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="date" class="form-label">Birth date</label>
+                                <input type="date" class="form-control" name="user[date]" id="date">
+                            </div>
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone: </label>
+                                <input type="text" class="form-control" name="user[phone]" id="phone">
+                            </div>
+                            <div class="mb-3 d-none" id="speciality">
+                                <label for="doctorSpeciality" class="form-label">Speciality: </label>
+                                <input type="text" class="form-control" name="user[speciality]" id="doctorSpeciality">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card formSection mb-2 d-none" id="medical-informations">
+                        <h3 class="text-center fw-normal card-header formSectionBody">Medical Informations</h3>
+                        <div class="card-body d-none formSectionTitle">
+                            <div class="mb-3">
+                                <label class="form-label">IDM or died before 55(If Gender = male) 65(if Gender = female): </label>
+                                <select class="form-select" name="user[ATCD]" id="ATCD">
+                                    <option selected disabled>Pick one</option>
+                                    <option value="TRUE">Yes</option>
+                                    <option value="FALSE">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Are you A smoker?</label>
+                                <select class="form-select" name="user[smokeState]" id="smokeState">
+                                    <option selected disabled>Pick one</option>
+                                    <option value="TRUE">Yes, I smoke</option>
+                                    <option value="YES">No, But i'm friend/work with smokers</option>
+                                    <option value="FALSE">No, I don't even know what smoke is</option>
+                                </select>
+                                <input class="form-control mt-2 d-none" type="number"
+                                    placeholder="How many cigarette you smoke per day" name="user[cigarettePerDay]" value="0">
+                            </div>
+                            <div class="mb-3">
+                                <label for="irc" class="form-label">Do you have chronic renal failure(IRC): </label>
+                                <select class="form-select" name="user[IRC]">
+                                    <option selected disabled>Select an option</option>
+                                    <option value="TRUE">Yes</option>
+                                    <option value="FALSE">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="sedentary" class="form-label">Do you do any kind of sports(walking, running,
+                                    workout...): </label>
+                                <select class="form-select" name="user[sedentary]" id="sedentary">
+                                    <option selected disabled>Select an option</option>
+                                    <option value="TRUE">Yes</option>
+                                    <option value="FALSE">No</option>
+                                </select>
+                                <input class="form-control mt-2 d-none" type="number"
+                                    placeholder="How many minutes per day" name="user[sportsMinutesPerDay]" value="0">
+                            </div>
+                            <div class="mb-3">
+                                <label for="irc" class="form-label">Do you drink: </label>
+                                <select class="form-select" name="user[alchool]" id="alchool">
+                                    <option selected disabled>Select an option</option>
+                                    <option value="TRUE">Yes</option>
+                                    <option value="FALSE">No</option>
+                                </select>
+                                <input class="form-control mt-2 d-none" type="number"
+                                    placeholder="How many Cups per day" name="user[alchoolConsomation]" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card formSection mb-2 d-none" id="account-informations">
+                        <h3 class="text-center fw-normal card-header formSectionBody">account Informations</h3>
+                        <div class="card-body d-none formSectionTitle">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="name" name="user[username]">
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="text" class="form-control" name="user[password]" id="password">
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <select class="form-select" aria-label="Default select example" name="user[gender]">
-                        <option selected class="text-muted">pick one...</option>
-                        <option value="MALE">Male</option>
-                        <option value="FEMALE">Female</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="date" class="form-label">Birth date</label>
-                    <input type="date" class="form-control" name="user[date]" id="date">
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label" for="username">Username</label>
-                    <input type="text" class="form-control" id="username" name="user[username]">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label" for="password">Password</label>
-                    <input type="text" class="form-control" id="password" name="user[password]">
-                </div>
-                <div class="mb-3">
-                    <select class="form-select" id="role">
-                        <option selected disabled>Pick a role</option>
-                        <option value="doctor">Doctor</option>
-                        <option value="patient">Patient</option>
-                    </select>
-                </div>
-                <div class="mb-3" id="patient-role" style="display: none;">
-                    <label class="form-label" for="phone">Phone number</label>
-                    <input type="text" class="form-control" id="phone" name="user[phone]">
-                </div>
-                <div class="mb-3" id="doctor-role" style="display: none;">
-                    <label class="form-label" for="speciality">Speciality</label>
-                    <input type="text" class="form-control" id="speciality" name="user[speciality]">
-                </div>
-                <button type="submit" class="btn btn-primary">Sign up</button>
+                <button class="btn btn-success w-50 align-self-center d-none" type="submit"
+                    id="register">Register</button>
             </form>
         </div>
+
     </div>
     <script>
+        const smokeState = document.querySelector('#smokeState');
+        const irc = document.querySelector('#irc');
+        const sedentary = document.querySelector('#sedentary');
+        const alchool = document.querySelector('#alchool');
+        smokeState.addEventListener('change', () => {
+            if (smokeState.value == "TRUE") {
+                smokeState.nextElementSibling.classList.remove('d-none');
+            }
+            else {
+                smokeState.nextElementSibling.classList.add('d-none');
+            }
+        })
+        sedentary.addEventListener('change', () => {
+            if (sedentary.value == "TRUE") {
+                sedentary.nextElementSibling.classList.remove('d-none');
+            }
+            if (sedentary.value == "FALSE") {
+                sedentary.nextElementSibling.classList.add('d-none');
+            }
+        })
+
+        alchool.addEventListener('change', () => {
+            if (alchool.value == "TRUE") {
+                alchool.nextElementSibling.classList.remove('d-none');
+            }
+            if (alchool.value == "FALSE") {
+                alchool.nextElementSibling.classList.add('d-none');
+            }
+        })
+
+    </script>
+    <script>
         const check = document.getElementById('role');
+        const formSection = document.querySelectorAll('.formSection');
+        const speciality = document.querySelector('#speciality');
+        const form = document.getElementById('form');
+        const formSectionBody = document.querySelectorAll('.formSectionBody');
+        const registerButton = document.querySelector('#register');
         check.addEventListener('change', (e) => {
-            const role = document.getElementById('role').value;
-            const form = document.getElementById('form');
-            form.attributes[1].nodeValue = `/users/${role}/register/${role}`;
-            console.dir(form.attributes[1].nodeValue);
+            formSection.forEach((ele) => {
+                const name = ele.getAttribute('id');
+                ele.classList.add('d-none');
+                registerButton.classList.add('d-none');
+                speciality.classList.add('d-none');
+            })
+            const role = check.value;
+            form.setAttribute('action', `/users/${role}/register/${role}`);
             if (role == 'doctor') {
-                document.getElementById('doctor-role').style.display = 'block';
-                document.getElementById('patient-role').style.display = 'none';
-                document.getElementById('phone').removeAttribute('name');
+                registerButton.classList.remove('d-none');
+                speciality.classList.remove('d-none');
+                formSection.forEach((ele) => {
+                    const name = ele.getAttribute('id');
+                    if (name != 'medical-informations') {
+                        ele.classList.remove('d-none');
+                    }
+                })
             } else if (role == 'patient') {
-                document.getElementById('doctor-role').style.display = 'none';
-                document.getElementById('patient-role').style.display = 'block';
-                document.getElementById('speciality').removeAttribute('name');
-            } else {
-                document.getElementById('doctor-role').style.display = 'none';
-                document.getElementById('patient-role').style.display = 'none';
+                registerButton.classList.remove('d-none');
+                formSection.forEach((ele) => {
+                    ele.classList.remove('d-none');
+                })
             }
         });
+
+        let activeElement = null;
+        formSectionBody.forEach(element => {
+            element.addEventListener('click', () => {
+                const currentElement = element.nextElementSibling;
+                if (!activeElement) {
+                    activeElement = currentElement;
+                    activeElement.classList.add('d-block');
+                    activeElement.classList.remove('d-none');
+                }
+                else if (activeElement != currentElement) {
+                    activeElement.classList.remove('d-block');
+                    activeElement.classList.add('d-none');
+                    activeElement = currentElement;
+                    activeElement.classList.add('d-block');
+                    activeElement.classList.remove('d-none');
+                } else if (activeElement == currentElement) {
+                    activeElement.classList.remove('d-block');
+                    activeElement.classList.add('d-none');
+                    activeElement = null;
+                }
+            })
+        })
+    </script>
+    <script>
+
     </script>
