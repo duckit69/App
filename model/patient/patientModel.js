@@ -6,9 +6,10 @@ const salt = 10;
 module.exports.patientDashboard = async (req, res) => {
     const result = await db.query('select d.* from doctor d, treatment t, medical_history m, patient p where d.person_id = t.doctor_id and t.treatment_id = m.treatment_id and m.patient_id = p.person_id and p.person_id = $1;', [req.user.person_id]);
     console.log(req.user.person_id);
+    const sensors = await findAllSensorsForOnePatient(req.user.person_id);
     const rows = result.rows;
     const patientObject = req.user;
-    res.render('users/patient/dashboard', { rows, patientObject });
+    res.render('users/patient/dashboard', { rows, patientObject, sensors });
 };
 
 module.exports.registerPatient = async (req, res) => {
@@ -42,6 +43,16 @@ module.exports.getAllDoctors = async (req, res) => {
     const doctorsArray = await findAllDoctors();
     res.render('users/patient/allDoctors', { doctorsArray } );
 }
+
+module.exports.getSensors = async (req, res) => {
+    const sensors = await findAllSensorsForOnePatient(req.query.patient_id);
+    res.send({sensors});
+}
+
+async function findAllSensorsForOnePatient(patient_id){
+    const { rows } = await db.query('SELECT r.*, s.* from recorded_data r, sensor s, patient p where r.sensor_id = s.sensor_id and r.patient_id = p.person_id and p.person_id = $1', [patient_id]);
+    return rows;
+}   
 
 async function findAllDoctors() {
     const { rows } = await db.query('SELECT DISTINCT * FROM doctor');
