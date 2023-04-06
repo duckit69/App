@@ -11,6 +11,18 @@ body {
    scrollbar-width: thin;
    scrollbar-color: #a63f3f #ffffff;
 }
+.sensor-appointment-height{
+   max-height: 40vh;
+   overflow: scroll;
+   overflow-x: hidden;
+   overflow-y: auto;
+}
+.medical-history-height {
+   max-height: 40vh;
+   overflow: scroll;
+   overflow-x: hidden;
+   overflow-y: auto;
+}
 .height-100 {
    min-height: 100vh;
 }
@@ -48,7 +60,7 @@ div::-webkit-scrollbar-thumb {
 
 #chatBoxHeader {
    overflow-y: hidden;
-   overflow-x: scroll;
+   overflow-x: auto;
 }
 
 .chatBoxTab {

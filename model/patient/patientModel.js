@@ -7,9 +7,11 @@ module.exports.patientDashboard = async (req, res) => {
     const result = await db.query('select d.* from doctor d, treatment t, medical_history m, patient p where d.person_id = t.doctor_id and t.treatment_id = m.treatment_id and m.patient_id = p.person_id and p.person_id = $1;', [req.user.person_id]);
     console.log(req.user.person_id);
     const sensors = await findAllSensorsForOnePatient(req.user.person_id);
-    const rows = result.rows;
+    const appointments = await findMyUpComingAppointments(req.user.person_id);
+    const medical_history = await findMedicalHistoryForOnePatient(req.user.person_id);
+    const doctors = result.rows;
     const patientObject = req.user;
-    res.render('users/patient/dashboard', { rows, patientObject, sensors });
+    res.render('users/patient/dashboard', { doctors, patientObject, sensors, appointments, medical_history});
 };
 
 module.exports.registerPatient = async (req, res) => {
@@ -49,6 +51,21 @@ module.exports.getSensors = async (req, res) => {
     res.send({sensors});
 }
 
+module.exports.getAllAppointments = async (req, res) => {
+    const appointments = await findMyAppointments(req.user.person_id);
+    res.send({appointments})
+}
+
+async function findMedicalHistoryForOnePatient(patient_id) {
+    const { rows } = await db.query('SELECT m.* from medical_history m, patient p, treatment t where p.person_id = m.patient_id and m.treatment_id = t.treatment_id and p.person_id = $1', [patient_id]);
+    return rows;
+}
+
+async function findMyUpComingAppointments(patient_id) {
+    const { rows } = await db.query(`select a.*, d.person_name from appointment a, doctor d where a.doctor_id = d.person_id and patient_id = ${patient_id} and a.appointment_date >= CURRENT_DATE order by appointment_date ASC`);
+    // const rows  = await db.query('select a.*, d.person_name from appointment a, doctor d where a.doctor_id = d.person_id and a.patient_id = $1 and a.appointment_date >= CURRENT_DATE order by a.appointment_date ASC', [patient_id]);
+    return rows;
+}
 async function findAllSensorsForOnePatient(patient_id){
     const { rows } = await db.query('SELECT r.*, s.* from recorded_data r, sensor s, patient p where r.sensor_id = s.sensor_id and r.patient_id = p.person_id and p.person_id = $1', [patient_id]);
     return rows;

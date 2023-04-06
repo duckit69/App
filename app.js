@@ -5,7 +5,10 @@ const session = require('express-session');
 const userRoute = require('./routes/User/userRoute');
 const treatmentRoute = require('./routes/Treatment/treatmentRoute');
 const appointmentRoute = require('./routes/Appointment/appointmentRoute');
+const sensorRoute = require('./routes/Sensor/sensorRoute');
+const medicalHistoryRoute = require('./routes/MedicalHistory/medicalHistoryRoute');
 const ejsMate = require('ejs-mate');
+var methodOverride = require('method-override');
 
 const db = require('./config/db');
 
@@ -55,6 +58,7 @@ serverApp.listen(8080, () => {
     console.log('Server Socket Listening on port 8080');
 })
 //
+app.use(methodOverride('_method'));
 app.set('view engine', 'ejs');
 app.engine('ejs', ejsMate);
 app.set('views', path.join(__dirname, 'views'));
@@ -77,7 +81,8 @@ app.use(passport.session());
 app.use('/users', userRoute);
 app.use('/treatment', treatmentRoute);
 app.use('/appointment', appointmentRoute);
-
+app.use('/sensor', sensorRoute);
+app.use('/medicalHistory', medicalHistoryRoute);
 app.get('/message', async(req, res) => {
     const {sender, receiver} = req.query;
     const { rows } = await db.query('select * from message where (message_sender = $1 and message_receiver = $2) or (message_sender = $2 and message_receiver = $1) ORDER BY message_date ASC;', [sender, receiver]);
