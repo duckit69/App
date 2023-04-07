@@ -4,6 +4,11 @@
 body {
    min-height: 100vh;
    overflow-x: hidden;
+   scroll-behavior: smooth;
+}
+
+#lll{
+   min-height: 100vh;
 }
 .fixed-height {
    max-height: 70vh;

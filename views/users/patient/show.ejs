@@ -1,7 +1,15 @@
 <%- layout('layouts/boilerplate') %>
-    <h1>Hi From Patient show page</h1>
+    <div class="row mb-3">
+        <div class="card col-4 offset-4">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Full Name: <%= doctor.person_name %></li>
+                <li class="list-group-item">Speciality: <%= doctor.doctor_speciality %></li>
+                <li class="list-group-item">Phone Number: </li>
+            </ul>
+        </div>
+    </div>
     <div class="row my-4" data-patient-id="<%= patient_id %>" id="patient">
-        <div class="col-4 offset-2">
+        <div class="col-3 offset-3">
             <div class="card d-flex flex-column">
                 <% for(const m of medicalHistory){ %>
                     <div class="card-body d-flex justify-content-between align-items-center">
@@ -12,12 +20,12 @@
                                 href="/treatment/search/<%= m.treatment_id %>" onclick="return false;">Open
                                 Treatment</a></div>
                     </div>
-                    <% } %>
+                <% } %>
             </div>
         </div>
-        <div class="col-4" id="search-result"></div>
+        <div class="col-3" id="search-result"></div>
     </div>
-    <div class="row mt-5">
+    <div class="row mt-auto">
         <div class="col-6 offset-3">
             <form id="form" class="text-center">
                 <div class="mb-3 text-start">
@@ -75,105 +83,46 @@
         })
         dateTime.addEventListener('change', async () => {
             const tmp = dateTime.value;
-            const date = tmp.slice(0, 10);
-            const time = tmp.slice(11, 16);
+            const tmp_date = new Date(tmp);
+            const result = await fetch(`/appointment/checkDate/search?patient_id=${patient_id}&doctor_id=${doctor_id}&date=${tmp}`);
+            const data = await result.json();
+            //invalid and valid are the messages
+            /* when valid submitFlag = true;;
+            setTimeout(() => {
+                    invalid.innerText = '';
+                    invalid.classList.remove('d-block');
+                    invalid.classList.add('d-none');
+                }, 2000);
+            */
             // check if this date is Available for this doctor and this patient 
             // result must be 0 => the doctos has 0 appointments so as the patient
-            const dateNow = new Date();
-            let month = dateNow.getMonth();
-            let day = dateNow.getDate();
-            let year = dateNow.getFullYear();
-            let hours = dateNow.getHours();
-            let minutes = dateNow.getMinutes();
-            if (dateNow.getMonth() < 10) {
-                month = `0${dateNow.getMonth() + 1}`;
-            }
-            if (dateNow.getDate() < 10) {
-                day = `0${dateNow.getDate()}`;
-            }
-            if (dateNow.getHours() < 10) {
-                hours = `0${dateNow.getHours()}`;
-            }
-            if (dateNow.getMinutes() < 10) {
-                minutes = `0${dateNow.getMinutes()}`;
-            }
-            const fullDate = `${year}-${month}-${day}`;
-            const fullTime = `${hours}:${minutes}`;
-            if (fullDate > date) {
-                invalid.classList.remove('d-none');
+            if (data.status === 'success') {
+                submitFlag = true;
+                valid.classList.add('d-block');
+                valid.classList.remove('d-none');
+                valid.innerText = data.message;
+                setTimeout(() => {
+                    valid.innerText = '';
+                    valid.classList.remove('d-block');
+                    valid.classList.add('d-none');
+                }, 2000);
+            } else {
+                submitFlag = false;
                 invalid.classList.add('d-block');
-                invalid.innerText = 'INVALID DATE';
+                invalid.classList.remove('d-none');
+                invalid.innerText = data.message;
                 setTimeout(() => {
                     invalid.innerText = '';
                     invalid.classList.remove('d-block');
                     invalid.classList.add('d-none');
                 }, 2000);
-            } else if (fullDate === date) {
-                if (fullTime > time) {
-                    // Can you book at the same day ??? probably not
-                    invalid.classList.remove('d-none');
-                    invalid.classList.add('d-block');
-                    invalid.innerText = 'You Want an appointment in the same day';
-                    setTimeout(() => {
-                        invalid.innerText = '';
-                        invalid.classList.remove('d-block');
-                        invalid.classList.add('d-none');
-                    }, 2000);
-                }
-            }
-            else {
-                const result = await fetch(`/appointment/checkDate/search?patient_id=${patient_id}&doctor_id=${doctor_id}&date=${date}&time=${time}`);
-                const data = await result.json();
-                if (data.length != 0) {
-                    let patientFlag = false;
-                    let doctorFlag = false;
-                    for (const d of data) {
-                        if (d.patient_id == patient_id) {
-                            patientFlag = true;
-                        }
-                        if (d.doctor_id == doctor_id) {
-                            doctorFlag = true;
-                        }
-                    }
-                    if (patientFlag) {
-                        invalid.classList.remove('d-none');
-                        invalid.classList.add('d-block');
-                        invalid.innerText = 'You already have another appointment';
-                        setTimeout(() => {
-                            invalid.innerText = '';
-                            invalid.classList.remove('d-block');
-                            invalid.classList.add('d-none');
-                        }, 2000);
-                    } else if (doctorFlag) {
-                        invalid.classList.remove('d-none');
-                        invalid.classList.add('d-block');
-                        invalid.innerText = 'Doctor Has another appointment';
-                        setTimeout(() => {
-                            invalid.innerText = '';
-                            invalid.classList.remove('d-block');
-                            invalid.classList.add('d-none');
-                        }, 2000);
-                    }
-                }
-                else {
-                    valid.classList.remove('d-none');
-                    valid.classList.add('d-block');
-                    valid.innerText = 'Good date';
-                    setTimeout(() => {
-                        valid.innerText = '';
-                        valid.classList.remove('d-block');
-                        valid.classList.add('d-none');
-                    }, 2000);
-                    submitFlag = true;
-                }
             }
             submitFormButton.addEventListener('click', () => {
                 if (submitFlag) {
-                    const tmp_data = {
+                    const insertData = {
                         doctor_id: doctor_id,
                         patient_id: patient_id,
-                        appointment_date: date,
-                        appointment_time: time,
+                        appointment_date: tmp,
                         appointment_type: form[1].value,
                         appointment_reason: form[0].value,
                     }
@@ -183,7 +132,7 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(tmp_data)
+                        body: JSON.stringify(insertData)
                     })
                 }
             });

@@ -1,6 +1,6 @@
 <%- layout('layouts/patientBoilerplate') %>
-    <div class="container-fluid">
-        <!-- <h1 class="display-5 text-center my-3">Welcome Back <%= patientObject.person_name %></h1> -->
+<div class="container-fluid">
+    <!-- <h1 class="display-5 text-center my-3">Welcome Back <%= patientObject.person_name %></h1> -->
         <div class="row">
             <div class="col-md-2">
                 <div class="row my-3">
@@ -23,23 +23,23 @@
                                 </div>
                             </div>
                             <div class="d-none d-flex justify-content-center gap-1 infoCard">
-                                <a href="/users/doctor/patient_full_details/<%= p.person_id %>"
+                                <a href="/users/patient/doctor_full_details/<%= p.person_id %>"
                                     class="btn btn-sm btn-primary text-white fw-bold mt-2 patient-ids">Visit Profile</a>
                                 <a href="#" class="btn btn-sm btn-info startChat text-white fw-bold mt-2"
                                     data-doctor-id="<%= p.person_id %>" data-doctor-name="<%= p.person_name %>">Send a
                                     message</a>
+                                </div>
+                                
                             </div>
-
-                        </div>
-                    <% } %>
-                </div>
+                        <% } %>
+                    </div>
             </div>
             <div class="col-md-7 mt-4 d-flex flex-column gap-4">
                 <div class="row offset-1 mb-2">
                     <div class="card col-5 p-0 me-1 sensor-appointment-height">
                         <h5 class="card-header sticky-top">My Sensors</h5>
                         <!-- give max height to sensor card -->
-                        <div class="card-body vstack gap-2">
+                        <div class="card-body vstack gap-2 overflow-scroll overflow-x-hidden">
                             <% for(const s of sensors){ %>
                                 <div class="p-2 text-center">
                                     <h4 class="fs-5 d-inline">
@@ -50,50 +50,82 @@
                                         <%= s.recorded_data_unit %>
                                     </span>
                                     <div class="d-flex justify-content-around">
-                                        <form action="/sensor/<%= s.sensor_id %>?_method=PUT" method="POST" class="d-none" id="sensorUpdate">
+                                        <form action="/sensor/<%= s.sensor_id %>?_method=PUT" method="POST"
+                                            class="d-none" id="sensorUpdate">
                                             <div class="mb-3">
-                                                <input type="text" class="form-control" id="name" name="name" placeholder="Enter New Name">
+                                                <input type="text" class="form-control" id="name" name="name"
+                                                placeholder="Enter New Name">
                                                 <button class="btn btn-info text-white">Update Name</button>
                                             </div>
                                         </form>
-                                    <a class="btn btn-md btn-info text-white" id="updateSensor">Update Name</a>
-                                    <form action="/sensor/<%= s.sensor_id %>?_method=DELETE" method="post" id="sensorDelete">
-                                        <button class="btn btn-md btn-danger">Delete</button>
-                                    </form>
+                                        <a class="btn btn-md btn-info text-white" id="updateSensor">Update Name</a>
+                                        <form action="/sensor/<%= s.sensor_id %>?_method=DELETE" method="post"
+                                            id="sensorDelete">
+                                            <button class="btn btn-md btn-danger">Delete</button>
+                                        </form>
                                     </div>
                                 </div>
                                 <% } %>
                             </div>
                             <div class="card-footer text-center">
                                 <a href="#" class="btn btn-md btn-primary" id="addSensor">Add Sensor</a>
-                                <form action="/sensor/<%= patientObject.person_id %>" method="post" id="sensorAdd" class="d-none">
+                                <form action="/sensor/<%= patientObject.person_id %>" method="post" id="sensorAdd"
+                                    class="d-none">
                                     <input type="text" class="form-control" placeholder="Sensor Name" name="name">
                                     <input type="text" class="form-control" placeholder="Sensor Model" name="model">
                                     <button class="btn btn-success">Add Sensor</button>
                                 </form>
+                            </div>
                         </div>
-                    </div>
-                    <div class="ms-1 card col-5 p-0 sensor-appointment-height">
-                        <h5 class="card-header sticky-top">My Appointments</h5>
-                        <!-- give max height to sensor card -->
-                        <div class="card-body vstack gap-2">
-                            <% for(const a of appointments){ %>
-                                <% const date=new Date(a.appointment_date).toDateString(); %>
-                                    <div class="p-2 text-center">
-                                        <h4 class="fs-5 d-inline">
-                                            <%= a.person_name %>
-                                        </h4>
-                                        <p class="lead fs-5 text-info">
-                                            <span>
-                                                <%= date %>
-                                            </span>
-                                            <span>
-                                                <%= a.appointment_time %>
-                                            </span>
-                                        </p>
-                                        <p class="card-subtitle">
-                                            <%= a.appointment_type %>
-                                        </p>
+                        <div class="ms-1 card col-5 p-0 sensor-appointment-height">
+                            <h5 class="card-header sticky-top">My Appointments</h5>
+                            <!-- give max height to sensor card -->
+                            <div class="card-body vstack gap-2 overflow-scroll overflow-x-hidden">
+                                <% for(const a of appointments){ %>
+                                    <% const options ={weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'} %>
+                                    <% const date = new Date(a.appointment_date).toLocaleDateString(undefined, options); %> 
+                                    <% const formDate = date.slice(9) %>    
+                                    <% const test_date = new Date(a.appointment_date); %> 
+                                    <% const display_date = test_date.toLocaleString('en-US', options); %>
+                                    <% const year = test_date.getFullYear() %>
+                                    <% let month = test_date.getMonth() + 1; %>
+                                    <% if(month<10) month = `0${month}`;%> 
+                                    <% let day_e = test_date.getDate(); %>
+                                    <% if(day_e<10) day_e = `0${day_e}`;%>
+                                    <% let hrs = (test_date.getHours() %12)%>
+                                    <% if(hrs<10) hrs = `0${hrs}`;%>
+                                    <% let mns= test_date.getMinutes()%>
+                                    <% if(mns<10) mns = `0${mns}`;%>
+                                    <% const tmp = `${year}-${month}-${day_e}T${hrs}:${mns}`; %>
+                                    <div class="p-2 text-center bg-light">
+                                        <div class="appointmentBody" data-appointment="<%= a.appointment_id %>">
+                                            <h4 class="fs-5 d-inline">
+                                                <%= a.person_name %>
+                                            </h4>
+                                            <p class="lead fs-6 text-info">
+                                                <span>
+                                                    <%= display_date%>
+                                                </span>
+                                                <span class="text-black fs-6">
+                                                    <%= (a.appointment_type).toLowerCase() %>
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div class="d-flex justify-content-around">
+                                            <form action="/appointment/<%= a.appointment_id %>?_method=PUT" method="POST"
+                                                class="d-none" id="appointmentUpdate">
+                                                <div class="mb-3">
+                                                    <input type="datetime-local" class="form-control" id="name" name="date"
+                                                        placeholder="Enter New Date" value="<%= tmp %>">
+                                                    <button class="btn btn-info text-white">Update Date</button>
+                                                </div>
+                                            </form>
+                                            <a class="btn btn-md btn-info text-white updateAppointmentButton" data-appointment="<%= a.appointment_id %>">Change Date</a>
+                                            <form action="/appointment/<%= a.appointment_id %>?_method=DELETE" method="post"
+                                                id="appointmentDelete">
+                                                <button class="btn btn-md btn-danger">Delete</button>
+                                            </form>
+                                        </div>
                                     </div>
                             <% } %>
                         </div>
@@ -108,23 +140,29 @@
                                     <div class="vstack gap-3">
                                         <div class="card">
                                             <div class="card-body medical-history-height">
-                                            <% for(const m of medical_history){ %>
-                                                <div class="p-2 d-flex">
-                                                    <div class="hstack gap-3 d-flex align-items-end justify-content-between flex-grow-1">
-                                                        <label class="form-label"><%= m.medical_history_diagnosis %></label>
-                                                        <a class="btn btn-secondary search-treatment" href="/treatment/search/<%= m.treatment_id %>" onclick="return false;">Open Treatment</a>               
+                                                <% for(const m of medical_history){ %>
+                                                    <div class="p-2 d-flex">
+                                                        <div
+                                                            class="hstack gap-3 d-flex align-items-end justify-content-between flex-grow-1">
+                                                            <label class="form-label">
+                                                                <%= m.medical_history_diagnosis %>
+                                                            </label>
+                                                            <a class="btn btn-secondary search-treatment"
+                                                                href="/treatment/search/<%= m.treatment_id %>"
+                                                                onclick="return false;">Open Treatment</a>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            <% } %>
+                                                    <% } %>
                                             </div>
-                                        </div>  
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-4" id="search-result"></div>
                             </div>
                             <div class="row">
                                 <div class="col-6">
-                                    <form action="/medicalHistory/?patient_id=<%= patientObject.person_id%>" method="post" class="d-none" id="medicalHistoryForm">
+                                    <form action="/medicalHistory/?patient_id=<%= patientObject.person_id%>"
+                                        method="post" class="d-none" id="medicalHistoryForm">
                                         <div class="mb-3">
                                             <label for="diagnosis" class="form-label">Diagnosis: </label>
                                             <input id="diagnosis" type="text" class="form-control" name="diagnosis">
@@ -149,7 +187,7 @@
                                     </form>
                                 </div>
                             </div>
-                            
+
                         </div>
                         <div class="card-footer">
                             <a href="#" class="btn btn-primary" id="addMedicalHistory">Add Medical History</a>
@@ -187,8 +225,8 @@
         const searchResult = document.getElementById('search-result');
         let activeTab = '';
         searchTreatment.forEach(e => {
-            e.addEventListener('click' , async (ele) => {
-                if (!(activeTab==='')){
+            e.addEventListener('click', async (ele) => {
+                if (!(activeTab === '')) {
                     activeTab.classList.remove('btn-success');
                 }
                 activeTab = ele.target;
@@ -503,24 +541,43 @@
 
     </script>
     <script>
-    const updateSensorButton = document.querySelector('#updateSensor');
-    const addSensorButton = document.querySelector('#addSensor');
-    const updateSensorForm = document.querySelector('#sensorUpdate');
-    const deleteSensorForm = document.querySelector('#sensorDelete');
-    const addSensorForm = document.querySelector('#sensorAdd');
-    if(updateSensorButton){
-        updateSensorButton.addEventListener('click', () => {
-            updateSensorButton.classList.add('d-none');
-            updateSensorForm.classList.remove('d-none');
-            deleteSensorForm.classList.add('d-none');
-        });
-    }
-    addSensorButton.addEventListener('click', () => {
-        addSensorButton.classList.add('d-none');
-        addSensorForm.classList.remove('d-none');
-    })
+        const updateSensorButton = document.querySelector('#updateSensor');
+        const addSensorButton = document.querySelector('#addSensor');
+        const updateSensorForm = document.querySelector('#sensorUpdate');
+        const deleteSensorForm = document.querySelector('#sensorDelete');
+        const addSensorForm = document.querySelector('#sensorAdd');
+        if (updateSensorButton) {
+            updateSensorButton.addEventListener('click', () => {
+                updateSensorButton.classList.add('d-none');
+                updateSensorForm.classList.remove('d-none');
+                deleteSensorForm.classList.add('d-none');
+            });
+        }
+        addSensorButton.addEventListener('click', () => {
+            addSensorButton.classList.add('d-none');
+            addSensorForm.classList.remove('d-none');
+        })
     </script>
+    <script>
+        const updateAppointmentButton = document.querySelectorAll('.updateAppointmentButton');
+        const appointmentUpdateForm = document.querySelector('#appointmentUpdate');
+        const appointmentDeleteForm = document.querySelector('#appointmentDelete');
+        const appointmentBody = document.querySelectorAll('.appointmentBody');
 
+        const appointmentBodyArray = Array.from(appointmentBody);
+
+        updateAppointmentButton.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const string = btn.getAttribute('data-appointment');
+                const element = appointmentBodyArray.find(ele => ele.getAttribute('data-appointment') == btn.getAttribute('data-appointment')) 
+                element.classList.add('d-none');
+                btn.classList.add('d-none');
+                appointmentDeleteForm.classList.add('d-none');
+                appointmentUpdateForm.classList.remove('d-none');
+            })
+        })
+        
+    </script>
     <script>
         const addMedicalHistoryButton = document.querySelector('#addMedicalHistory');
         const medicalHistoryForm = document.querySelector('#medicalHistoryForm');

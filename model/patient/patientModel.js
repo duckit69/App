@@ -28,14 +28,15 @@ module.exports.getMedicalHistoryWithSpecificDoctor = async (req, res) => {
     const {person_id} = req.user;
     const medicalHistory  = await findMedicalHistoryWithSpecificDoctor(req.params.id, person_id);
     const appointment = await findAppointmentWithSpecificDoctor(req.params.id, person_id);
+    const doctor = await findDoctorById(req.params.id);
     const patient_id = req.user.person_id;
-    res.render('users/patient/show', {medicalHistory, appointment, patient_id});
+    res.render('users/patient/show', {medicalHistory, appointment, patient_id, doctor});
 }
 
 // API CALL
 module.exports.getDoctorByNameForOnePatient = async (req, res) => {
-    const { rows } = await findDoctorByNameForOnePatient(req.query.person_name, req.query.patient_id);
-    const html = rows.map(doctor => {
+    const result = await findDoctorByNameForOnePatient(req.query.person_name, req.query.patient_id);
+    const html = result.map(doctor => {
         return `<a href="/users/patient_full_details/${doctor.person_id}" class="search-result btn btn-light"><h5>${doctor.person_name}</h5></a>`
     }).join('');
     res.send(html);
@@ -77,7 +78,8 @@ async function findAllDoctors() {
 }
 
 async function findDoctorByNameForOnePatient(doctor_name, patient_id) {    
-    return await db.query(`SELECT DISTINCT d.* FROM doctor d, patient p, treatment t, medical_history m WHERE t.doctor_id = d.person_id AND t.treatment_id = m.treatment_id AND m.patient_id = p.person_id AND p.person_id = ${patient_id} AND d.person_name ILIKE '${doctor_name}%' LIMIT 5;`);
+    const { rows } = await db.query(`SELECT DISTINCT d.* FROM doctor d, patient p, treatment t, medical_history m WHERE t.doctor_id = d.person_id AND t.treatment_id = m.treatment_id AND m.patient_id = p.person_id AND p.person_id = ${patient_id} AND d.person_name ILIKE '${doctor_name}%' LIMIT 5;`);
+    return rows;
 }
 
 async function findMedicalHistoryWithSpecificDoctor(doctor_id, patient_id) {
@@ -88,4 +90,9 @@ async function findMedicalHistoryWithSpecificDoctor(doctor_id, patient_id) {
 async function findAppointmentWithSpecificDoctor(doctor_id, patient_id) {
     const { rows } = await db.query('SELECT * from appointment where doctor_id = $1 and patient_id = $2', [doctor_id, patient_id]);
     return rows;
+}
+
+async function findDoctorById(doctor_id) {
+    const { rows } = await db.query('SELECT * FROM doctor WHERE person_id = $1', [doctor_id]);
+    return rows[0];
 }
