@@ -11,7 +11,9 @@ module.exports.patientDashboard = async (req, res) => {
     const medical_history = await findMedicalHistoryForOnePatient(req.user.person_id);
     const doctors = result.rows;
     const patientObject = req.user;
-    res.render('users/patient/dashboard', { doctors, patientObject, sensors, appointments, medical_history});
+    const Evaluation = await evaluatePatient(req.user.person_id);
+   
+    res.render('users/patient/dashboard', { doctors, patientObject, sensors, appointments, medical_history, Evaluation});
 };
 
 module.exports.registerPatient = async (req, res) => {
@@ -95,4 +97,77 @@ async function findAppointmentWithSpecificDoctor(doctor_id, patient_id) {
 async function findDoctorById(doctor_id) {
     const { rows } = await db.query('SELECT * FROM doctor WHERE person_id = $1', [doctor_id]);
     return rows[0];
+}
+
+async function countCardioVascularRiskFactors(patient_id){
+    let counter = 0;
+    const gender = await getGender(patient_id);
+    const age = await getAge(patient_id);
+    const ATCD = await getATCD(patient_id);
+    const smokeState = await getSmokeState(patient_id);
+    const drinkState = await getDrinkState(patient_id);
+    const sedentary = await getSidentarite(patient_id);
+    const sensors = await findAllSensorsForOnePatient(patient_id);
+    if (gender == 'MALE') {
+       counter++;
+       if (age > 50) counter++;
+    }
+    if (gender == 'FEMALE')
+        if (age > 60) counter++;
+    if (ATCD) counter++;
+    if (smokeState.smokestate)
+        if(smokeState.number > 10) counter++;
+    if (drinkState.drinker)
+        if (drinkState.cups > 3) counter++;
+    if (sedentary.sedentary)    
+        if (sedentary.minutes < 30) counter++;
+
+    return counter;
+}
+
+async function getAge(patient_id) {
+    const { rows } = await db.query('select EXTRACT(year from AGE(current_date, person_birth_date)) as age from patient where person_id = $1', [patient_id]);
+    return rows[0].age;
+}
+async function getGender(patient_id) {
+    const { rows } = await db.query('select person_gender as gender from patient where person_id = $1', [patient_id]);
+    return rows[0].gender;
+}
+async function getATCD(patient_id) {
+    const { rows } = await db.query('select patient_atcd as ATCD from patient where person_id = $1', [patient_id]);
+    return rows[0].ATCD;
+}
+
+async function getSmokeState(patient_id) {
+    const { rows } = await db.query('select patient_smokestate as smokeState, patient_cigaretteconsomation as number from patient where person_id=$1', [patient_id]);
+    return rows[0];
+}
+
+async function getSidentarite(patient_id) {
+    const { rows } = await db.query('select patient_sedentary as sedentary, patient_sportminutesperday as minutes from patient where person_id=$1', [patient_id]);
+    return rows[0];
+}
+
+async function getDrinkState(patient_id) {
+    const { rows } = await db.query('select patient_alchoolstate as drinker, patient_alchoolconsomation as cups from patient where person_id=$1', [patient_id]);
+    return rows[0];
+}
+
+async function evaluatePatient(patient_id) {
+    const riskFactors = await countCardioVascularRiskFactors(patient_id);
+    let riskClass = null;
+    if (riskFactors < 1) {
+        riskClass = 'NO RISK';
+    } else if (riskFactors == 1) {
+        riskClass = 'LOW RISK'
+    } else if (riskFactors == 2) {
+        riskClass = 'MODERATE RISK'
+    } else {
+        riskClass = 'HIGH RISK';
+    }
+    const answer = {
+        riskFactors,
+        riskClass
+    }
+    return answer;
 }
