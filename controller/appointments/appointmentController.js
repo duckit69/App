@@ -15,20 +15,20 @@ module.exports.checkDateForPatientAndDoctor = async function (req, res) {
     } else if (myDate > currentDate) {
         console.log('myDate is in the future');
         const data = await checkIfDateIsValideForPatienTAndDoctor(doctor_id, patient_id, date);
-        if(data.length === 0){
+        if (data.length === 0) {
             const response = {
                 status: 'success',
                 message: 'The Requested Date is valid'
             }
             res.send(response);
-        }else {
+        } else {
             const response = {
                 status: 'error',
                 message: 'The Requested Date is Occupied'
             }
             res.send(response);
         }
-        
+
     } else {
         console.log('myDate is the same as currentDate');
     }
@@ -45,6 +45,9 @@ module.exports.createAppointment = async function (req, res) {
 module.exports.deleteAppointment = async (req, res) => {
     const appointment_id = req.params.id;
     await deleteAppointment(appointment_id);
+    if (req.user.doctor_speciality) {
+        return res.redirect('/users/doctor/dashboard');
+    }
     res.redirect('/users/patient/dashboard');
 }
 
@@ -58,6 +61,9 @@ module.exports.checkDateWithAppointmentId = async (req, res) => {
     // check if date is valid
     if (!(formDate > currentDate)) {
         console.log("Invalid Time");
+        if (req.user.doctor_speciality) {
+            return res.redirect('/users/doctor/dashboard');
+        }
         return res.redirect('/users/patient/dashboard');
     }
     const result = await checkIfDateIsValideUsingId(appointment_id);
@@ -65,21 +71,30 @@ module.exports.checkDateWithAppointmentId = async (req, res) => {
     if (tmp_date.getDate() === formDate.getDate()) {
         if (tmp_date.getTime() === formDate.getDate()) {
             console.log("SAME DAY SAME TIME");
+            if (req.user.doctor_speciality) {
+                return res.redirect('/users/doctor/dashboard');
+            }
             return res.redirect('/users/patient/dashboard');
         }
     }
     formDate.setHours(formDate.getHours() + 1);
     const formDate_db = formDate.toISOString();
-    console.log(formDate_db);
+
     console.log("Diffrent Day/Time  Diffrent Time")
     // check if patient has an appointment
     const data = await checkIfDateIsValideForPatienTAndDoctor(result[0].doctor_id, result[0].patient_id, formDate_db);
     if (data.length > 0) {
         console.log("Occupied Date");
+        if (req.user.doctor_speciality) {
+            return res.redirect('/users/doctor/dashboard');
+        }
         return res.redirect('/users/patient/dashboard');
     } else {
         const rows = await updateAppointment(appointment_id, formDate_db);
         console.log(rows);
+        if (req.user.doctor_speciality) {
+            return res.redirect('/users/doctor/dashboard');
+        }
         return res.redirect('/users/patient/dashboard');
     }
 

@@ -35,6 +35,59 @@
                         <% } %>
                 </div>
             </div>
+            <div class="ms-1 card col-5 p-0 sensor-appointment-height">
+                <h5 class="card-header sticky-top">My Appointments</h5>
+                <!-- give max height to sensor card -->
+                <div class="card-body vstack gap-2 overflow-scroll overflow-x-hidden">
+                    <% for(const a of myAppointments){ %>
+                        <% const options ={weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'} %>
+                        <% const date = new Date(a.appointment_date).toLocaleDateString(undefined, options); %> 
+                        <% const formDate = date.slice(9) %>    
+                        <% const test_date = new Date(a.appointment_date); %> 
+                        <% const display_date = test_date.toLocaleString('en-US', options); %>
+                        <% const year = test_date.getFullYear() %>
+                        <% let month = test_date.getMonth() + 1; %>
+                        <% if(month<10) month = `0${month}`;%> 
+                        <% let day_e = test_date.getDate(); %>
+                        <% if(day_e<10) day_e = `0${day_e}`;%>
+                        <% let hrs = (test_date.getHours() %12)%>
+                        <% if(hrs<10) hrs = `0${hrs}`;%>
+                        <% let mns= test_date.getMinutes()%>
+                        <% if(mns<10) mns = `0${mns}`;%>
+                        <% const tmp = `${year}-${month}-${day_e}T${hrs}:${mns}`; %>
+                        <div class="p-2 text-center bg-light">
+                            <div class="appointmentBody" data-appointment="<%= a.appointment_id %>">
+                                <h4 class="fs-5 d-inline">
+                                    <%= a.person_name %>
+                                </h4>
+                                <p class="lead fs-6 text-info">
+                                    <span>
+                                        <%= display_date%>
+                                    </span>
+                                    <span class="text-black fs-6">
+                                        <%= (a.appointment_type).toLowerCase() %>
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="d-flex justify-content-around">
+                                <form action="/appointment/<%= a.appointment_id %>?_method=PUT" method="POST"
+                                    class="d-none appointmentUpdate" data-appointment="<%= a.appointment_id %>">
+                                    <div class="mb-3">
+                                        <input type="datetime-local" class="form-control" id="name" name="date"
+                                            placeholder="Enter New Date" value="<%= tmp %>">
+                                        <button class="btn btn-info text-white">Update Date</button>
+                                    </div>
+                                </form>
+                                <a class="btn btn-md btn-info text-white updateAppointmentButton" data-appointment="<%= a.appointment_id %>">Change Date</a>
+                                <form action="/appointment/<%= a.appointment_id %>?_method=DELETE" method="post"
+                                    class="appointmentDelete" data-appointment="<%= a.appointment_id %>">
+                                    <button class="btn btn-md btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    <% } %>
+            </div>
+            </div>
             <div class="col-md-3 ms-auto align-self-end d-none" id="chatBox">
                 <div class="card text-center position-relative">
                     <h4 class="me-5 fw-normal">Chat With patients</h4>
@@ -361,4 +414,27 @@
     //     console.log('WebSocket connection closed');
     // });
 
+    </script>
+
+    <script>
+        const updateAppointmentButton = document.querySelectorAll('.updateAppointmentButton');
+        const appointmentUpdateForm = document.querySelectorAll('.appointmentUpdate');
+        const appointmentDeleteForm = document.querySelectorAll('.appointmentDelete');
+        const appointmentBody = document.querySelectorAll('.appointmentBody');
+
+        const appointmentBodyArray = Array.from(appointmentBody);
+        const appointmentUpdateForms = Array.from(appointmentUpdateForm);
+        const appointmentDeleteForms = Array.from(appointmentDeleteForm);
+
+        updateAppointmentButton.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const element = appointmentBodyArray.find(ele => ele.getAttribute('data-appointment') == btn.getAttribute('data-appointment')) 
+                const updateForm = appointmentUpdateForms.find(ele => ele.getAttribute('data-appointment') == btn.getAttribute('data-appointment')) 
+                const deleteForm = appointmentDeleteForms.find(ele => ele.getAttribute('data-appointment') == btn.getAttribute('data-appointment'))
+                element.classList.add('d-none');
+                btn.classList.add('d-none');
+                updateForm.classList.remove('d-none');
+                deleteForm.classList.add('d-none');
+            })
+        })
     </script>

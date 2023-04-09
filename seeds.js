@@ -58,35 +58,78 @@ const insertDummyData = async () => {
     //     await client.query('INSERT INTO medical_history (treatment_id, patient_id, medical_history_diagnosis, medical_history_notes) VALUES ($1, $2, $3, $4)', [treatment_id, patient_id, medical_history_diagnosis, medical_history_notes]);
     // }
     // Generate 50 sensors
-    for (let i = 0; i < 50; i++) {
-        const sensor_name = faker.random.arrayElement(['SugarSensor', 'Bloodensor', 'HeartRate', 'BodyGuardian', 'TempTracker', 'MoveMinder', 'SkinSense']);
-        const sensor_model_number = faker.random.arrayElement(['CGM-123A', 'BP-M456', 'ECG-789B', 'SpO2-012C', 'Temperature-345D', 'Accelerometer-678E', 'GSR-901F']);
-        await client.query('INSERT INTO sensor (sensor_name, sensor_model_number) VALUES($1, $2)', [sensor_name, sensor_model_number]);
-    }
-    // Generate 250 observations 
-    const { rows } = await client.query('SELECT * FROM sensor');
-    for (let i = 0; i < 250; i++) {
-        const observation_type = faker.random.arrayElement(["Blood glucose level", "Body temperature", "Oxygen saturation", "Blood pressure", "Heart rate", "Respiratory rate", "ECG waveform"]
-        );
-        const observation_value = faker.random.arrayElement(["98.7", "102.1", "96.4", "1.5", "75", "16", "0.12", "97.5", "101.2", "93.8", "18.5", "68", "18", "0.08", "100.3", "98.9", "95.2", "11.8", "72", "14", "0.1", "99.1", "100.6", "97.8", "1.66"]
-        );
-        const observation_unit = faker.random.arrayElement(["bpm", "mg/dL", "cm", "mmHg", "kg", "ml", "degrees Celsius"]
-        );
-        const observation_time = '2023-03-27';
-        const sensor = faker.random.arrayElement(rows);
-        const sensor_id = sensor.sensor_id;
-        await client.query('INSERT INTO observation (observation_type, observation_unit, sensor_id, observation_time, observation_value) VALUES($1, $2, $3, $4, $5)', [observation_type, observation_unit, sensor_id, observation_time, observation_value]);
-    }
-    // Generate recorded Data
-    const patient = await client.query('SELECT * FROM patient');
-    const observation = await client.query('SELECT * FROM OBSERVATION');
+    // for (let i = 0; i < 50; i++) {
+    //     const sensor_name = faker.random.arrayElement(['SugarSensor', 'Bloodensor', 'HeartRate', 'BodyGuardian', 'TempTracker', 'MoveMinder', 'SkinSense']);
+    //     const sensor_model_number = faker.random.arrayElement(['CGM-123A', 'BP-M456', 'ECG-789B', 'SpO2-012C', 'Temperature-345D', 'Accelerometer-678E', 'GSR-901F']);
+    //     await client.query('INSERT INTO sensor (sensor_name, sensor_model_number) VALUES($1, $2)', [sensor_name, sensor_model_number]);
+    // }
+    // // Generate 250 observations 
+    // const { rows } = await client.query('SELECT * FROM sensor');
+    // for (let i = 0; i < 250; i++) {
+    //     const observation_type = faker.random.arrayElement(["Blood glucose level", "Body temperature", "Oxygen saturation", "Blood pressure", "Heart rate", "Respiratory rate", "ECG waveform"]
+    //     );
+    //     const observation_value = faker.random.arrayElement(["98.7", "102.1", "96.4", "1.5", "75", "16", "0.12", "97.5", "101.2", "93.8", "18.5", "68", "18", "0.08", "100.3", "98.9", "95.2", "11.8", "72", "14", "0.1", "99.1", "100.6", "97.8", "1.66"]
+    //     );
+    //     const observation_unit = faker.random.arrayElement(["bpm", "mg/dL", "cm", "mmHg", "kg", "ml", "degrees Celsius"]
+    //     );
+    //     const observation_time = '2023-03-27';
+    //     const sensor = faker.random.arrayElement(rows);
+    //     const sensor_id = sensor.sensor_id;
+    //     await client.query('INSERT INTO observation (observation_type, observation_unit, sensor_id, observation_time, observation_value) VALUES($1, $2, $3, $4, $5)', [observation_type, observation_unit, sensor_id, observation_time, observation_value]);
+    // }
+    // // Generate recorded Data
+    // const patient = await client.query('SELECT * FROM patient');
+    // const observation = await client.query('SELECT * FROM OBSERVATION');
+    // for (let i = 0; i < 168; i++) {
+    //     const { sensor_id, observation_value, observation_unit } = observation.rows[Math.floor(Math.random() * observation.rowCount)];
+    //     const patient_id = patient.rows[Math.floor(Math.random() * patient.rowCount)].person_id;
+    //     const recorded_data_date = '2023-03-28';
+    //     await client.query('WITH removed AS (DELETE FROM recorded_data WHERE sensor_id = $1 RETURNING *)INSERT INTO recorded_data (patient_id, sensor_id, recorded_data_unit, recorded_data_date, recorded_data_value) VALUES ($2, $1, $3, $4, $5)', [sensor_id, patient_id, observation_unit, recorded_data_date, observation_value]);
+    // }
+    // Generate Appointments
+    const dates = [
+        "2023-04-01 09:15:30",
+        "2023-04-02 18:45:12",
+        "2023-04-03 08:30:00",
+        "2023-04-04 14:20:45",
+        "2023-04-05 11:55:30",
+        "2023-04-06 16:10:15",
+        "2023-04-07 12:40:00",
+        "2023-04-08 17:25:30",
+        "2023-04-09 07:15:00",
+        "2023-04-10 13:50:45",
+        "2023-04-11 10:30:15",
+        "2023-04-12 15:05:30",
+        "2023-04-13 11:25:00",
+        "2023-04-14 19:15:45",
+        "2023-04-15 08:40:30",
+        "2023-04-16 16:55:15",
+        "2023-04-17 12:30:00",
+        "2023-04-18 10:05:30",
+        "2023-04-19 14:50:15",
+        "2023-04-20 09:20:00",
+        "2023-04-21 18:35:45",
+        "2023-04-22 07:10:30",
+        "2023-04-23 11:55:15",
+        "2023-04-24 15:30:45",
+        "2023-04-25 13:05:30",
+        "2023-04-26 17:40:00",
+        "2023-04-27 10:15:30",
+        "2023-04-28 08:00:00",
+        "2023-04-29 14:25:15",
+        "2023-04-30 16:50:30"
+    ];
+    const patients = await client.query('SELECT * FROM patient');
+    const doctors = await client.query('SELECT * FROM doctor');
     for (let i = 0; i < 168; i++) {
-        const { sensor_id, observation_value, observation_unit } = observation.rows[Math.floor(Math.random() * observation.rowCount)];
-        const patient_id = patient.rows[Math.floor(Math.random() * patient.rowCount)].person_id;
-        const recorded_data_date = '2023-03-28';
-        await client.query('WITH removed AS (DELETE FROM recorded_data WHERE sensor_id = $1 RETURNING *)INSERT INTO recorded_data (patient_id, sensor_id, recorded_data_unit, recorded_data_date, recorded_data_value) VALUES ($2, $1, $3, $4, $5)', [sensor_id, patient_id, observation_unit, recorded_data_date, observation_value]);
+        const date = dates[Math.floor(Math.random() * dates.length)];
+        const patient = patients.rows[Math.floor(Math.random() * patients.rowCount)].person_id;
+        const doctor = doctors.rows[Math.floor(Math.random() * doctors.rowCount)].person_id;
+        const type = "ONLINE";
+        const reason = 'HEAD PAIN SOMETHING';
+        const params = [doctor, patient, date, type, reason];
+        await client.query('insert into appointment (doctor_id, patient_id, appointment_date, appointment_type, appointment_reason) values($1, $2, $3, $4, $5)', params);
     }
-  
 };
 
 insertDummyData().then(() => {

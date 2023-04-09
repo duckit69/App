@@ -1,60 +1,165 @@
 <%- layout('layouts/boilerplate') %>
-<h1>Patient Full details</h1>
-<div class="row">
-    <div class="col-4">
-        <div class="card p-2">
-            <div class="card-body">
-              <h5 class="card-title"><%= result.patient[0].person_name %></h5>
-              <h5 class="card-title">Age: <%= age.rows[0].age %> years</h5>
-              <h5 class="card-title">Sex: <%= result.patient[0].person_gender.toLowerCase() %></h5>
-              <% for(let p of patient_recorded_data){ %>
-                <h5 class="card-title">
-                    <%= p.sensor_name %>: 
-                    <span><%= p.recorded_data_value %></span>
-                    <span><%= p.recorded_data_unit %></span>
-                </h5>
-              <% } %>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              <%= console.log(patient_recorded_data) %>
-            </div>
-            <form action="" method="post">
-                <button class="btn btn-info text-white fw-bold">evaluate</button>
-            </form>
-        </div>
-    </div>
-    <div class="col-4 vstack gap-3">
-        <div class="card max-height">
-            <div class="card-body">
-            <% for(const m of result.medical_history){ %>
-                <div class="p-2">
-                    <div class="hstack gap-3 d-flex justify-content-between">
-                        <label class="form-label"><%= m.medical_history_diagnosis %></label>
-                        <a class="btn btn-secondary search-treatment" href="/treatment/search/<%= m.treatment_id %>" onclick="return false;">Open Treatment</a>               
+    <h1>Patient Full details</h1>
+    <div class="row">
+        <div class="col-4">
+            <div class="card p-2">
+                <div class="card-body">
+                    <h5 class="card-title" data-patient-id="<%= result.patient[0].person_id %>" id="patient">
+                        <%= result.patient[0].person_name %>
+                    </h5>
+                    <h5 class="card-title">Age: <%= age.rows[0].age %> years</h5>
+                    <h5 class="card-title">Sex: <%= result.patient[0].person_gender.toLowerCase() %>
+                    </h5>
+                    <% for(let p of patient_recorded_data){ %>
+                        <h5 class="card-title">
+                            <%= p.sensor_name %>:
+                                <span>
+                                    <%= p.recorded_data_value %>
+                                </span>
+                                <span>
+                                    <%= p.recorded_data_unit %>
+                                </span>
+                        </h5>
+                    <% } %>
+                </div>
+                <div class="card col-10 offset-1">
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Cardiovascular Risk</li>
+                            <li class="list-group-item">Risk Factors: <%= Evaluation.riskFactors %></li>
+                            <li class="list-group-item">Risk Class: <%= Evaluation.riskClass %></li>
+                        </ul>
                     </div>
                 </div>
-            <% } %>
             </div>
-        </div>  
-        <div class="btn btn-success text-white">Add Treatment</div>
+        </div>
+        <div class="col-4 vstack gap-3">
+            <div class="card medical-history-height">
+                <div class="card-body">
+                    <% for(const m of result.medical_history){ %>
+                        <div class="p-2">
+                            <div class="hstack gap-3 d-flex justify-content-between">
+                                <label class="form-label">
+                                    <%= m.medical_history_diagnosis %>
+                                </label>
+                                <a class="btn btn-secondary search-treatment"
+                                    href="/treatment/search/<%= m.treatment_id %>" onclick="return false;">Open
+                                    Treatment</a>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+            <div class="btn btn-success text-white">Add Treatment</div>
+        </div>
+        <div class="col-4" id="search-result"></div>
     </div>
-    <div class="col-4" id="search-result"></div>
-</div>
-
-<script>
-    const searchTreatment = document.querySelectorAll('.search-treatment');
-    const searchResult = document.getElementById('search-result');
-    let activeTab = '';
-    searchTreatment.forEach(e => {
-        e.addEventListener('click' , async (ele) => {
-            if (!(activeTab==='')){
-                activeTab.classList.remove('btn-success');
-            }
-            activeTab = ele.target;
-            ele.target.classList.add('btn-success');
-            const link = ele.target.attributes[1].value;
-            const result = await fetch(link);
-            const result1 = await result.text();
-            searchResult.innerHTML = result1;
+    <div class="row">
+        <div class="row mt-auto">
+            <div class="col-6 offset-3">
+                <form id="form" class="text-center" data-doctor-id="<%= doctor_id %>">
+                    <div class="mb-3 text-start">
+                        <label for="diagnosisReason" class="form-label">Diagnosis Reason: </label>
+                        <input type="text" class="form-control" id="diagnosisReason" name="appointment_reason">
+                    </div>
+                    <div class="mb-3">
+                        <select class="form-select" name="appointment_type">
+                            <option selected>Choose a type</option>
+                            <option value="OFFLINE">Offline Appointment</option>
+                            <option value="ONLINE">Online Appointment</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <input type="datetime-local" class="form-control" id="date_time">
+                        <div id="invalid" class="d-none alert alert-warning"></div>
+                        <div id="valid" class="d-none alert alert-info"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="submitFormButton">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        const searchTreatment = document.querySelectorAll('.search-treatment');
+        const searchResult = document.getElementById('search-result');
+        let activeTab = '';
+        searchTreatment.forEach(e => {
+            e.addEventListener('click', async (ele) => {
+                if (!(activeTab === '')) {
+                    activeTab.classList.remove('btn-success');
+                }
+                activeTab = ele.target;
+                ele.target.classList.add('btn-success');
+                const link = ele.target.attributes[1].value;
+                const result = await fetch(link);
+                const result1 = await result.text();
+                searchResult.innerHTML = result1;
+            })
         })
-    })
-</script>
+    </script>
+
+    <script>
+        const form = document.querySelector('#form');
+        const dateTime = document.querySelector('#date_time');
+        const patientIdHolder = document.querySelector('#patient');
+        const invalid = document.querySelector('#invalid');
+        const valid = document.querySelector('#valid');
+        const submitFormButton = document.querySelector('#submitFormButton');
+
+        const doctor_id =  form.getAttribute('data-doctor-id');
+        const patient_id = patientIdHolder.getAttribute('data-patient-id');
+        let submitFlag = false;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+        })
+        dateTime.addEventListener('change', async () => {
+            const tmp = dateTime.value;
+            const tmp_date = new Date(tmp);
+            const result = await fetch(`/appointment/checkDate/search?patient_id=${patient_id}&doctor_id=${doctor_id}&date=${tmp}`);
+            const data = await result.json();
+            // check if this date is Available for this doctor and this patient 
+            // result must be 0 => the doctos has 0 appointments so as the patient
+            if (data.status === 'success') {
+                submitFlag = true;
+                valid.classList.add('d-block');
+                valid.classList.remove('d-none');
+                valid.innerText = data.message;
+                setTimeout(() => {
+                    valid.innerText = '';
+                    valid.classList.remove('d-block');
+                    valid.classList.add('d-none');
+                }, 2000);
+            } else {
+                submitFlag = false;
+                invalid.classList.add('d-block');
+                invalid.classList.remove('d-none');
+                invalid.innerText = data.message;
+                setTimeout(() => {
+                    invalid.innerText = '';
+                    invalid.classList.remove('d-block');
+                    invalid.classList.add('d-none');
+                }, 2000);
+            }
+            submitFormButton.addEventListener('click', () => {
+                if (submitFlag) {
+                    const insertData = {
+                        doctor_id: doctor_id,
+                        patient_id: patient_id,
+                        appointment_date: tmp,
+                        appointment_type: form[1].value,
+                        appointment_reason: form[0].value,
+                    }
+                    const url = `/appointment/createAppointment`;
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(insertData)
+                    })
+                }
+            });
+        });
+
+    </script>

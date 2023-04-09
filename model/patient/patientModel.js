@@ -59,6 +59,10 @@ module.exports.getAllAppointments = async (req, res) => {
     res.send({appointments})
 }
 
+module.exports.evaluate = async (patient_id) => {
+    return await evaluatePatient(patient_id);
+}
+
 async function findMedicalHistoryForOnePatient(patient_id) {
     const { rows } = await db.query('SELECT m.* from medical_history m, patient p, treatment t where p.person_id = m.patient_id and m.treatment_id = t.treatment_id and p.person_id = $1', [patient_id]);
     return rows;

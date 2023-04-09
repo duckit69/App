@@ -1,6 +1,8 @@
 const db = require('../../config/db');
 const bcrypt = require('bcrypt');
 
+const Patient = require('../patient/patientModel');
+
 const salt = 10;
 
 module.exports.registerDoctor = async (req, res) => {
@@ -28,15 +30,20 @@ module.exports.getPatientByNameForOneDoctor = async (req, res) => {
 module.exports.doctorDashboard = async (req, res) => {
     const result = await findAllPatientForCeratinDoctor(req.user.person_id);
     const doctorObject = req.user;
-    res.render('users/doctor/dashboard', { result, doctorObject});
+    const myAppointments = await findMyUpComingAppointments(req.user.person_id);
+    res.render('users/doctor/dashboard', { result, doctorObject, myAppointments });
 }
 module.exports.getPatientById = async (req, res) => {
     // person_id =  req.params.id
-    const result = await findPatientFullDetailsById(req.params.id);
+    const patient_id = req.params.id;
+    const result = await findPatientFullDetailsById(patient_id);
+    const Evaluation = await Patient.evaluate(patient_id);
     const age = await db.query('SELECT EXTRACT(YEAR FROM age(person_birth_date)) as age from patient where person_id = $1', [req.params.id]);
     const recorded_data = await db.query('SELECT s.*, r.* from sensor s, recorded_data r, patient p where p.person_id = r.patient_id and r.sensor_id = s.sensor_id and p.person_id = $1', [req.params.id]);
     const patient_recorded_data = recorded_data.rows;
-    res.render('users/doctor/patient_full_details', {result, age, patient_recorded_data});
+    const {person_id} = req.user;
+    const doctor_id = person_id;
+    res.render('users/doctor/patient_full_details', {result, age, patient_recorded_data, doctor_id, Evaluation});
 }
 async function findPatientByNameForOneDoctor(patient_name, doctor_id) {    
     return await db.query(`SELECT DISTINCT p.* FROM doctor d, patient p, treatment t, medical_history m WHERE t.doctor_id = d.person_id AND t.treatment_id = m.treatment_id AND m.patient_id = p.person_id AND d.person_id = ${doctor_id} AND p.person_name ILIKE '${patient_name}%' LIMIT 5;`);
@@ -52,4 +59,9 @@ async function findPatientFullDetailsById(person_id) {
 }
 async function findAllPatientForCeratinDoctor(person_id) {
     return await db.query('SELECT DISTINCT p.* FROM doctor d, patient p, treatment t, medical_history m WHERE t.doctor_id = d.person_id AND t.treatment_id = m.treatment_id AND m.patient_id = p.person_id AND d.person_id = $1', [person_id]);
+}
+
+async function findMyUpComingAppointments(doctor_id) {
+    const { rows } = await db.query(`select distinct a.*, p.person_name from appointment a, doctor d, patient p where a.patient_id = p.person_id and a.doctor_id = ${doctor_id} and a.appointment_date >= CURRENT_DATE order by appointment_date ASC`);
+    return rows;
 }
