@@ -1,7 +1,7 @@
 <% layout('layouts/boilerplate') %>
     <div class="row">
         <div class="col-md-6 offset-3">
-            <form action="" method="post" id="registerForm">
+            <form action="/" method="post" id="registerForm" enctype="multipart/form-data">
 
                 <fieldset class="tab">
                     <select class="form-select" id="role">
@@ -25,13 +25,24 @@
                         <label for="date" class="form-label">Gender: </label>
                         <select class="form-select" name="gender">
                             <option selected disabled>Pick your gender</option>
-                            <option value="MALE">Patient</option>
+                            <option value="MALE">Male</option>
                             <option value="FEMALE">Female</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="phone" class="form-label">Phone: </label>
                         <input type="text" class="form-control" name="phone">
+                    </div>
+                </fieldset>
+                <fieldset class="tab">
+                    <h2>Account Information</h2>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username: </label>
+                        <input type="text" class="form-control" name="username">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">password: </label>
+                        <input type="password" class="form-control" name="password">
                     </div>
                 </fieldset>
                 <fieldset class="tab">
@@ -107,8 +118,9 @@
                 displayAllTabs();
                 hideAllTabsExceptCurrent(++current);
             }
-            if (current == (tabs.length - 1)) {
+            if (current == (tabs.length)) {
                 next.innerHTML = 'Submit';
+                next.setAttribute('type', 'submit');
             }
         }
         function displayTreatments() {
@@ -123,26 +135,26 @@
             const diagnosisInput = document.createElement('input');
             diagnosisInput.classList.add('form-control');
             diagnosisInput.setAttribute('type', 'text');
-            diagnosisInput.setAttribute('name', `diagnosis${counter}`);
+            diagnosisInput.setAttribute('name', `diagnosis`);
             diagnosisInput.setAttribute('placeholder', 'Diagnosis');
             const notesInput = document.createElement('input');
             notesInput.classList.add('form-control');
             notesInput.setAttribute('type', 'text');
-            notesInput.setAttribute('name', `notes${counter}`);
+            notesInput.setAttribute('name', `notes`);
             notesInput.setAttribute('placeholder', 'notes');
             const dateInput = document.createElement('input');
             dateInput.classList.add('form-control');
             dateInput.setAttribute('type', 'datetime-local');
-            dateInput.setAttribute('name', `date${counter}`);
+            dateInput.setAttribute('name', `date`);
             const medicationInput = document.createElement('input');
             medicationInput.classList.add('form-control');
             medicationInput.setAttribute('type', 'text');
-            medicationInput.setAttribute('name', `medication${counter}`);
+            medicationInput.setAttribute('name', `medication`);
             medicationInput.setAttribute('placeholder', 'Medication name');
             const dosageInput = document.createElement('input');
             dosageInput.classList.add('form-control');
             dosageInput.setAttribute('type', 'text');
-            dosageInput.setAttribute('name', `dosage${counter}`);
+            dosageInput.setAttribute('name', `dosage`);
             dosageInput.setAttribute('placeholder', 'Medication dosage');
             div.appendChild(diagnosisInput);
             div.appendChild(notesInput);
@@ -151,6 +163,44 @@
             div.appendChild(dosageInput);
             return div;
         }
+
+        function createScanner(counter) {
+            const div = document.createElement('div');
+            if (counter == 0) {
+                div.classList.add('active');
+            }
+            div.classList.add('carousel-item');
+            const diagnosisInput = document.createElement('input');
+            diagnosisInput.classList.add('form-control');
+            diagnosisInput.setAttribute('type', 'text');
+            diagnosisInput.setAttribute('name', `diagnosis`);
+            diagnosisInput.setAttribute('placeholder', 'Diagnosis');
+            const notesInput = document.createElement('input');
+            notesInput.classList.add('form-control');
+            notesInput.setAttribute('type', 'text');
+            notesInput.setAttribute('name', `notes`);
+            notesInput.setAttribute('placeholder', 'notes');
+            const dateInput = document.createElement('input');
+            dateInput.classList.add('form-control');
+            dateInput.setAttribute('type', 'datetime-local');
+            dateInput.setAttribute('name', `date`);
+            const scannerInput = document.createElement('input');
+            scannerInput.classList.add('form-control');
+            scannerInput.setAttribute('type', 'file');
+            scannerInput.setAttribute('name', `photos`);
+            div.appendChild(diagnosisInput);
+            div.appendChild(notesInput);
+            div.appendChild(dateInput);
+            div.appendChild(scannerInput);
+            return div;
+        }
+        function activeMedicalHistoryMGM() {
+            activeMedicalHistory.classList.add('active');
+            carouselInner.appendChild(activeMedicalHistory);
+            carouselExample.classList.remove('d-none');
+            medicalHistory.classList.add('d-none');
+            medicalHistory.value = 'Pick One';
+        }         
     </script>
 
     <script>
@@ -176,18 +226,15 @@
 
         let counter = 0;
         medicalHistory.addEventListener('change', () => {
-
-            if (medicalHistory.value == 'prescription') {
-                if (counter > 0) {
-                    activeMedicalHistory.classList.remove('active');
-                }
-                activeMedicalHistory = createPrescription(counter++);
-                activeMedicalHistory.classList.add('active');
-                carouselInner.appendChild(activeMedicalHistory);
-                carouselExample.classList.remove('d-none');
-                medicalHistory.classList.add('d-none');
-                medicalHistory.value = 'Pick One';
+            if (counter > 0) {
+                activeMedicalHistory.classList.remove('active');
             }
+            if (medicalHistory.value == 'prescription') {
+                activeMedicalHistory = createPrescription(counter++);
+            } else {
+                activeMedicalHistory = createScanner(counter++);
+            } 
+            activeMedicalHistoryMGM()
         })
 
     </script>

@@ -8,7 +8,9 @@ const appointmentRoute = require('./routes/Appointment/appointmentRoute');
 const sensorRoute = require('./routes/Sensor/sensorRoute');
 const medicalHistoryRoute = require('./routes/MedicalHistory/medicalHistoryRoute');
 const ejsMate = require('ejs-mate');
-var methodOverride = require('method-override');
+const methodOverride = require('method-override');
+const multer = require('multer');
+const upload = multer({dest: 'uploads/'});
 
 const db = require('./config/db');
 
@@ -87,6 +89,10 @@ app.get('/message', async(req, res) => {
     const {sender, receiver} = req.query;
     const { rows } = await db.query('select * from message where (message_sender = $1 and message_receiver = $2) or (message_sender = $2 and message_receiver = $1) ORDER BY message_date ASC;', [sender, receiver]);
     res.send(rows);
+})
+
+app.post('/', upload.array('photos'),(req, res) => {
+    res.send(req.files);
 })
 
 app.get('/', (req, res) => {
