@@ -12,27 +12,33 @@ module.exports.patientDashboard = async (req, res) => {
     const doctors = result.rows;
     const patientObject = req.user;
     const Evaluation = await evaluatePatient(req.user.person_id);
-   
-    res.render('users/patient/dashboard', { doctors, patientObject, sensors, appointments, medical_history, Evaluation});
+
+    res.render('users/patient/dashboard', { doctors, patientObject, sensors, appointments, medical_history, Evaluation });
 };
 
 module.exports.registerPatient = async (req, res) => {
     // //fullname + gender + date + username + password + phone
-    const { name, gender, date, phone, ATCD, smokeState, cigarettePerDay, IRC, sedentary, sportsMinutesPerDay, alchool, alchoolConsomation, username, password } = req.body.user;
-    const params = [name, password, gender, date, phone, ATCD, smokeState, cigarettePerDay, IRC, sedentary, sportsMinutesPerDay, alchool, alchoolConsomation, username];
+    const { name, gender, date, phone, username, password, height, weight, sedentary, atcd, smokestate, alchoolstate } = req.body;
+    let flag = false;
+    atcd.forEach(element => {
+        if (element.toLowerCase() == 'yes'){
+            flag = true;
+        }
+    })
+    const params = [name, password, gender, date, phone, username, height, weight, sedentary, flag, smokestate, alchoolstate];
     const hashedPasswored = await bcrypt.hash(params[1], salt);
     params[1] = hashedPasswored;
-    await db.query('INSERT INTO patient(person_name, person_password, person_gender, person_birth_date, person_phone, patient_atcd, patient_smokestate, patient_cigaretteConsomation, patient_irc, patient_sedentary, patient_sportminutesperday, patient_alchoolstate, patient_alchoolconsomation, person_username) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)', params);
+    await db.query('INSERT INTO patient(person_name, person_password, person_gender, person_birth_date, person_phone, person_username, patient_height, patient_weight, patient_sedentary, patient_atcd, patient_cigaretteConsomation, patient_alchoolconsomation) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)', params);
     res.redirect('/users/login');
 }
 
 module.exports.getMedicalHistoryWithSpecificDoctor = async (req, res) => {
-    const {person_id} = req.user;
-    const medicalHistory  = await findMedicalHistoryWithSpecificDoctor(req.params.id, person_id);
+    const { person_id } = req.user;
+    const medicalHistory = await findMedicalHistoryWithSpecificDoctor(req.params.id, person_id);
     const appointment = await findAppointmentWithSpecificDoctor(req.params.id, person_id);
     const doctor = await findDoctorById(req.params.id);
     const patient_id = req.user.person_id;
-    res.render('users/patient/show', {medicalHistory, appointment, patient_id, doctor});
+    res.render('users/patient/show', { medicalHistory, appointment, patient_id, doctor });
 }
 
 // API CALL
@@ -46,17 +52,17 @@ module.exports.getDoctorByNameForOnePatient = async (req, res) => {
 
 module.exports.getAllDoctors = async (req, res) => {
     const doctorsArray = await findAllDoctors();
-    res.render('users/patient/allDoctors', { doctorsArray } );
+    res.render('users/patient/allDoctors', { doctorsArray });
 }
 
 module.exports.getSensors = async (req, res) => {
     const sensors = await findAllSensorsForOnePatient(req.query.patient_id);
-    res.send({sensors});
+    res.send({ sensors });
 }
 
 module.exports.getAllAppointments = async (req, res) => {
     const appointments = await findMyAppointments(req.user.person_id);
-    res.send({appointments})
+    res.send({ appointments })
 }
 
 module.exports.evaluate = async (patient_id) => {
@@ -64,7 +70,7 @@ module.exports.evaluate = async (patient_id) => {
 }
 
 async function findMedicalHistoryForOnePatient(patient_id) {
-    const { rows } = await db.query('SELECT m.* from medical_history m, patient p, treatment t where p.person_id = m.patient_id and m.treatment_id = t.treatment_id and p.person_id = $1', [patient_id]);
+    const { rows } = await db.query('SELECT DISTINCT m.* from medical_history m, patient p, treatment t where p.person_id = m.patient_id and m.treatment_id = t.treatment_id and p.person_id = $1', [patient_id]);
     return rows;
 }
 
@@ -73,17 +79,17 @@ async function findMyUpComingAppointments(patient_id) {
     // const rows  = await db.query('select a.*, d.person_name from appointment a, doctor d where a.doctor_id = d.person_id and a.patient_id = $1 and a.appointment_date >= CURRENT_DATE order by a.appointment_date ASC', [patient_id]);
     return rows;
 }
-async function findAllSensorsForOnePatient(patient_id){
+async function findAllSensorsForOnePatient(patient_id) {
     const { rows } = await db.query('SELECT r.*, s.* from recorded_data r, sensor s, patient p where r.sensor_id = s.sensor_id and r.patient_id = p.person_id and p.person_id = $1', [patient_id]);
     return rows;
-}   
+}
 
 async function findAllDoctors() {
     const { rows } = await db.query('SELECT DISTINCT * FROM doctor');
     return rows;
 }
 
-async function findDoctorByNameForOnePatient(doctor_name, patient_id) {    
+async function findDoctorByNameForOnePatient(doctor_name, patient_id) {
     const { rows } = await db.query(`SELECT DISTINCT d.* FROM doctor d, patient p, treatment t, medical_history m WHERE t.doctor_id = d.person_id AND t.treatment_id = m.treatment_id AND m.patient_id = p.person_id AND p.person_id = ${patient_id} AND d.person_name ILIKE '${doctor_name}%' LIMIT 5;`);
     return rows;
 }
@@ -103,28 +109,27 @@ async function findDoctorById(doctor_id) {
     return rows[0];
 }
 
-async function countCardioVascularRiskFactors(patient_id){
+async function countCardioVascularRiskFactors(patient_id) {
     let counter = 0;
     const gender = await getGender(patient_id);
     const age = await getAge(patient_id);
     const ATCD = await getATCD(patient_id);
-    const smokeState = await getSmokeState(patient_id);
-    const drinkState = await getDrinkState(patient_id);
-    const sedentary = await getSidentarite(patient_id);
+    const cigarettePerDay = await getSmokeState(patient_id);
+    const cupPerDay = await getDrinkState(patient_id);
+    const minutesPerDay = await getSidentarite(patient_id);
     const sensors = await findAllSensorsForOnePatient(patient_id);
     if (gender == 'MALE') {
-       counter++;
-       if (age > 50) counter++;
+        counter++;
+        if (age > 50) counter++;
     }
     if (gender == 'FEMALE')
         if (age > 60) counter++;
     if (ATCD) counter++;
-    if (smokeState.smokestate)
-        if(smokeState.number > 10) counter++;
-    if (drinkState.drinker)
-        if (drinkState.cups > 3) counter++;
-    if (sedentary.sedentary)    
-        if (sedentary.minutes < 30) counter++;
+    if (cigarettePerDay > 10)
+        counter++;
+    if (cupPerDay > 3) 
+        counter++;
+    if (minutesPerDay < 30) counter++;
 
     return counter;
 }
@@ -143,18 +148,18 @@ async function getATCD(patient_id) {
 }
 
 async function getSmokeState(patient_id) {
-    const { rows } = await db.query('select patient_smokestate as smokeState, patient_cigaretteconsomation as number from patient where person_id=$1', [patient_id]);
-    return rows[0];
+    const { rows } = await db.query('select patient_cigaretteconsomation as cigarettePerDay from patient where person_id=$1', [patient_id]);
+    return rows[0].cigarettePerDay;
 }
 
 async function getSidentarite(patient_id) {
-    const { rows } = await db.query('select patient_sedentary as sedentary, patient_sportminutesperday as minutes from patient where person_id=$1', [patient_id]);
-    return rows[0];
+    const { rows } = await db.query('select patient_sedentary as minutesPerDay from patient where person_id=$1', [patient_id]);
+    return rows[0].minutesPerDay;
 }
 
 async function getDrinkState(patient_id) {
-    const { rows } = await db.query('select patient_alchoolstate as drinker, patient_alchoolconsomation as cups from patient where person_id=$1', [patient_id]);
-    return rows[0];
+    const { rows } = await db.query('select patient_alchoolconsomation as cupPerDay from patient where person_id=$1', [patient_id]);
+    return rows[0].cupPerDay;
 }
 
 async function evaluatePatient(patient_id) {

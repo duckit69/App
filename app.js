@@ -79,6 +79,7 @@ app.use(session({
 }))
 app.use(passport.authenticate('session'));
 app.use(passport.session());
+app.use('/uploads', express.static('uploads'));
 
 app.use('/users', userRoute);
 app.use('/treatment', treatmentRoute);
@@ -91,9 +92,11 @@ app.get('/message', async(req, res) => {
     res.send(rows);
 })
 
-app.post('/', upload.array('photos'),(req, res) => {
-    res.send(req.files);
-})
+// app.post('/',(req, res) => {
+//     req.files[0].filename = "SCANNER";
+//     console.dir(req.files[0].filename)
+//     res.send(req.body);
+// })
 
 app.get('/', (req, res) => {
     res.render('home');

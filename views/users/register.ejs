@@ -1,7 +1,7 @@
 <% layout('layouts/boilerplate') %>
     <div class="row">
         <div class="col-md-6 offset-3">
-            <form action="/" method="post" id="registerForm" enctype="multipart/form-data">
+            <form action="/" method="post" id="registerForm">
 
                 <fieldset class="tab">
                     <select class="form-select" id="role">
@@ -15,15 +15,15 @@
                     <h2>Personal Information</h2>
                     <div class="mb-3">
                         <label for="name" class="form-label">Full Name: </label>
-                        <input type="text" class="form-control" name="fullName">
+                        <input type="text" class="form-control" name="name">
                     </div>
                     <div class="mb-3">
                         <label for="date" class="form-label">Birth Date: </label>
-                        <input type="date" class="form-control" name="birthDate">
+                        <input type="date" class="form-control" name="date">
                     </div>
                     <div class="mb-3">
                         <label for="date" class="form-label">Gender: </label>
-                        <select class="form-select" name="gender">
+                        <select class="form-select" name="gender" id="gender">
                             <option selected disabled>Pick your gender</option>
                             <option value="MALE">Male</option>
                             <option value="FEMALE">Female</option>
@@ -32,6 +32,10 @@
                     <div class="mb-3">
                         <label for="phone" class="form-label">Phone: </label>
                         <input type="text" class="form-control" name="phone">
+                        <div class="mb-3" id="doctorInformation">
+                            <label for="speciality" class="form-label">Speciality: </label>
+                            <input type="text" class="form-control" name="speciality">
+                        </div>
                     </div>
                 </fieldset>
                 <fieldset class="tab">
@@ -45,51 +49,40 @@
                         <input type="password" class="form-control" name="password">
                     </div>
                 </fieldset>
-                <fieldset class="tab">
+                <fieldset class="patientInformation tab ">
                     <h2>Medical Information</h2>
                     <div class="mb-3">
-                        <label for="smokestate" class="form-label">Height: </label>
+                        <label for="height" class="form-label">Height: </label>
                         <input type="text" class="form-control" name="height">
                     </div>
                     <div class="mb-3">
-                        <label for="smokestate" class="form-label">Weight: </label>
+                        <label for="weight" class="form-label">Weight: </label>
                         <input type="text" class="form-control" name="weight">
                     </div>
                     <div class="mb-3">
-                        <label for="smokestate" class="form-label">How many minutes you workout Per Day: </label>
+                        <label for="sedentary" class="form-label">How many minutes you workout Per Day: </label>
                         <input type="text" class="form-control" name="sedentary">
                     </div>
                 </fieldset>
-                <fieldset class="tab">
-                    <h2>Medical history</h2>
+                <fieldset class="patientInformation tab ">
+                    <h2>Medical Information</h2>
                     <div class="mb-3">
-                        <label for="addBTN" class="form-label d-block">Add on going treatments: </label>
-                        <button type="button" class="btn btn-success" id="addMedicalHistory">Add</button>
-                        <select class="form-select d-none" id="medicalHistory">
-                            <option selected disabled>Pick One</option>
-                            <option value="prescription">Prescription</option>
-                            <option value="scanner">Scanner</option>
-                            <option value="radio">Radio</option>
-                        </select>
+                        <label for="smokestate" class="form-label">How many Cigarettes you smoke per day: </label>
+                        <input type="Number" class="form-control" name="smokestate">
                     </div>
-                    <div class="mt-3">
-                        <div id="carouselExample" class="carousel slide d-none">
-                            <div class="carousel-inner p-5" id="carouselInner">
-                            </div>
-                            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample"
-                                data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon bg-black me-5" aria-hidden="true"></span>
-                                <span class="visually-hidden">Previous</span>
-                            </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#carouselExample"
-                                data-bs-slide="next">
-                                <span class="carousel-control-next-icon bg-black ms-5" aria-hidden="true"></span>
-                                <span class="visually-hidden">Next</span>
-                            </button>
-                        </div>
+                    <div class="mb-3">
+                        <label for="alchoolstate" class="form-label">How many drinks per day: </label>
+                        <input type="number" class="form-control" name="alchoolstate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="smokestate" class="form-label">Does you father/grandFather died before 55 or had an IDM: </label>
+                        <input type="text" class="form-control" name="atcd">
+                    </div>
+                    <div class="mb-3">
+                        <label for="smokestate" class="form-label">Does you mother/grandMother died before 65 or had an IDM: </label>
+                        <input type="text" class="form-control" name="atcd">
                     </div>
                 </fieldset>
-
                 <div class="mb-3 d-flex">
                     <button type="button" class="btn btn-info d-none" id="previous">Previous</button>
                     <button type="button" class="btn btn-primary ms-auto" id="next">Next</button>
@@ -114,93 +107,32 @@
                 tabs[i].classList.remove('d-none');
         }
         function nextBttn() {
-            if (next.getAttribute('type') == 'button') {
+            if (next.innerHTML == 'Next') {
                 displayAllTabs();
-                hideAllTabsExceptCurrent(++current);
+                current++;
+                hideAllTabsExceptCurrent(current);
             }
-            if (current == (tabs.length)) {
+            if (next.innerHTML == 'Submit') {
+                form.submit();
+            }
+            if (role.value == 'doctor' && current == 2) {
                 next.innerHTML = 'Submit';
-                next.setAttribute('type', 'submit');
             }
-        }
-        function displayTreatments() {
 
-        }
-        function createPrescription(counter) {
-            const div = document.createElement('div');
-            if (counter == 0) {
-                div.classList.add('active');
+            if (current == (tabs.length - 1)) {
+                next.innerHTML = 'Submit';
             }
-            div.classList.add('carousel-item');
-            const diagnosisInput = document.createElement('input');
-            diagnosisInput.classList.add('form-control');
-            diagnosisInput.setAttribute('type', 'text');
-            diagnosisInput.setAttribute('name', `diagnosis`);
-            diagnosisInput.setAttribute('placeholder', 'Diagnosis');
-            const notesInput = document.createElement('input');
-            notesInput.classList.add('form-control');
-            notesInput.setAttribute('type', 'text');
-            notesInput.setAttribute('name', `notes`);
-            notesInput.setAttribute('placeholder', 'notes');
-            const dateInput = document.createElement('input');
-            dateInput.classList.add('form-control');
-            dateInput.setAttribute('type', 'datetime-local');
-            dateInput.setAttribute('name', `date`);
-            const medicationInput = document.createElement('input');
-            medicationInput.classList.add('form-control');
-            medicationInput.setAttribute('type', 'text');
-            medicationInput.setAttribute('name', `medication`);
-            medicationInput.setAttribute('placeholder', 'Medication name');
-            const dosageInput = document.createElement('input');
-            dosageInput.classList.add('form-control');
-            dosageInput.setAttribute('type', 'text');
-            dosageInput.setAttribute('name', `dosage`);
-            dosageInput.setAttribute('placeholder', 'Medication dosage');
-            div.appendChild(diagnosisInput);
-            div.appendChild(notesInput);
-            div.appendChild(dateInput);
-            div.appendChild(medicationInput);
-            div.appendChild(dosageInput);
-            return div;
+            
         }
-
-        function createScanner(counter) {
-            const div = document.createElement('div');
-            if (counter == 0) {
-                div.classList.add('active');
-            }
-            div.classList.add('carousel-item');
-            const diagnosisInput = document.createElement('input');
-            diagnosisInput.classList.add('form-control');
-            diagnosisInput.setAttribute('type', 'text');
-            diagnosisInput.setAttribute('name', `diagnosis`);
-            diagnosisInput.setAttribute('placeholder', 'Diagnosis');
-            const notesInput = document.createElement('input');
-            notesInput.classList.add('form-control');
-            notesInput.setAttribute('type', 'text');
-            notesInput.setAttribute('name', `notes`);
-            notesInput.setAttribute('placeholder', 'notes');
-            const dateInput = document.createElement('input');
-            dateInput.classList.add('form-control');
-            dateInput.setAttribute('type', 'datetime-local');
-            dateInput.setAttribute('name', `date`);
-            const scannerInput = document.createElement('input');
-            scannerInput.classList.add('form-control');
-            scannerInput.setAttribute('type', 'file');
-            scannerInput.setAttribute('name', `photos`);
-            div.appendChild(diagnosisInput);
-            div.appendChild(notesInput);
-            div.appendChild(dateInput);
-            div.appendChild(scannerInput);
-            return div;
+         
+        const patientInformation = document.querySelectorAll('.patientInformation');
+        const doctorInformation = document.querySelector('#doctorInformation');
+        function preparePatientInformation() {
+            doctorInformation.remove();
         }
-        function activeMedicalHistoryMGM() {
-            activeMedicalHistory.classList.add('active');
-            carouselInner.appendChild(activeMedicalHistory);
-            carouselExample.classList.remove('d-none');
-            medicalHistory.classList.add('d-none');
-            medicalHistory.value = 'Pick One';
-        }         
+        function prepareDoctorInformation() {
+            
+        }
     </script>
 
     <script>
@@ -208,33 +140,21 @@
         const next = document.querySelector('#next');
         const role = document.querySelector('#role');
         const tabs = document.querySelectorAll('.tab');
-        const form = document.querySelector('#form');
-        const medicalHistory = document.querySelector('#medicalHistory');
-        const addMedicalHistoryButton = document.querySelector('#addMedicalHistory');
-        const carouselInner = document.querySelector('#carouselInner');
-        const carouselExample = document.querySelector('#carouselExample');
+        const form = document.querySelector('#registerForm');
+
+        role.addEventListener('change', () => {
+            if (role.value == 'patient') {
+                form.setAttribute('action', '/users/patient/register');
+                preparePatientInformation();
+            }else if (role.value == 'doctor') {
+                form.setAttribute('action', '/users/doctor/register');
+            }
+        })
 
         let current = 0;
-        let activeMedicalHistory = null;
 
         hideAllTabsExceptCurrent(current);
         next.addEventListener('click', nextBttn)
 
-        addMedicalHistoryButton.addEventListener('click', () => {
-            medicalHistory.classList.remove('d-none');
-        })
-
         let counter = 0;
-        medicalHistory.addEventListener('change', () => {
-            if (counter > 0) {
-                activeMedicalHistory.classList.remove('active');
-            }
-            if (medicalHistory.value == 'prescription') {
-                activeMedicalHistory = createPrescription(counter++);
-            } else {
-                activeMedicalHistory = createScanner(counter++);
-            } 
-            activeMedicalHistoryMGM()
-        })
-
     </script>
