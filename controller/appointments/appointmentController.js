@@ -1,4 +1,6 @@
 const db = require('../../config/db');
+const Doctor = require('../../model/doctor/doctorModel');
+const Patient = require('../../model/patient/patientModel');
 
 module.exports.checkDateForPatientAndDoctor = async function (req, res) {
     const { patient_id, doctor_id, date } = req.query;
@@ -98,6 +100,37 @@ module.exports.checkDateWithAppointmentId = async (req, res) => {
         return res.redirect('/users/patient/dashboard');
     }
 
+}
+
+module.exports.validateUsersForOneAppointment = async (req, res) => {
+    const appointment_id = req.params.id;
+    const user_id = req.user.person_id;
+    // Check if users can access
+    const users = await checkUsersIdForOneAppointment(appointment_id, user_id);
+    if (!users) {
+        if (req.user.doctor_speciality) {
+            return res.redirect('/users/doctor/dashboard');
+        }
+        return res.redirect('/users/patient/dashboard');
+    }
+    else if (users.doctor_id == user_id || users.patient_id == user_id) {
+        const doctor = await Doctor.getDoctorById(users.doctor_id);
+        const patient = await Patient.getPatientById(users.patient_id);
+        if (req.user.person_id == doctor.person_id) {
+            const sender = doctor;
+            const receiver = patient;
+            return res.render('appointment', { users, sender, receiver });
+        }else {
+            const sender = patient;
+            const receiver = doctor;
+            return res.render('appointment', { users, sender, receiver });
+        }
+    }
+}
+
+async function checkUsersIdForOneAppointment(appointment_id, user_id) {
+    const { rows } = await db.query('select * from appointment where appointment_id = $1 and (doctor_id = $2 or patient_id = $2)', [appointment_id, user_id]);
+    return rows[0];
 }
 
 async function checkIfDateIsValideForPatienTAndDoctor(doctor_id, patient_id, date) {

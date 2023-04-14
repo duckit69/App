@@ -34,8 +34,8 @@
                 </div>
             </div>
             <div class="col-md-7 mt-4 d-flex flex-column gap-4">
-                <div class="row offset-1 mb-2">
-                    <div class="card col-5 p-0 me-1 sensor-appointment-height">
+                <div class="row mb-2">
+                    <div class="card col-4 p-0 me-1 sensor-appointment-height">
                         <h5 class="card-header sticky-top">My Sensors</h5>
                         <!-- give max height to sensor card -->
                         <div class="card-body vstack gap-2 overflow-scroll overflow-x-hidden">
@@ -76,7 +76,7 @@
                                 </form>
                         </div>
                     </div>
-                        <div class="ms-1 card col-5 p-0 sensor-appointment-height">
+                        <div class="ms-1 card col-7 p-0 sensor-appointment-height">
                             <h5 class="card-header sticky-top">My Appointments</h5>
                             <!-- give max height to sensor card -->
                             <div class="card-body vstack gap-2 overflow-scroll overflow-x-hidden">
@@ -116,13 +116,16 @@
                                                 <div class="mb-3">
                                                     <input type="datetime-local" class="form-control" id="name" name="date"
                                                         placeholder="Enter New Date" value="<%= tmp %>">
-                                                    <button class="btn btn-info text-white">Update Date</button>
+                                                    <button class="btn btn-md btn-info text-white">Update Date</button>
                                                 </div>
                                             </form>
                                             <a class="btn btn-md btn-info text-white updateAppointmentButton" data-appointment="<%= a.appointment_id %>">Change Date</a>
                                             <form action="/appointment/<%= a.appointment_id %>?_method=DELETE" method="post"
                                                 id="appointmentDelete" class="appointmentDelete" data-appointment="<%= a.appointment_id%>">
                                                 <button class="btn btn-md btn-danger">Delete</button>
+                                            </form>
+                                            <form action="/appointment/<%= a.appointment_id %>" method="get">
+                                                <button class="btn btn-md btn-success">Visit Room</button>
                                             </form>
                                         </div>
                                     </div>

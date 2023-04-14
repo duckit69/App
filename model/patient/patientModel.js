@@ -69,6 +69,16 @@ module.exports.evaluate = async (patient_id) => {
     return await evaluatePatient(patient_id);
 }
 
+module.exports.getPatientById= async (patient_id) => {
+    const patient = await findPatientById(patient_id);
+    return patient;
+}
+
+async function findPatientById(patient_id) {
+    const { rows } = await db.query('select * from patient where person_id = $1', [patient_id]); 
+    return rows[0];
+}
+
 async function findMedicalHistoryForOnePatient(patient_id) {
     const { rows } = await db.query('SELECT DISTINCT m.* from medical_history m, patient p, treatment t where p.person_id = m.patient_id and m.treatment_id = t.treatment_id and p.person_id = $1', [patient_id]);
     return rows;

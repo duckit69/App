@@ -35,6 +35,7 @@ module.exports.doctorDashboard = async (req, res) => {
     const myAppointments = await findMyUpComingAppointments(req.user.person_id);
     res.render('users/doctor/dashboard', { result, doctorObject, myAppointments });
 }
+//should not this be in patient model ? Hmm
 module.exports.getPatientById = async (req, res) => {
     // person_id =  req.params.id
     const patient_id = req.params.id;
@@ -47,6 +48,17 @@ module.exports.getPatientById = async (req, res) => {
     const doctor_id = person_id;
     res.render('users/doctor/patient_full_details', {result, age, patient_recorded_data, doctor_id, Evaluation});
 }
+
+module.exports.getDoctorById= async (doctor_id) => {
+    const doctor = await findDoctorById(doctor_id);
+    return doctor;
+}
+
+async function findDoctorById(doctor_id) {
+    const { rows } = await db.query('select * from doctor where person_id = $1', [doctor_id]); 
+    return rows[0];
+}
+
 async function findPatientByNameForOneDoctor(patient_name, doctor_id) {    
     return await db.query(`SELECT DISTINCT p.* FROM doctor d, patient p, treatment t, medical_history m WHERE t.doctor_id = d.person_id AND t.treatment_id = m.treatment_id AND m.patient_id = p.person_id AND d.person_id = ${doctor_id} AND p.person_name ILIKE '${patient_name}%' LIMIT 5;`);
 }

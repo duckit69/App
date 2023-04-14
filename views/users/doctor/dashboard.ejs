@@ -37,7 +37,6 @@
             </div>
             <div class="ms-1 card col-5 p-0 sensor-appointment-height">
                 <h5 class="card-header sticky-top">My Appointments</h5>
-                <!-- give max height to sensor card -->
                 <div class="card-body vstack gap-2 overflow-scroll overflow-x-hidden">
                     <% for(const a of myAppointments){ %>
                         <% const options ={weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'} %>
@@ -82,6 +81,9 @@
                                 <form action="/appointment/<%= a.appointment_id %>?_method=DELETE" method="post"
                                     class="appointmentDelete" data-appointment="<%= a.appointment_id %>">
                                     <button class="btn btn-md btn-danger">Delete</button>
+                                </form>
+                                <form action="/appointment/<%= a.appointment_id %>" method="get">
+                                    <button class="btn btn-success">Visit Room</button>
                                 </form>
                             </div>
                         </div>

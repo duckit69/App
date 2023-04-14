@@ -1,1 +1,111 @@
 <% layout('layouts/boilerplate') %>
+
+    <div class="row">
+        <div class="col-md-5"></div>
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header">Chat with: <%= receiver.person_name %>
+                </div>
+                <div class="card-body" id="chatDiv"></div>
+                <div class="card-footer d-flex gap-1">
+                    <input type="text" class="form-control" placeholder="Enter message" id="chatInput">
+                    <button class="btn btn-primary" id="sendMessage">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:9090/room');
+
+        const chatInput = document.querySelector('#chatInput');
+        const chatHeader = document.querySelector('#chatBoxHeader');
+        const chatBody = document.querySelector('#chatBoxBody');
+        const messageFactory = document.querySelector('#messageFactory');
+        const startChatBtns = document.querySelectorAll('.startChat');
+        const sendBTN = document.querySelector('.sendBTN');
+        const profileCards = document.querySelectorAll('.profileCards');
+        const chatBox = document.querySelector('#chatBox');
+        const chatSend = document.querySelector('#sendMessage')
+        const chatDiv = document.querySelector('#chatDiv');
+
+
+        const sender_id = "<%= sender.person_id %>";
+        const sender_name = "<%= sender.person_name%>";
+        const receiver_id = "<%= receiver.person_id%>";
+
+        let role = null;
+        const test = "<%= sender %>";
+
+        if ("<%= sender.doctor_speciality%>") {
+            role = "doctor";
+        } else {
+            role = "patient";
+        }
+
+        // Establish a socket between all doctors of this patient
+        socket.addEventListener('open', (event) => {
+            console.log('WebSocket connection opened');
+            const message = {
+                type: "login",
+                sender_id: sender_id,
+                receiver_id: receiver_id,
+                role: role
+            }
+            socket.send(JSON.stringify(message));
+
+        });
+        // Send a message to specific patient
+        let activeTab1 = null;
+        chatSend.addEventListener('click', () => {
+            const content = chatInput.value;
+            const message = {
+                type: "message",
+                sender_id: sender_id,
+                sender_name: sender_name,
+                receiver_id: receiver_id,
+                role: role,
+                content
+            }
+            if (chatInput.value !== '') {
+                const html = `<p class="lead text-start">You: ${chatInput.value}</p>`;
+                chatDiv.innerHTML += html;
+                socket.send(JSON.stringify(message));
+            }
+            chatInput.value = '';
+        })
+
+        // Receives A message from Certain patient
+        socket.addEventListener('message', async (event) => {
+
+            const data = JSON.parse(event.data);
+            console.log("HERE WITH DATA" +  data.content);
+            const html = `<p class="lead">${data.sender_name}: ${data.content}</p>`;
+            chatDiv.innerHTML += html;
+            // sendBTN.addEventListener('click', () => {
+            //     const message = {
+            //         type: "message",
+            //         sender_id: doctor_id,
+            //         sender_name: sender_name,
+            //         receiver_id: receiver_id,
+            //         role: role,
+            //         content: chatInput.value
+            //     }
+            //     if (chatInput.value !== '') {
+            //         const html = `<p class="lead">You: ${chatInput.value}</p>`;
+            //         chatDiv.innerHTML += html;
+            //         socket.send(JSON.stringify(message));
+            //         chatInput.value = '';
+            //     }
+            // })
+
+        }
+        );
+
+
+// End
+// socket.addEventListener('close', (event) => {
+//     console.log('WebSocket connection closed');
+// });
+
+    </script>

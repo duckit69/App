@@ -19,10 +19,52 @@ const app = express();
 const http = require('http');
 const WebSocket = require('ws');
 const serverApp = http.createServer(app);
+const ser = http.createServer(app);
 const s = new WebSocket.Server({ server: serverApp, path: '/chat' });
+const st = new WebSocket.Server({ server: ser, path: '/room' });
+
 
 const patients = new Map(); // Map of patient IDs to their sockets
 const doctors = new Map(); // Map of doctor IDs to their sockets
+
+
+const patientsTest = new Map(); // Map of patient IDs to their sockets
+const doctorsTest = new Map(); // Map of doctor IDs to their sockets
+
+
+st.on('connection', (socket, req) => {
+
+    console.log('WebSocket');
+
+    socket.on('message', async (message) => {
+        try {
+            const data = JSON.parse(message);
+            // sender_id , sender_name, receiver_id, content
+            const { type, sender_id, sender_name, receiver_id, content, role } = data;
+            if (type === 'login') {
+                if (role === 'patient') {
+                    patientsTest.set(sender_id, socket);
+                } else {
+                    doctorsTest.set(sender_id, socket);
+                }
+            } else if (type === 'message') {
+                const receiverSocket = role === 'patient' ? doctorsTest.get(receiver_id) : patientsTest.get(receiver_id)
+                
+                if (receiverSocket) {
+                    console.log("I am here");
+                    const msg = JSON.stringify({type, sender_name, content})
+                    receiverSocket.send(msg);
+                }
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    });
+
+    socket.on('close', () => {
+        console.log('WebSocket closed');
+    });
+})
 
 s.on('connection', (socket, req) => {
 
@@ -30,6 +72,7 @@ s.on('connection', (socket, req) => {
 
     socket.on('message', async (message) => {
         try {
+            console.log(message);
             const data = JSON.parse(message);
             // sender_id , sender_name, receiver_id, content
             const { type, sender_id, sender_name, receiver_id, content, role } = data;
@@ -59,6 +102,11 @@ s.on('connection', (socket, req) => {
 serverApp.listen(8080, () => {
     console.log('Server Socket Listening on port 8080');
 })
+
+ser.listen(9090, () => {
+    console.log("test WS");
+})
+
 //
 app.use(methodOverride('_method'));
 app.set('view engine', 'ejs');
