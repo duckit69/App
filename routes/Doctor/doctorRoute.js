@@ -8,8 +8,8 @@ const utils  = require('../../utils/utils');
 route.get('/dashboard', utils.checkAuthenticated, utils.checkDoctor, Doctor.doctorDashboard);
 route.get('/search/patient', Doctor.getPatientByNameForOneDoctor);
 route.get('/patient_full_details/:id', Doctor.getPatientById);
-route.post('/register/doctor', Doctor.registerDoctor);
-route.post('/login/doctor', passport.authenticate('doctor-login', {
+route.post('/register', Doctor.registerDoctor);
+route.post('/login', passport.authenticate('doctor-login', {
     successRedirect: '/users/doctor/dashboard',
     failureRedirect: '/users/login'
 }));

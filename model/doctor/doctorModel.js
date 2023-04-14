@@ -7,10 +7,12 @@ const salt = 10;
 
 module.exports.registerDoctor = async (req, res) => {
     //fullname + gender + date + username + password + speciality
-    let params = Object.values(req.body.user);
-    const hashedPasswored = await bcrypt.hash(params[4], salt);
-    params[4] = hashedPasswored;
-    const { rows } = await db.query('INSERT INTO doctor(person_name, person_gender, person_birth_date, person_username, person_password, doctor_speciality) values($1, $2, $3, $4, $5, $6)', params);
+    const { name, date, gender, phone, speciality, username, password } = req.body;
+    // let params = Object.values(req.body.user);
+    let params = [ name, gender, date, phone, username, password, speciality ];
+    const hashedPasswored = await bcrypt.hash(params[5], salt);
+    params[5] = hashedPasswored;
+    const { rows } = await db.query('INSERT INTO doctor(person_name, person_gender, person_birth_date, person_phone, person_username, person_password, doctor_speciality) values($1, $2, $3, $4, $5, $6, $7)', params);
     res.redirect('/users/login');
 }
 
