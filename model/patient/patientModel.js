@@ -79,7 +79,7 @@ async function findPatientById(patient_id) {
     return rows[0];
 }
 
-async function findMedicalHistoryForOnePatient(patient_id) {
+module.exports.findMedicalHistoryForOnePatient = async function findMedicalHistoryForOnePatient(patient_id) {
     const { rows } = await db.query('SELECT DISTINCT m.* from medical_history m, patient p, treatment t where p.person_id = m.patient_id and m.treatment_id = t.treatment_id and p.person_id = $1', [patient_id]);
     return rows;
 }
@@ -89,7 +89,7 @@ async function findMyUpComingAppointments(patient_id) {
     // const rows  = await db.query('select a.*, d.person_name from appointment a, doctor d where a.doctor_id = d.person_id and a.patient_id = $1 and a.appointment_date >= CURRENT_DATE order by a.appointment_date ASC', [patient_id]);
     return rows;
 }
-async function findAllSensorsForOnePatient(patient_id) {
+module.exports.findAllSensorsForOnePatient = async function findAllSensorsForOnePatient(patient_id) {
     const { rows } = await db.query('SELECT r.*, s.* from recorded_data r, sensor s, patient p where r.sensor_id = s.sensor_id and r.patient_id = p.person_id and p.person_id = $1', [patient_id]);
     return rows;
 }

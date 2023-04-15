@@ -116,14 +116,16 @@ module.exports.validateUsersForOneAppointment = async (req, res) => {
     else if (users.doctor_id == user_id || users.patient_id == user_id) {
         const doctor = await Doctor.getDoctorById(users.doctor_id);
         const patient = await Patient.getPatientById(users.patient_id);
+        const medical_history = await Patient.findMedicalHistoryForOnePatient(users.patient_id);
+        const sensors = await Patient.findAllSensorsForOnePatient(users.patient_id);
         if (req.user.person_id == doctor.person_id) {
             const sender = doctor;
             const receiver = patient;
-            return res.render('appointment', { users, sender, receiver });
+            return res.render('appointment', { users, sender, receiver, medical_history, sensors });
         }else {
             const sender = patient;
             const receiver = doctor;
-            return res.render('appointment', { users, sender, receiver });
+            return res.render('appointment', { users, sender, receiver, medical_history, sensors });
         }
     }
 }
