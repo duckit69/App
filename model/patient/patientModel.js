@@ -1,19 +1,20 @@
 const db = require('../../config/db');
 const bcrypt = require('bcrypt');
-
+const Patient = require('./patientModel');
+const MH = require('./patientModel');
 const salt = 10;
 
 module.exports.patientDashboard = async (req, res) => {
+    console.log("PersonId: " + req.user.person_id)
     const result = await db.query('select d.* from doctor d, treatment t, medical_history m, patient p where d.person_id = t.doctor_id and t.treatment_id = m.treatment_id and m.patient_id = p.person_id and p.person_id = $1;', [req.user.person_id]);
-    console.log(req.user.person_id);
-    const sensors = await findAllSensorsForOnePatient(req.user.person_id);
+    const sensors = await Patient.findAllSensorsForOnePatient(req.user.person_id);
     const appointments = await findMyUpComingAppointments(req.user.person_id);
-    const medical_history = await findMedicalHistoryForOnePatient(req.user.person_id);
+    const medical_history = await MH.findMedicalHistoryForOnePatient(req.user.person_id);
     const doctors = result.rows;
     const patientObject = req.user;
     const Evaluation = await evaluatePatient(req.user.person_id);
 
-    res.render('users/patient/dashboard', { doctors, patientObject, sensors, appointments, medical_history, Evaluation });
+    res.render('users/patient/dashboard', { doctors, patientObject, appointments, medical_history, Evaluation, sensors });
 };
 
 module.exports.registerPatient = async (req, res) => {
@@ -90,7 +91,7 @@ async function findMyUpComingAppointments(patient_id) {
     return rows;
 }
 module.exports.findAllSensorsForOnePatient = async function findAllSensorsForOnePatient(patient_id) {
-    const { rows } = await db.query('SELECT r.*, s.* from recorded_data r, sensor s, patient p where r.sensor_id = s.sensor_id and r.patient_id = p.person_id and p.person_id = $1', [patient_id]);
+    const { rows } = await db.query('SELECT r.*, s.*, p.* from recorded_data r, sensor s, patient p where r.sensor_id = s.sensor_id and r.patient_id = p.person_id and p.person_id = $1', [patient_id]);
     return rows;
 }
 
@@ -127,15 +128,22 @@ async function countCardioVascularRiskFactors(patient_id) {
     const cigarettePerDay = await getSmokeState(patient_id);
     const cupPerDay = await getDrinkState(patient_id);
     const minutesPerDay = await getSidentarite(patient_id);
-    const sensors = await findAllSensorsForOnePatient(patient_id);
+    const sensors = await Patient.findAllSensorsForOnePatient(patient_id);
+    sensors.forEach(element => {
+        if(element.sensor_type == 'SugarSensor') {
+            const value = parseFloat(element.recorded_data_value.slice(0, 3));
+            if (value > 1.2) counter++;
+        } 
+    })
     if (gender == 'MALE') {
         counter++;
         if (age > 50) counter++;
     }
     if (gender == 'FEMALE')
         if (age > 60) counter++;
-    if (ATCD) counter++;
-    if (cigarettePerDay > 10)
+    if (ATCD.atcd) counter++;
+    
+    if (cigarettePerDay.cigaretteperday > 10)
         counter++;
     if (cupPerDay > 3) 
         counter++;
@@ -154,12 +162,12 @@ async function getGender(patient_id) {
 }
 async function getATCD(patient_id) {
     const { rows } = await db.query('select patient_atcd as ATCD from patient where person_id = $1', [patient_id]);
-    return rows[0].ATCD;
+    return rows[0];
 }
 
 async function getSmokeState(patient_id) {
     const { rows } = await db.query('select patient_cigaretteconsomation as cigarettePerDay from patient where person_id=$1', [patient_id]);
-    return rows[0].cigarettePerDay;
+    return rows[0];
 }
 
 async function getSidentarite(patient_id) {
@@ -169,7 +177,7 @@ async function getSidentarite(patient_id) {
 
 async function getDrinkState(patient_id) {
     const { rows } = await db.query('select patient_alchoolconsomation as cupPerDay from patient where person_id=$1', [patient_id]);
-    return rows[0].cupPerDay;
+    return rows[0].cupperday;
 }
 
 async function evaluatePatient(patient_id) {

@@ -46,7 +46,6 @@
                                     </h4>
                                     <span class=" fs-5 text-info">
                                         <%= s.recorded_data_value %>
-                                        <%= s.recorded_data_unit %>
                                     </span>
                                     <div class="d-flex justify-content-around">
                                         <form action="/sensor/<%= s.sensor_id %>?_method=PUT" method="POST"
@@ -57,7 +56,7 @@
                                                 <button class="btn btn-info text-white">Update Name</button>
                                             </div>
                                         </form>
-                                        <a class="btn btn-md btn-info text-white" id="updateSensor">Update Name</a>
+                                        <!-- <a class="btn btn-md btn-info text-white" id="updateSensor">Update Name</a> -->
                                         <form action="/sensor/<%= s.sensor_id %>?_method=DELETE" method="post"
                                             id="sensorDelete">
                                             <button class="btn btn-md btn-danger">Delete</button>

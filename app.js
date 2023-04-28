@@ -72,7 +72,6 @@ s.on('connection', (socket, req) => {
 
     socket.on('message', async (message) => {
         try {
-            console.log(message);
             const data = JSON.parse(message);
             // sender_id , sender_name, receiver_id, content
             const { type, sender_id, sender_name, receiver_id, content, role } = data;

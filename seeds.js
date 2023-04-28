@@ -9,6 +9,43 @@ const client = new Client({
     password: 'duckit69',
     port: 5432,
 });
+const years = Array.from({ length: 2016 - 1960 }, (_, i) => (1960 + i).toString());
+const treatment_years = Array.from({ length: 2022 - 2016}, (_, i) => (2016 + i).toString());
+const months = Array.from({ length: 12 }, (_, i) => (1 + i).toString());
+const days = Array.from({ length: 28 }, (_, i) => (1 + i).toString());
+const dctr_names = ["Laila Hassan", "Aisha Ali",
+    "Fatima Khalid","Yara Ahmad",
+    "Zainab Omar","Hussein Mahmoud",
+    "Ahmad Abdullah",  "Noura Mohamed",
+    "Mariam Khalil","Jawad Said",
+    "Nada Hani","Nidal Fawzi",
+    "Majid Samir","Abdulrahman Al-Farsi",
+    "Hiba Saeed","Yousef Al-Salem",
+    "Rana Hassan","Zakiyah Ibrahim",
+    "Haniyah Ziad","Hassan Ali",
+    "Amani Khalifa","Zahraa Fawzi",
+    "Saeed Al-Rashid","Yasin Al-Mansoori","Najwa Ahmed","Layth Al-Hajri", "Maya Al-Khouri",
+    "Rasha Al-Naqbi","Aminah Al-Ameri",
+    "Samirah Al-Mazrouei",
+    "Tariq Al-Hamadi",
+    "Abeer Al-Dosari",
+    "Khalifa Al-Mahri",
+    "Zakariyah Al-Saadi"]
+function getRandomBirthDate() {
+    const randomYear = years[Math.floor(Math.random() * years.length)];
+    const randomMonth = months[Math.floor(Math.random() * months.length)];
+    const randomDay = days[Math.floor(Math.random() * days.length)];
+
+    return `${randomYear}-${randomMonth.padStart(2, '0')}-${randomDay.padStart(2, '0')}`;
+}
+
+function getRandomTreatmentDate() {
+    const randomYear = treatment_years[Math.floor(Math.random() * treatment_years.length)];
+    const randomMonth = months[Math.floor(Math.random() * months.length)];
+    let randomDay = days[Math.floor(Math.random() * days.length)];
+
+    return `${randomYear}-${randomMonth.padStart(2, '0')}-${randomDay.padStart(2, '0')}`;
+}
 
 client.connect();
 const salt = 10;
@@ -18,35 +55,49 @@ const insertDummyData = async () => {
     // for (let i = 0; i < 100; i++) {
     //     const person_name = faker.name.findName();
     //     const person_gender = faker.random.arrayElement(['Male', 'Female']).toUpperCase();
-    //     // const date = faker.date.between(('1990-01-01', '2020-12-12'));
-    //     const person_birth_date = '2020-01-01';
+    //     const person_birth_date = getRandomBirthDate();
     //     const person_username = `patient${++i}`;
     //     const hashedPD = `patient${++i}`;
     //     const person_password = await bcrypt.hash(hashedPD, salt);
-    //     const patient_phone = faker.phone.phoneNumber();
-    //     await client.query('INSERT INTO patient (person_name, person_gender, person_birth_date, person_username, person_password, patient_phone) VALUES ($1, $2, $3, $4, $5, $6)', [person_name, person_gender, person_birth_date, person_username, person_password, patient_phone]);
+    //     const person_phone = faker.phone.phoneNumber();
+    //     const patient_atcd = faker.random.arrayElement(['true', 'false']);
+    //     const patient_cigaretteconsomation = faker.datatype.number({max: 50});
+    //     const patient_sedentary = faker.datatype.number({max: 60});
+    //     const patient_alchoolconsomation = faker.datatype.number({max: 10});
+    //     const patient_height = faker.datatype.number({min: 130, max: 210});
+    //     const patient_weight = faker.datatype.number({min: 25, max: 150});
+    //     await client.query('INSERT INTO patient (person_name, person_gender, person_birth_date, person_username, person_password, patient_atcd, patient_cigaretteconsomation, patient_sedentary, patient_alchoolconsomation, patient_height, patient_weight, person_phone) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
+    //                                             [person_name, person_gender, person_birth_date, person_username, person_password, patient_atcd, patient_cigaretteconsomation, patient_sedentary, patient_alchoolconsomation, patient_height, patient_weight ,person_phone]);
     // }
 
-    // // // Generate 35 doctors
-    // for (let i = 0; i < 35; i++) {
-    //     const person_name = faker.name.findName();
+    // Generate 35 doctors
+    // for (let i = 0; i < 30; i++) {
+    //     const person_name = dctr_names[i];
     //     const person_gender = faker.random.arrayElement(['Male', 'Female']).toUpperCase();
-    //     const person_birth_date = '2020-01-01';
+    //     const person_birth_date = getRandomBirthDate();
     //     const person_username = `doctor${++i}`;
     //     const hashedPD = `doctor${++i}`;
     //     const person_password = await bcrypt.hash(hashedPD, salt);
     //     const doctor_speciality = faker.random.arrayElement(['Cardiology', 'Dermatology', 'Gastroenterology', 'Neurology', 'Oncology']);
-    //     await client.query('INSERT INTO doctor (person_name, person_gender, person_birth_date, person_username, person_password, doctor_speciality) VALUES ($1, $2, $3, $4, $5, $6)', [person_name, person_gender, person_birth_date, person_username, person_password, doctor_speciality]);
+    //     const person_phone = faker.phone.phoneNumber();
+    //     await client.query('INSERT INTO doctor (person_name, person_gender, person_birth_date, person_username, person_password, doctor_speciality, person_phone) VALUES ($1, $2, $3, $4, $5, $6, $7)', [person_name, person_gender, person_birth_date, person_username, person_password, doctor_speciality, person_phone]);
     // }
+    
     // const doctor_result = await client.query('SELECT * FROM doctor');
-    // // // Generate 100 treatments
-    // for (let i = 0; i < 100; i++) {
+    // const treatment_medicine = faker.random.arrayElement(['Doliprance', 'Aspirine', 'Arvea', 'Levothyrox', 'Xéfuryl']);
+    // const treatment_dosage = faker.random.arrayElement(['33mg', '50mg', '125mg', '250mg', '100mg']);
+    // // Generate 40 Prescription
+    // for (let i = 0; i < 40; i++) {
+    //     // create treatment
     //     const doctor_id = doctor_result.rows[Math.floor(Math.random() * doctor_result.rowCount)].person_id;
-    //     const treatment_date = '2021-03-09';
-    //     const treatment_medicine = faker.random.arrayElement(['Doliprance', 'Aspirine', 'Arvea', 'Levothyrox', 'Xéfuryl']);
-    //     const treatment_dosage = faker.random.arrayElement(['33mg', '50mg', '125mg', '250mg', '100mg']);
-    //     await client.query('INSERT INTO treatment (doctor_id, treatment_date, treatment_medicine, treatment_dosage) VALUES ($1, $2, $3, $4)', [doctor_id, treatment_date, treatment_medicine, treatment_dosage]);
+    //     const treatment_date = getRandomTreatmentDate();
+    //     const {rows} = await client.query('INSERT INTO treatment (doctor_id, treatment_date) VALUES ($1, $2) returning treatment_id', [doctor_id, treatment_date]);
+    //     const treatment_id = rows[0].treatment_id;
+    //     const medicine = treatment_medicine[Math.floor(Math.random() * treatment_medicine.length)];
+    //     const dosage = treatment_dosage[Math.floor(Math.random() * treatment_dosage.length)];
+    //     await client.query('INSERT INTO prescription(treatment_id, treatment_date, prescription_medicine, prescription_dosage) values($1, $2, $3, $4)', [treatment_id, treatment_date, medicine, dosage]);
     // }
+
     // const patient_result = await client.query('SELECT * FROM patient');
     // const treatment_result = await client.query('SELECT * FROM treatment');
     // // Generate 500 medical histories
@@ -62,20 +113,6 @@ const insertDummyData = async () => {
     //     const sensor_name = faker.random.arrayElement(['SugarSensor', 'Bloodensor', 'HeartRate', 'BodyGuardian', 'TempTracker', 'MoveMinder', 'SkinSense']);
     //     const sensor_model_number = faker.random.arrayElement(['CGM-123A', 'BP-M456', 'ECG-789B', 'SpO2-012C', 'Temperature-345D', 'Accelerometer-678E', 'GSR-901F']);
     //     await client.query('INSERT INTO sensor (sensor_name, sensor_model_number) VALUES($1, $2)', [sensor_name, sensor_model_number]);
-    // }
-    // // Generate 250 observations 
-    // const { rows } = await client.query('SELECT * FROM sensor');
-    // for (let i = 0; i < 250; i++) {
-    //     const observation_type = faker.random.arrayElement(["Blood glucose level", "Body temperature", "Oxygen saturation", "Blood pressure", "Heart rate", "Respiratory rate", "ECG waveform"]
-    //     );
-    //     const observation_value = faker.random.arrayElement(["98.7", "102.1", "96.4", "1.5", "75", "16", "0.12", "97.5", "101.2", "93.8", "18.5", "68", "18", "0.08", "100.3", "98.9", "95.2", "11.8", "72", "14", "0.1", "99.1", "100.6", "97.8", "1.66"]
-    //     );
-    //     const observation_unit = faker.random.arrayElement(["bpm", "mg/dL", "cm", "mmHg", "kg", "ml", "degrees Celsius"]
-    //     );
-    //     const observation_time = '2023-03-27';
-    //     const sensor = faker.random.arrayElement(rows);
-    //     const sensor_id = sensor.sensor_id;
-    //     await client.query('INSERT INTO observation (observation_type, observation_unit, sensor_id, observation_time, observation_value) VALUES($1, $2, $3, $4, $5)', [observation_type, observation_unit, sensor_id, observation_time, observation_value]);
     // }
     // // Generate recorded Data
     // const patient = await client.query('SELECT * FROM patient');
@@ -113,22 +150,19 @@ const insertDummyData = async () => {
         "2023-04-23 11:55:15",
         "2023-04-24 15:30:45",
         "2023-04-25 13:05:30",
-        "2023-04-26 17:40:00",
-        "2023-04-27 10:15:30",
-        "2023-04-28 08:00:00",
-        "2023-04-29 14:25:15",
-        "2023-04-30 16:50:30"
+        "2023-04-26 17:40:00"
     ];
     const patients = await client.query('SELECT * FROM patient');
     const doctors = await client.query('SELECT * FROM doctor');
-    for (let i = 0; i < 168; i++) {
+    for (let i = 0; i < 26; i++) {
         const date = dates[Math.floor(Math.random() * dates.length)];
         const patient = patients.rows[Math.floor(Math.random() * patients.rowCount)].person_id;
         const doctor = doctors.rows[Math.floor(Math.random() * doctors.rowCount)].person_id;
-        const type = "ONLINE";
-        const reason = 'HEAD PAIN SOMETHING';
-        const params = [doctor, patient, date, type, reason];
-        await client.query('insert into appointment (doctor_id, patient_id, appointment_date, appointment_type, appointment_reason) values($1, $2, $3, $4, $5)', params);
+        const type = faker.random.arrayElement(['Online', 'Offline']).toUpperCase();
+        const reason = faker.lorem.word();
+        // const params = [doctor, patient, date, type, reason];
+        // await client.query('insert into appointment (doctor_id, patient_id, appointment_date, appointment_type, appointment_reason) values($1, $2, $3, $4, $5)', params);
+        await client.query('insert into appointment(doctor_id, patient_id, appointment_date, appointment_type, appointment_reason) values($1, $2, $3, $4, $5)', [doctor, patient, date, type, reason]);
     }
 };
 
