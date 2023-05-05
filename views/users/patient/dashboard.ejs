@@ -1,16 +1,8 @@
 <%- layout('layouts/patientBoilerplate') %>
 <div class="container-fluid">
-        <div class="row">
+        <div class="row mt-0">
             <div class="col-md-2">
-                <div class="row my-3">
-                    <div class="col">
-                        <form id="search-form" method="get" action="" class="d-flex flex-column" role="search">
-                            <input class="form-control" placeholder="Search" name="q" id="search-input"
-                                autocomplete="off">
-                            <div id="search-results" class="vstack gap-3 mt-2"></div>
-                        </form>
-                    </div>
-                </div>
+                <h2 class="text-center">My Doctors</h2>
                 <div class="max-profiles-height d-flex flex-column">
                     <% for(const p of doctors){ %>
                         <div class="my-2 profileCards" style="max-width: 300px;">
@@ -33,9 +25,9 @@
                     <% } %>
                 </div>
             </div>
-            <div class="col-md-7 mt-4 d-flex flex-column gap-4">
+            <div class="col-md-7 mt-4 d-flex flex-column gap-4 height-100">
                 <div class="row mb-2">
-                    <div class="card col-4 p-0 me-1 sensor-appointment-height">
+                    <div class="card col-4 offset-1 p-0 sensor-appointment-height">
                         <h5 class="card-header sticky-top">My Sensors</h5>
                         <!-- give max height to sensor card -->
                         <div class="card-body vstack gap-2 overflow-scroll overflow-x-hidden">
@@ -56,7 +48,6 @@
                                                 <button class="btn btn-info text-white">Update Name</button>
                                             </div>
                                         </form>
-                                        <!-- <a class="btn btn-md btn-info text-white" id="updateSensor">Update Name</a> -->
                                         <form action="/sensor/<%= s.sensor_id %>?_method=DELETE" method="post"
                                             id="sensorDelete">
                                             <button class="btn btn-md btn-danger">Delete</button>
@@ -65,17 +56,8 @@
                                 </div>
                             <% } %>
                         </div>
-                        <div class="card-footer text-center">
-                                <a href="#" class="btn btn-md btn-primary" id="addSensor">Add Sensor</a>
-                                <form action="/sensor/<%= patientObject.person_id %>" method="post" id="sensorAdd"
-                                    class="d-none">
-                                    <input type="text" class="form-control" placeholder="Sensor Name" name="name">
-                                    <input type="text" class="form-control" placeholder="Sensor Model" name="model">
-                                    <button class="btn btn-success">Add Sensor</button>
-                                </form>
-                        </div>
                     </div>
-                        <div class="ms-1 card col-7 p-0 sensor-appointment-height">
+                        <div class="ms-1 card col-6 p-0 sensor-appointment-height">
                             <h5 class="card-header sticky-top">My Appointments</h5>
                             <!-- give max height to sensor card -->
                             <div class="card-body vstack gap-2 overflow-scroll overflow-x-hidden">
@@ -132,33 +114,25 @@
                         </div>
                         </div>
                 </div>
-                <div class="row">
-                    <div class="card p-0">
-                        <h5 class="card-header sticky-top">My Medical History</h5>
-                        <div class="card-body">
+                    <div class="card p-0 m-auto w-100 bg-light">
+                        <div class="card-header sticky-top">
+                            <div class="btn btn-light treatment-type">Prescription</div>
+                            <div class="btn btn-light treatment-type">Scanner</div>
+                            <div class="btn btn-light treatment-type">Analyse</div>
+                            <div class="btn btn-light treatment-type">Radio</div>
+                        </div>
+                        <div class="card-body d-none" id="treatments-box">
                             <div class="row" id="medicalHistoryRow">
-                                <div class="col-6">
+                                <div class="col-5">
                                     <div class="vstack gap-3">
                                         <div class="card">
-                                            <div class="card-body medical-history-height">
-                                                <% for(const m of medical_history){ %>
-                                                    <div class="p-2 d-flex">
-                                                        <div
-                                                            class="hstack gap-3 d-flex align-items-end justify-content-between flex-grow-1">
-                                                            <label class="form-label">
-                                                                <%= m.medical_history_diagnosis %>
-                                                            </label>
-                                                            <a class="btn btn-secondary search-treatment"
-                                                                href="/treatment/search/<%= m.treatment_id %>"
-                                                                onclick="return false;">Open Treatment</a>
-                                                        </div>
-                                                    </div>
-                                                    <% } %>
+                                            <div class="card-body medical-history-height d-flex flex-column gap-2" id="treatments">
+                                                
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-4" id="search-result"></div>
+                                <div class="col-6 w-auto" id="search-result"></div>
                             </div>
                             <div class="row">
                                 <div class="col-6">
@@ -180,7 +154,6 @@
                             <a href="#" class="btn btn-primary" id="addMedicalHistory">Add Medical History</a>
                         </div>
                     </div>
-                </div>
             </div>
             <div class="col-md-3 d-flex flex-column justify-content-between mt-4">
                 <div class="row">
@@ -188,13 +161,18 @@
                         <div class="card-body">
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item">Cardiovascular Risk</li>
-                                <li class="list-group-item">Risk Factors: <%= Evaluation.riskFactors %></li>
+                                <li class="list-group-item d-flex flex-column"> <span class="btn btn-light" id="riskFactorButton"> Risk Factors: <%= Evaluation.counter %></span>
+                                    <div id="riskFactors" class="d-none">
+                                    <% for(const factor in Evaluation.factors) { %>
+                                        <div><%= factor %>:     <%= Evaluation.factors[factor] %></div>    
+                                    <% } %>
+                                    </div>
+                                </li>
                                 <li class="list-group-item">Risk Class: <%= Evaluation.riskClass %></li>
                             </ul>
                         </div>
                     </div>
                 </div>
-                <div class="row">
                     <div class="ms-auto align-self-end flex-shrink d-none" id="chatBox">
                         <div class="card text-center position-relative">
                             <h4 class="me-5 fw-normal">Chat With doctors</h4>
@@ -217,15 +195,15 @@
                             </div>
                         </div>
                     </div>
-                </div>
             </div>
-            
         </div>
     </div>
 
     <script>
         const searchTreatment = document.querySelectorAll('.search-treatment');
         const searchResult = document.getElementById('search-result');
+        const treatment_box = document.querySelector('#treatments-box');
+
         let activeTab = '';
         searchTreatment.forEach(e => {
             e.addEventListener('click', async (ele) => {
@@ -677,4 +655,123 @@
             }
             medicalHistoryForm.insertBefore(element, submitMedicalHistoryForm);
         })
+    </script>
+
+    <script>
+        const treatment_type = document.querySelectorAll('.treatment-type');
+        const treatments = document.querySelector('#treatments');
+        let activeType = null;
+        let activeEle = null;
+        treatment_type.forEach( async (e) => {
+            e.addEventListener('click', async () => {
+                if (activeType) {
+                    activeType.classList.remove('btn-primary')
+                    activeType.classList.add('btn-light');
+                }
+                searchResult.innerHTML = '';
+                activeType = e;
+                activeType.classList.remove('btn-light')
+                activeType.classList.add('btn-primary');
+                treatment_box.classList.remove('d-none');
+                const result = await fetch(`/treatment/${e.innerHTML}`);
+                const response = await result.json();
+                console.dir(response);
+                treatments.innerHTML = '';
+                for (const r of response) {
+                    if (r.prescription_dosage) {
+                        treatments.innerHTML += `<div class="btn btn-light pres">${r.medical_history_diagnosis}</div>`;
+                    }else if(!r.image_type) {
+                        treatments.innerHTML += `<div class="btn btn-light scanner">${r.medical_history_diagnosis}</div>`;
+                    }
+                    else if(r.image_type == 'radio') {
+                        treatments.innerHTML += `<div class="btn btn-light radio">${r.medical_history_diagnosis}</div>`;
+                    }
+                    else if(r.image_type == 'analyse') {
+                        treatments.innerHTML += `<div class="btn btn-light analyse">${r.medical_history_diagnosis}</div>`;
+                    }
+                }
+                const pres = document.querySelectorAll('.pres');
+                    pres.forEach(element => {
+                        element.addEventListener('click', () => {
+                            if (activeEle) {
+                                activeEle.classList.remove('btn-success');
+                                activeEle.classList.add('btn-light');
+                            }
+                            activeEle = element;
+                            searchResult.innerHTML = '';
+                            activeEle.classList.remove('btn-light');
+                            activeEle.classList.add('btn-success');
+                            const obj = response.find(e => e.medical_history_diagnosis == activeEle.innerHTML)
+                            searchResult.innerHTML += `
+                                <div class="card-body rounded border border-2"> 
+                                    <p class="lead">${obj.medical_history_notes}</p>
+                                    <p class="lead">${obj.prescription_medicine} - ${obj.prescription_dosage}</p>
+                                    <button class="btn btn-primary dwnld">Download</button> 
+                                    <button class="btn btn-danger text-white cls">Close</button>
+                                </div>`;
+                            const cls = searchResult.childNodes[1].childNodes[7];
+                            const dwnld = searchResult.childNodes[1].childNodes[5];
+                            dwnld.addEventListener('click', () => {
+                                const doc = new jsPDF();
+                                doc.save();
+                            })
+                            cls.addEventListener('click', () => {
+                                searchResult.innerHTML = '';
+                                activeEle.classList.remove('btn-success');
+                                activeEle.classList.add('btn-light');
+                                activeEle = null;
+                            })
+                        })
+                })
+                const image = document.querySelectorAll('.scanner') || document.querySelectorAll('.radio') || document.querySelectorAll('.analyse');
+                    image.forEach(element => {
+                        element.addEventListener('click', () => {
+                            if (activeEle) {
+                                activeEle.classList.remove('btn-success');
+                                activeEle.classList.add('btn-light');
+                            }
+                            activeEle = element;
+                            searchResult.innerHTML = '';
+                            activeEle.classList.remove('btn-light');
+                            activeEle.classList.add('btn-success');
+                            const obj = response.find(e => e.medical_history_diagnosis == activeEle.innerHTML)
+                            searchResult.innerHTML += `
+                                <div class="card-body rounded border border-2"> 
+                                    <p class="lead">${obj.medical_history_notes}</p>
+                                    <a href="../../${obj.image_url}.png" target="_blank" class="btn btn-success">Open Image</a>
+                                    <a href="../../${obj.image_url}.png" download class="btn btn-primary">Download Image</a>
+                                    <button class="btn btn-danger text-white cls">Close</button>
+                                </div>`;
+                            const cls = searchResult.childNodes[1].childNodes[7];
+                            cls.addEventListener('click', () => {
+                                searchResult.innerHTML = '';
+                                activeEle.classList.remove('btn-success');
+                                activeEle.classList.add('btn-light');
+                                activeEle = null;
+                            })
+                        })
+                    })
+            })
+        });
+        
+    </script>
+
+    <script>
+        const riskFactorButton = document.querySelector('#riskFactorButton');
+        const riskFactors = document.querySelector('#riskFactors');
+
+        riskFactorButton.addEventListener('click', () => {
+            if(riskFactors.classList.contains('d-none')) {
+                riskFactors.classList.remove('d-none');
+                riskFactors.classList.add('d-block');
+                riskFactorButton.classList.remove('btn-light');
+                riskFactorButton.classList.add('btn-success');
+            }else {
+                riskFactors.classList.remove('d-block');
+                riskFactors.classList.add('d-none');
+                riskFactorButton.classList.remove('btn-success');
+                riskFactorButton.classList.add('btn-light');
+            }
+        })
+
     </script>

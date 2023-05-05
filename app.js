@@ -11,7 +11,8 @@ const ejsMate = require('ejs-mate');
 const methodOverride = require('method-override');
 const multer = require('multer');
 const upload = multer({dest: 'uploads/'});
-
+const Utils = require('./utils/utils');
+const Doctor = require('./model/doctor/doctorModel')
 const db = require('./config/db');
 
 const app = express();
@@ -128,6 +129,7 @@ app.use(passport.authenticate('session'));
 app.use(passport.session());
 app.use('/uploads', express.static('uploads'));
 
+
 app.use('/users', userRoute);
 app.use('/treatment', treatmentRoute);
 app.use('/appointment', appointmentRoute);
@@ -138,15 +140,9 @@ app.get('/message', async(req, res) => {
     const { rows } = await db.query('select * from message where (message_sender = $1 and message_receiver = $2) or (message_sender = $2 and message_receiver = $1) ORDER BY message_date ASC;', [sender, receiver]);
     res.send(rows);
 })
-
-// app.post('/',(req, res) => {
-//     req.files[0].filename = "SCANNER";
-//     console.dir(req.files[0].filename)
-//     res.send(req.body);
-// })
-
-app.get('/', (req, res) => {
-    res.render('home');
+app.get('/', Utils.isLoggedIn,  async (req, res) => {
+    const doctors = await Doctor.getAllDoctors();
+    res.render('home', {doctors});
 });
 
 app.listen(3000, () => {

@@ -1,6 +1,7 @@
 const db = require('../../config/db');
 const path = require('path');
-
+const Prescription = require('../../controller/treatments/prescription');
+const Scanner = require('../../controller/treatments/scannerController');
 
 module.exports.findTreatmentById = async (req, res) => {
     const id = req.params.id;
@@ -14,4 +15,18 @@ module.exports.findTreatmentById = async (req, res) => {
         html = `<div class="card"><img class="card-img-top" src="${path1}"><div class="card-body"><h5 class="card-title">${testScanner.rows[0].image_name}</h5><p class="lead"></p>`;
     }
     res.send(html);
+}
+
+module.exports.getTreatmentsForOnePatient = async (req, res) => {
+    const type = req.params.treatment_type;
+    console.log(type);
+    let result = null;
+    let html = null;
+    if (type == 'Prescription') {
+        result = await Prescription.getPrescriptionsForOnePatient(req.user.person_id);
+    }else if (type == 'Scanner') {
+        result = await Scanner.getScannersForOnePatient(req.user.person_id);
+        console.log(result);
+    }
+    res.send(result);
 }

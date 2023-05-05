@@ -1,7 +1,9 @@
 const db = require('../../config/db');
 const bcrypt = require('bcrypt');
 const Patient = require('./patientModel');
+const Doctor = require('../doctor/doctorModel');
 const MH = require('./patientModel');
+const { he } = require('faker/lib/locales');
 const salt = 10;
 
 module.exports.patientDashboard = async (req, res) => {
@@ -42,6 +44,17 @@ module.exports.getMedicalHistoryWithSpecificDoctor = async (req, res) => {
     res.render('users/patient/show', { medicalHistory, appointment, patient_id, doctor });
 }
 
+module.exports.getPatientData = async (req, res) => {
+    const patient = await findPatientById(req.user.person_id);
+    res.render('users/patient/patientProfile', {patient});
+}
+module.exports.updatePatientData = async (req, res) => {
+    const {cigarette, alchool, workout, height, weight} = req.body;
+    const patient_id = req.user.person_id;
+    await updatePatient(patient_id, cigarette, alchool, workout, height, weight);
+    res.redirect('/users/patient/dashboard');
+}
+
 // API CALL
 module.exports.getDoctorByNameForOnePatient = async (req, res) => {
     const result = await findDoctorByNameForOnePatient(req.query.person_name, req.query.patient_id);
@@ -51,10 +64,6 @@ module.exports.getDoctorByNameForOnePatient = async (req, res) => {
     res.send(html);
 }
 
-module.exports.getAllDoctors = async (req, res) => {
-    const doctorsArray = await findAllDoctors();
-    res.render('users/patient/allDoctors', { doctorsArray });
-}
 
 module.exports.getSensors = async (req, res) => {
     const sensors = await findAllSensorsForOnePatient(req.query.patient_id);
@@ -95,10 +104,16 @@ module.exports.findAllSensorsForOnePatient = async function findAllSensorsForOne
     return rows;
 }
 
-async function findAllDoctors() {
-    const { rows } = await db.query('SELECT DISTINCT * FROM doctor');
-    return rows;
+module.exports.getAllDoctors = async (req, res) => {
+    const doctorsArray = await Doctor.getAllDoctors();
+    res.render('users/patient/allDoctors', {doctorsArray});
 }
+
+async function updatePatient(patient_id, cigarette, alchool, workout, height, weight) {
+    const param = [cigarette, alchool, workout, height, weight, patient_id];
+    return await db.query('UPDATE patient set patient_cigaretteconsomation = $1, patient_alchoolconsomation = $2, patient_sedentary = $3, patient_height = $4, patient_weight = $5 where person_id = $6', param);
+}
+
 
 async function findDoctorByNameForOnePatient(doctor_name, patient_id) {
     const { rows } = await db.query(`SELECT DISTINCT d.* FROM doctor d, patient p, treatment t, medical_history m WHERE t.doctor_id = d.person_id AND t.treatment_id = m.treatment_id AND m.patient_id = p.person_id AND p.person_id = ${patient_id} AND d.person_name ILIKE '${doctor_name}%' LIMIT 5;`);
@@ -132,24 +147,41 @@ async function countCardioVascularRiskFactors(patient_id) {
     sensors.forEach(element => {
         if(element.sensor_type == 'SugarSensor') {
             const value = parseFloat(element.recorded_data_value.slice(0, 3));
-            if (value > 1.2) counter++;
+            if (value > 1.2) {
+                counter++;
+            }
         } 
     })
+    const factors = {};
     if (gender == 'MALE') {
+        factors['gender'] = gender;
         counter++;
-        if (age > 50) counter++;
+        if (age > 50) {
+            factors['age'] = age;
+            counter++;
+        }
     }
     if (gender == 'FEMALE')
         if (age > 60) counter++;
-    if (ATCD.atcd) counter++;
+    if (ATCD.atcd) {
+        counter++;
+        factors['atcd'] = ATCD.atcd;
+    }
     
-    if (cigarettePerDay.cigaretteperday > 10)
+    if (cigarettePerDay.cigaretteperday > 10) {
         counter++;
-    if (cupPerDay > 3) 
+        factors['smoke'] = cigarettePerDay.cigaretteperday;
+    }
+    if (cupPerDay > 3) {
         counter++;
-    if (minutesPerDay < 30) counter++;
-
-    return counter;
+        factors['drink'] = cupPerDay;
+    }
+    if (parseInt(minutesPerDay) < 30) {
+        counter++;
+        factors['workout'] = minutesPerDay;
+    }
+    const result = {counter, factors};
+    return result;
 }
 
 async function getAge(patient_id) {
@@ -172,7 +204,7 @@ async function getSmokeState(patient_id) {
 
 async function getSidentarite(patient_id) {
     const { rows } = await db.query('select patient_sedentary as minutesPerDay from patient where person_id=$1', [patient_id]);
-    return rows[0].minutesPerDay;
+    return rows[0].minutesperday;
 }
 
 async function getDrinkState(patient_id) {
@@ -182,19 +214,21 @@ async function getDrinkState(patient_id) {
 
 async function evaluatePatient(patient_id) {
     const riskFactors = await countCardioVascularRiskFactors(patient_id);
+    const { counter, factors } = riskFactors;
     let riskClass = null;
-    if (riskFactors < 1) {
+    if (counter < 1) {
         riskClass = 'NO RISK';
-    } else if (riskFactors == 1) {
+    } else if (counter == 1) {
         riskClass = 'LOW RISK'
-    } else if (riskFactors == 2) {
+    } else if (counter == 2) {
         riskClass = 'MODERATE RISK'
     } else {
         riskClass = 'HIGH RISK';
     }
     const answer = {
-        riskFactors,
-        riskClass
+        counter,
+        riskClass,
+        factors
     }
     return answer;
 }

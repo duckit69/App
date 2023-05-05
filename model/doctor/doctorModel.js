@@ -49,7 +49,16 @@ module.exports.getPatientById = async (req, res) => {
     res.render('users/doctor/patient_full_details', {result, age, patient_recorded_data, doctor_id, Evaluation});
 }
 
-module.exports.getDoctorById= async (doctor_id) => {
+module.exports.getAllDoctors = async () => {
+    const doctors = await returnAllDoctors();
+    return doctors;
+}
+
+async function returnAllDoctors () {
+    const { rows } = await db.query('select * from doctor');
+    return rows;
+}
+module.exports.getDoctorById = async (doctor_id) => {
     const doctor = await findDoctorById(doctor_id);
     return doctor;
 }

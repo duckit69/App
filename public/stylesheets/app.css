@@ -1,0 +1,68 @@
+.test {
+    min-height: 80vh;
+    max-height: 80vh;
+  }
+  body {
+    overflow-x: hidden;
+    min-height: 100vh;
+    max-height: 100vh;
+    background: -webkit-linear-gradient(45deg, #42aae2 10%, #b3eae3 90%);
+    background: -moz-linear-gradient(45deg, #42aae2 10%, #b3eae3 90%);
+    background: -ms-linear-gradient(45deg, #42aae2 10%, #b3eae3 90%);
+    background: -o-linear-gradient(45deg, #42aae2 10%, #b3eae3 90%);
+    background: linear-gradient(45deg, #42aae2 10%, #b3eae3 90%);
+  }
+  nav {
+    background: transparent;
+  }
+  .nav-container {
+    background-image: url('/pics/background.jpg');
+    background-color: #cccccc;
+    background-position: center;
+  }
+  
+  .nav-item > a {
+    color: hsl(0, 100%, 100%);
+    font-weight: bold;
+  }
+  .nav-item > a:hover {
+    color: hsl(145, 60%, 50%);
+  }
+  .my-color {
+    color: hsl(145, 60%, 50%);
+  
+  }
+  .home-main {
+    max-width: 50%;
+  }
+  .second-section {
+    color: hsl(180, 80%, 65%);
+  }
+  p {
+    color: black;
+    font-weight: bold;
+  }
+  
+  section {
+    min-height: 100vh;
+  }
+  
+  .profiles-height {
+    max-height: 80vh;
+    min-height: 80vh;
+  }
+  .appointments-height {
+    max-height: 50vh;
+    min-height: 50vh;
+    overflow: scroll;
+  }
+  #allDoctors {
+    max-height: 80vh;
+    overflow-x: hidden;
+    overflow-y: scroll;
+  }
+  #ooo {
+    max-height: 40vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }

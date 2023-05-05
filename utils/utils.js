@@ -15,7 +15,14 @@ async function checkDoctor (req, res, next) {
     return next();
    }
 }
+
+async function isLoggedIn (req, res, next) {
+    if (req.user) res.locals.loggedIn = true;
+    else res.locals.loggedIn = false;
+    next();
+}
 module.exports = {
     checkAuthenticated,
-    checkDoctor
+    checkDoctor,
+    isLoggedIn
 };
