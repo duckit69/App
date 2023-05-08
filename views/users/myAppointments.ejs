@@ -1,0 +1,38 @@
+<% layout('layouts/boilerplate') %>
+    <div class="row w-100" data-user-id="<%= user_id %>" id="IdHolder">
+        <div class="col-6 white-background-color offset-3">
+            <div id='calendar' class="p-1"></div>
+        </div>
+    </div>
+
+    <script>
+        const id_holder = document.querySelector('#IdHolder');
+        const userId = id_holder.getAttribute('data-user-id');
+        const get_User_appointments = async () => {
+            const result = await fetch(`/users/getAppointments/${userId}`);
+            const data = await result.json();
+            return data;
+        }
+        
+        document.addEventListener('DOMContentLoaded', async function () {
+            const user_appointments = await get_User_appointments();
+
+            const events = [];
+
+            for(const d of user_appointments) {
+                let obj = {};
+                obj.title = d.appointment_reason;
+                obj.start = d.appointment_date;
+                obj.allDay = false;
+                events.push(obj);
+            }
+            
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: events
+            });
+            calendar.render();
+        });
+    
+    </script>

@@ -11,53 +11,70 @@
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/stylesheets/app.css">
-    <title>Document</title>
+    <title>Login</title>
 </head>
 
-<body class="d-flex">
-    <main class="container m-auto">
-        <div class="row">
-            <div class="card col-12 col-md-4 offset-md-4">
-                <div class="card-body">
-                    <form method="post" action="/users/login" id="form">
+<body>
+    <section class="container vh-100">
+        <div class="row vh-100">
+            <div class="col-5 grey-background p-5">
+                <div class="d-flex flex-column align-items-center auto-height">
+                    <img src="/pics/ria.svg" class="mb-3 mt-5" style="padding: 0; max-width: auto; height: 60px;">
+                    <h1 class="display-4 fw-bold">Welcome Back</h1>
+                    <form method="post" action="/users/patient/login" id="form" class="mt-5 w-70">
                         <div class="mb-3">
-                            <h1 class="display-5 text-center second-section">Welcome!</h1>
-                        </div>
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username"
-                                placeholder="Enter your username">
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" placeholder="****************" id="password"
-                                name="password">
+                            <label for="username" class="form-label fs-6">Email / Username</label>
+                            <input type="text" class="form-control input-height" id="username" placeholder="awesomeuser"
+                                name="username">
                         </div>
                         <div class="mb-3">
-                            <select class="form-select" aria-label="Default select example" id="role">
-                                <option selected disabled>Select role</option>
-                                <option value="patient">Patient</option>
-                                <option value="doctor">Doctor</option>>
-                            </select>
+                            <label for="password" class="form-label fs-6">Password</label>
+                            <input type="password" class="form-control input-height" id="password"
+                                placeholder="***********" name="password">
                         </div>
-                        <div class="mb-3 d-flex">
-                            <a href="/users/register" class="btn btn-primary me-auto">Register</a>
-                            <button type="submit" class="btn btn-success ms-auto">Login</button>
+                        <div class="ms-4 mb-3 d-flex gap-5">
+                            <div class="form-check">
+                                <input class="form-check-input fs-6" type="radio" name="role" value="patient"
+                                    id="Patient_role" checked>
+                                <label class="form-check-label fs-6" for="Patient_role">
+                                    Patient
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input fs-6" type="radio" name="role" value="doctor"
+                                    id="Doctor_role">
+                                <label class="form-check-label fs-6" for="Doctor_role">
+                                    Doctor
+                                </label>
+                            </div>
                         </div>
+                        <button type="submit" class="btn green-background text-white fw-bold py-2 px-5">Login</button>
                     </form>
                 </div>
             </div>
-
+            <div class="col-7 vh-100 d-flex flex-column justify-content-center align-items-center ">
+                <div class="d-flex flex-column justify-content-center align-items-center">
+                    <img src="/pics/login.svg" class="img-fluid" style="height: 75%;">
+                    <p class="lead">You don't have an account yet, <a href="/users/register" class="fs-4 text-green text-center">Join
+                            us!</a></p>
+                </div>
+            </div>
         </div>
-    </main>
+    </section>
+
     <script>
-        const check = document.getElementById('role');
-        check.addEventListener('change', (e) => {
-            const role = document.getElementById('role').value;
-            const form = document.getElementById('form');
-            form.attributes[1].nodeValue = `/users/${role}/login`;
+        const form = document.getElementById('form');
+        const radioGroup = document.getElementsByName('role');
+        radioGroup.forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (radio.checked) {
+                    console.log(radio.value);
+                    form.attributes[1].nodeValue = `/users/${radio.value}/login`;
+                }
+            });
         });
     </script>
+
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"
         integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE"
         crossorigin="anonymous"></script>

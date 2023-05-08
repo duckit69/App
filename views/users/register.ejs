@@ -11,172 +11,130 @@
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/stylesheets/app.css">
-    <title>Document</title>
+    <title>Register</title>
 </head>
 
-<body class="d-flex">
-    <main class="container m-auto">
+<body class="overflow-hidden">
+    <section class="container vh-100">
         <div class="row">
-            <div class="col-md-4 offset-4">
-                <form action="/" method="post" id="registerForm">
-                    <fieldset class="tab">
-                        <select class="form-select mb-3" id="role">
-                            <option selected disabled>Pick your Role</option>
-                            <option value="patient">Patient</option>
-                            <option value="doctor">Doctor</option>
-                        </select>
-                    </fieldset>
-
-                    <fieldset class="tab">
-                        <h2>Personal Information</h2>
+            <div class="col-7 vh-100 d-flex flex-column justify-content-center align-items-center">
+                <div class="d-flex flex-column justify-content-center align-items-center">
+                    <img src="/pics/login.svg" class="img-fluid">
+                    <p class="lead">You already have an account?, <a href="/users/login"
+                            class="fs-4 text-green text-center">Login</a></p>
+                </div>
+            </div>
+            <div class="col-5 grey-background p-2">
+                <div class="d-flex flex-column align-items-center auto-height form-overflow">
+                    <h1 class="display-3 fw-bold my-5">Welcome Around</h1>
+                    <form action="/" method="post" id="registerForm" class="w-70">
                         <div class="mb-3">
-                            <label for="name" class="form-label">Full Name: </label>
-                            <input type="text" class="form-control" name="name">
-                        </div>
-                        <div class="mb-3">
-                            <label for="date" class="form-label">Birth Date: </label>
-                            <input type="date" class="form-control" name="date">
-                        </div>
-                        <div class="mb-3">
-                            <label for="date" class="form-label">Gender: </label>
-                            <select class="form-select" name="gender" id="gender">
-                                <option selected disabled>Pick your gender</option>
-                                <option value="MALE">Male</option>
-                                <option value="FEMALE">Female</option>
+                            <select class="form-select" id="role">
+                                <option selected>Who are you?</option>
+                                <option value="patient">Patient</option>
+                                <option value="doctor">Doctor</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="phone" class="form-label">Phone: </label>
-                            <input type="text" class="form-control" name="phone">
-                            <div class="mb-3" id="doctorInformation">
-                                <label for="speciality" class="form-label">Speciality: </label>
-                                <input type="text" class="form-control" name="speciality">
+                            <label for="full_name" class="form-label">Full Name: </label>
+                            <input type="text" class="form-control" id="full_name" name="name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="birth_date" class="form-label">Birth date: </label>
+                            <input type="date" class="form-control" id="birth_date" name="date">
+                        </div>
+                        <div class="mb-3 form-check d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gender" id="male" checked
+                                    value="MALE">
+                                <label class="form-check-label" for="male">
+                                    Male
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gender" id="female" value="FEMALE">
+                                <label class="form-check-label" for="female">
+                                    Female
+                                </label>
                             </div>
                         </div>
-                    </fieldset>
-                    <fieldset class="tab">
-                        <h2>Account Information</h2>
                         <div class="mb-3">
-                            <label for="username" class="form-label">Username: </label>
-                            <input type="text" class="form-control" name="username">
+                            <label for="phone_number" class="form-label">Phone Number </label>
+                            <input type="text" class="form-control" id="phone_number" name="phone">
+                        </div>
+                        <div class="mb-3 d-none" id="doctor-speciality">
+                            <label for="speciality" class="form-label">Speciality: </label>
+                            <input type="text" class="form-control" id="speciality" name="speciality">
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">password: </label>
-                            <input type="password" class="form-control" name="password">
-                        </div>
-                    </fieldset>
-                    <fieldset class="patientInformation tab ">
-                        <h2>Medical Information</h2>
-                        <div class="mb-3">
-                            <label for="height" class="form-label">Height: </label>
-                            <input type="text" class="form-control" name="height">
+                            <label for="password" class="form-label">Passowrd: </label>
+                            <input type="password" class="form-control" id="password" name="password">
                         </div>
                         <div class="mb-3">
-                            <label for="weight" class="form-label">Weight: </label>
-                            <input type="text" class="form-control" name="weight">
+                            <label for="password2" class="form-label">Re-Enter Password: </label>
+                            <input type="password" class="form-control" id="password2">
                         </div>
-                        <div class="mb-3">
-                            <label for="sedentary" class="form-label">How many minutes you workout Per Day: </label>
-                            <input type="text" class="form-control" name="sedentary">
+                        <div id="patient">
+                            <div class="mb-3">
+                                <label for="height" class="form-label">Height: </label>
+                                <input type="text" class="form-control" id="height" name="height">
+                            </div>
+                            <div class="mb-3">
+                                <label for="weight" class="form-label">Weight: </label>
+                                <input type="text" class="form-control" id="weight" name="weight">
+                            </div>
+                            <div class="mb-3">
+                                <label for="sedentary" class="form-label">How many minutes you workout Per Day: </label>
+                                <input type="text" class="form-control" id="sedentary" name="sedentary">
+                            </div>
+                            <div class="mb-3">
+                                <label for="smokestate" class="form-label">How many Cigarettes you smoke per day:
+                                </label>
+                                <input type="Number" class="form-control" name="smokestate">
+                            </div>
+                            <div class="mb-3">
+                                <label for="alchoolstate" class="form-label">How many drinks per day: </label>
+                                <input type="number" class="form-control" name="alchoolstate">
+                            </div>
+                            <div class="mb-3">
+                                <label for="smokestate" class="form-label">Did you father/grandFather died before 55 or
+                                    has
+                                    an IDM: </label>
+                                <input type="text" class="form-control" name="atcd">
+                            </div>
+                            <div class="mb-3">
+                                <label for="smokestate" class="form-label">Did you mother/grandMother died before 65 or
+                                    has
+                                    an IDM: </label>
+                                <input type="text" class="form-control" name="atcd">
+                            </div>
                         </div>
-                    </fieldset>
-                    <fieldset class="patientInformation tab ">
-                        <h2>Medical Information</h2>
-                        <div class="mb-3">
-                            <label for="smokestate" class="form-label">How many Cigarettes you smoke per day: </label>
-                            <input type="Number" class="form-control" name="smokestate">
-                        </div>
-                        <div class="mb-3">
-                            <label for="alchoolstate" class="form-label">How many drinks per day: </label>
-                            <input type="number" class="form-control" name="alchoolstate">
-                        </div>
-                        <div class="mb-3">
-                            <label for="smokestate" class="form-label">Does you father/grandFather died before 55 or had
-                                an IDM: </label>
-                            <input type="text" class="form-control" name="atcd">
-                        </div>
-                        <div class="mb-3">
-                            <label for="smokestate" class="form-label">Does you mother/grandMother died before 65 or had
-                                an IDM: </label>
-                            <input type="text" class="form-control" name="atcd">
-                        </div>
-                    </fieldset>
-                    <div class="mb-3 d-flex">
-                        <button type="button" class="btn btn-success d-none fw-bold text-white" id="previous">Previous</button>
-                        <button type="button" class="btn btn-primary ms-auto fw-bold" id="next">Next</button>
-                    </div>
-                </form>
+                        <button type="submit"
+                            class="btn green-background text-white fw-bold py-2 px-5">Register</button>
+                    </form>
+                </div>
             </div>
         </div>
-    </main>
+    </section>
 
     <script>
-        function hideAllTabsExceptCurrent(current) {
-            for (let i = 0; i < tabs.length; i++) {
-                if (i != current) {
-                    tabs[i].classList.add('d-none');
-                }
-                if (current != 0) {
-                    previous.classList.remove('d-none');
-                }
-            }
-        }
-        function displayAllTabs() {
-            for (let i = 0; i < tabs.length; i++)
-                tabs[i].classList.remove('d-none');
-        }
-        function nextBttn() {
-            if (next.innerHTML == 'Next') {
-                displayAllTabs();
-                current++;
-                hideAllTabsExceptCurrent(current);
-            }
-            if (next.innerHTML == 'Submit') {
-                form.submit();
-            }
-            if (role.value == 'doctor' && current == 2) {
-                next.innerHTML = 'Submit';
-            }
-
-            if (current == (tabs.length - 1)) {
-                next.innerHTML = 'Submit';
-            }
-
-        }
-
-        const patientInformation = document.querySelectorAll('.patientInformation');
-        const doctorInformation = document.querySelector('#doctorInformation');
-        function preparePatientInformation() {
-            doctorInformation.remove();
-        }
-        function prepareDoctorInformation() {
-
-        }
-    </script>
-
-    <script>
-        const previous = document.querySelector('#previous');
-        const next = document.querySelector('#next');
-        const role = document.querySelector('#role');
-        const tabs = document.querySelectorAll('.tab');
         const form = document.querySelector('#registerForm');
-
+        const role = document.querySelector('#role');
+        const doctor_speciality = document.querySelector('#doctor-speciality');
+        const patient_data = document.querySelector('#patient');
         role.addEventListener('change', () => {
             if (role.value == 'patient') {
-                form.setAttribute('action', '/users/patient/register');
-                preparePatientInformation();
+                form.setAttribute('action', '/users/patient/registerNextStep');
+                if (!doctor_speciality.classList.contains('d-none')) doctor_speciality.classList.add('d-none');
+                if (patient_data.classList.contains('d-none')) patient_data.classList.remove('d-none');
             } else if (role.value == 'doctor') {
                 form.setAttribute('action', '/users/doctor/register');
+                doctor_speciality.classList.remove('d-none');
+                patient_data.classList.add('d-none');
             }
         })
-
-        let current = 0;
-
-        hideAllTabsExceptCurrent(current);
-        next.addEventListener('click', nextBttn)
-
-        let counter = 0;
     </script>
+
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"
         integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE"
         crossorigin="anonymous"></script>

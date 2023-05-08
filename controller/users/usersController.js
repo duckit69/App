@@ -1,3 +1,5 @@
+const db = require('../../config/db');
+const Appointment = require('../appointments/appointmentController');
 
 module.exports.login = (req, res) => {
     if (req.isAuthenticated()) return res.render('home');
@@ -19,5 +21,14 @@ module.exports.logout = (req, res) => {
     });
 }
 
+module.exports.getMyAppointments =  async (req, res) => {
+    const user_id = req.params.id;
+    const result = await Appointment.getUserAppointments(user_id);
+    const appointments = JSON.stringify(result);
+    res.send(appointments);
+}
 
-
+module.exports.myAppointmentsPage = (req, res) => {
+    const user_id = req.user.person_id;
+    res.render('users/myAppointments', { user_id });
+}

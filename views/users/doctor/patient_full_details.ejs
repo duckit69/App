@@ -1,6 +1,114 @@
-<%- layout('layouts/boilerplate') %>
-    <h1>Patient Full details</h1>
-    <div class="row">
+<%- layout('layouts/doctorBoilerplate') %>
+    <div class="container-fluid vh-100 d-flex flex-column justify-content-around">
+        <div class="row mx-auto d-flex justify-content-center w-100">
+            <h1 class="mb-5">
+                <%= result.patient[0].person_name %> Full details
+            </h1>
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-black">
+                            <%= result.patient[0].person_name %>'s SENSORS
+                        </h5>
+                        <div class="container d-flex gap-2 sensors-container">
+                            <% for(const [index, s] of sensors.entries()){ %>
+                            <% const backgroundColor=(index % 2)==0 ? 'green-background' : 'purple-background' ; %>
+                                    <div class="card <%= backgroundColor%> text-white">
+                                        <div class="card-body">
+                                            <h5 class="card-title fs-4">
+                                                <%= s.sensor_name %>
+                                            </h5>
+                                            <p class="lead fw-bold fs-6">MAX: 136mmHg</p>
+                                            <p class="lead fw-bold fs-6">MIN: 136mmHg</p>
+                                            <p class="lead fw-bold fs-6">Curr: 136mmHg</p>
+                                            <form action="/sensor/<%= s.sensor_id %>?_method=DELETE" method="post"
+                                                id="sensorDelete" class="text-center">
+                                                <button class="btn btn-md btn-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="container-fluid">
+                            <form action="/medicalHistory/" method="post" class="d-none" id="medicalHistoryForm"
+                                style="min-height: 250px;">
+                                <div class="mb-3">
+                                    <select class="form-select" name="treatment" id="treatmentType">
+                                        <option selected disabled>Select Treatment</option>
+                                        <option value="prescription">Prescription</option>
+                                        <option value="scanner">Scanner</option>
+                                    </select>
+                                </div>
+                                <button class="btn green-background text-white fw-bold d-none mt-3"
+                                    id="submitMedicalHistoryForm">Add Medical History</button>
+                            </form>
+                        </div>
+                        <div class="container-fluid d-flex gap-3" id="medicalHistoryBox">
+                            <button
+                                class="lead fw-bold fs-6 my-auto border-0 bg-transparent treatment-type">Prescription</button>
+                            <div class="vr"></div>
+                            <button
+                                class="lead fw-bold fs-6 my-auto border-0 bg-transparent treatment-type">Scanner</button>
+                            <div class="vr"></div>
+                            <button
+                                class="lead fw-bold fs-6 my-auto border-0 bg-transparent treatment-type">Analyse</button>
+                            <div class="vr"></div>
+                            <button
+                                class="lead fw-bold fs-6 my-auto border-0 bg-transparent treatment-type">Radio</button>
+                        </div>
+                        <div class="container-fluid mt-4" id="treatments-box">
+                            <div class="row" id="medicalHistoryRow">
+                                <div class="col-5">
+                                    <div class="vstack gap-3">
+                                        <div class="card" style="min-height: 250px;">
+                                            <div class="card-body medical-history-height d-flex flex-column gap-2"
+                                                id="treatments">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 w-auto" id="search-result"></div>
+                            </div>
+                        </div>
+                        <div class="div d-flex justify-content-end align-content-end">
+                            <a class="" id="addMedicalHistory"><img src="/pics/add_medical_history.svg"
+                                    style="height: 40px;"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="card">
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Cardiovascular Risk</li>
+                            <li class="list-group-item d-flex flex-column"> <span
+                                    class="btn green-background text-white fw-bold" id="riskFactorButton"> Risk Factors:
+                                    <%= Evaluation.counter %></span>
+                                <div id="riskFactors" class="vstack gap-3"
+                                    style="max-height: 80px; overflow-x: hidden; overflow-y: scroll;">
+                                    <% for(const factor in Evaluation.factors) { %>
+                                        <div class="p-2">
+                                            <%= factor %>: <%= Evaluation.factors[factor] %>
+                                        </div>
+                                        <% } %>
+                                </div>
+                            </li>
+                            <li class="list-group-item">Risk Class: <%= Evaluation.riskClass %>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- <div class="row">
         <div class="col-4">
             <div class="card p-2">
                 <div class="card-body">
@@ -53,35 +161,13 @@
             <div class="btn btn-success text-white">Add Treatment</div>
         </div>
         <div class="col-4" id="search-result"></div>
-    </div>
-    <div class="row">
-        <div class="row mt-auto">
-            <div class="col-6 offset-3">
-                <form id="form" class="text-center" data-doctor-id="<%= doctor_id %>">
-                    <div class="mb-3 text-start">
-                        <label for="diagnosisReason" class="form-label">Diagnosis Reason: </label>
-                        <input type="text" class="form-control" id="diagnosisReason" name="appointment_reason">
-                    </div>
-                    <div class="mb-3">
-                        <select class="form-select" name="appointment_type">
-                            <option selected>Choose a type</option>
-                            <option value="OFFLINE">Offline Appointment</option>
-                            <option value="ONLINE">Online Appointment</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <input type="datetime-local" class="form-control" id="date_time">
-                        <div id="invalid" class="d-none alert alert-warning"></div>
-                        <div id="valid" class="d-none alert alert-info"></div>
-                    </div>
-                    <button type="submit" class="btn btn-primary" id="submitFormButton">Submit</button>
-                </form>
-            </div>
-        </div>
-    </div>
+    </div> -->
+
     <script>
         const searchTreatment = document.querySelectorAll('.search-treatment');
         const searchResult = document.getElementById('search-result');
+        const treatment_box = document.querySelector('#treatments-box');
+
         let activeTab = '';
         searchTreatment.forEach(e => {
             e.addEventListener('click', async (ele) => {
@@ -98,68 +184,197 @@
         })
     </script>
 
+
     <script>
-        const form = document.querySelector('#form');
-        const dateTime = document.querySelector('#date_time');
-        const patientIdHolder = document.querySelector('#patient');
-        const invalid = document.querySelector('#invalid');
-        const valid = document.querySelector('#valid');
-        const submitFormButton = document.querySelector('#submitFormButton');
+        const addMedicalHistoryButton = document.querySelector('#addMedicalHistory');
+        const medicalHistoryForm = document.querySelector('#medicalHistoryForm');
+        const medicalHistoryRow = document.querySelector('#medicalHistoryRow');
+        const medicalHistoryBox = document.querySelector('#medicalHistoryBox');
 
-        const doctor_id =  form.getAttribute('data-doctor-id');
-        const patient_id = patientIdHolder.getAttribute('data-patient-id');
-        let submitFlag = false;
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        addMedicalHistoryButton.addEventListener('click', () => {
+            addMedicalHistoryButton.classList.add('d-none');
+            medicalHistoryRow.classList.add('d-none');
+            medicalHistoryBox.classList.add('d-none');
+            treatment_box.classList.add('d-none');
+            medicalHistoryForm.classList.remove('d-none');
         })
-        dateTime.addEventListener('change', async () => {
-            const tmp = dateTime.value;
-            const tmp_date = new Date(tmp);
-            const result = await fetch(`/appointment/checkDate/search?patient_id=${patient_id}&doctor_id=${doctor_id}&date=${tmp}`);
-            const data = await result.json();
-            // check if this date is Available for this doctor and this patient 
-            // result must be 0 => the doctos has 0 appointments so as the patient
-            if (data.status === 'success') {
-                submitFlag = true;
-                valid.classList.add('d-block');
-                valid.classList.remove('d-none');
-                valid.innerText = data.message;
-                setTimeout(() => {
-                    valid.innerText = '';
-                    valid.classList.remove('d-block');
-                    valid.classList.add('d-none');
-                }, 2000);
-            } else {
-                submitFlag = false;
-                invalid.classList.add('d-block');
-                invalid.classList.remove('d-none');
-                invalid.innerText = data.message;
-                setTimeout(() => {
-                    invalid.innerText = '';
-                    invalid.classList.remove('d-block');
-                    invalid.classList.add('d-none');
-                }, 2000);
-            }
-            submitFormButton.addEventListener('click', () => {
-                if (submitFlag) {
-                    const insertData = {
-                        doctor_id: doctor_id,
-                        patient_id: patient_id,
-                        appointment_date: tmp,
-                        appointment_type: form[1].value,
-                        appointment_reason: form[0].value,
-                    }
-                    const url = `/appointment/createAppointment`;
-                    fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(insertData)
-                    })
+    </script>
+    <script>
+        const treatment_type = document.querySelectorAll('.treatment-type');
+        const treatments = document.querySelector('#treatments');
+        let activeType = null;
+        let activeEle = null;
+        treatment_type.forEach(async (e) => {
+            e.addEventListener('click', async () => {
+                if (activeType) {
+                    activeType.classList.remove('btn-primary')
+                    activeType.classList.add('btn-light');
                 }
-            });
+                searchResult.innerHTML = '';
+                activeType = e;
+                activeType.classList.remove('btn-light')
+                activeType.classList.add('btn-primary');
+                treatment_box.classList.remove('d-none');
+                const result = await fetch(`/treatment/${e.innerHTML}`);
+                const response = await result.json();
+                console.dir(response);
+                treatments.innerHTML = '';
+                for (const r of response) {
+                    if (r.prescription_dosage) {
+                        treatments.innerHTML += `<div class="btn btn-light pres">${r.medical_history_diagnosis}</div>`;
+                    } else if (!r.image_type) {
+                        treatments.innerHTML += `<div class="btn btn-light scanner">${r.medical_history_diagnosis}</div>`;
+                    }
+                    else if (r.image_type == 'radio') {
+                        treatments.innerHTML += `<div class="btn btn-light radio">${r.medical_history_diagnosis}</div>`;
+                    }
+                    else if (r.image_type == 'analyse') {
+                        treatments.innerHTML += `<div class="btn btn-light analyse">${r.medical_history_diagnosis}</div>`;
+                    }
+                }
+                const pres = document.querySelectorAll('.pres');
+                pres.forEach(element => {
+                    element.addEventListener('click', () => {
+                        if (activeEle) {
+                            activeEle.classList.remove('btn-success');
+                            activeEle.classList.add('btn-light');
+                        }
+                        activeEle = element;
+                        searchResult.innerHTML = '';
+                        activeEle.classList.remove('btn-light');
+                        activeEle.classList.add('btn-success');
+                        const obj = response.find(e => e.medical_history_diagnosis == activeEle.innerHTML)
+                        searchResult.innerHTML += `
+                                <div class="card-body rounded border border-2"> 
+                                    <p class="lead">${obj.medical_history_notes}</p>
+                                    <p class="lead">${obj.prescription_medicine} - ${obj.prescription_dosage}</p>
+                                    <button class="btn btn-primary dwnld">Download</button> 
+                                    <button class="btn btn-danger text-white cls">Close</button>
+                                </div>`;
+                        const cls = searchResult.childNodes[1].childNodes[7];
+                        const dwnld = searchResult.childNodes[1].childNodes[5];
+                        dwnld.addEventListener('click', () => {
+                            const doc = new jsPDF();
+                            doc.save();
+                        })
+                        cls.addEventListener('click', () => {
+                            searchResult.innerHTML = '';
+                            activeEle.classList.remove('btn-success');
+                            activeEle.classList.add('btn-light');
+                            activeEle = null;
+                        })
+                    })
+                })
+                const image = document.querySelectorAll('.scanner') || document.querySelectorAll('.radio') || document.querySelectorAll('.analyse');
+                image.forEach(element => {
+                    element.addEventListener('click', () => {
+                        if (activeEle) {
+                            activeEle.classList.remove('btn-success');
+                            activeEle.classList.add('btn-light');
+                        }
+                        activeEle = element;
+                        searchResult.innerHTML = '';
+                        activeEle.classList.remove('btn-light');
+                        activeEle.classList.add('btn-success');
+                        const obj = response.find(e => e.medical_history_diagnosis == activeEle.innerHTML)
+                        searchResult.innerHTML += `
+                                <div class="card-body rounded border border-2"> 
+                                    <p class="lead">${obj.medical_history_notes}</p>
+                                    <a href="../../${obj.image_url}.png" target="_blank" class="btn btn-success">Open Image</a>
+                                    <a href="../../${obj.image_url}.png" download class="btn btn-primary">Download Image</a>
+                                    <button class="btn btn-danger text-white cls">Close</button>
+                                </div>`;
+                        const cls = searchResult.childNodes[1].childNodes[7];
+                        cls.addEventListener('click', () => {
+                            searchResult.innerHTML = '';
+                            activeEle.classList.remove('btn-success');
+                            activeEle.classList.add('btn-light');
+                            activeEle = null;
+                        })
+                    })
+                })
+            })
         });
+
+    </script>
+    <script>
+        const treatmentType = document.querySelector('#treatmentType');
+        const submitMedicalHistoryForm = document.querySelector('#submitMedicalHistoryForm');
+
+        treatmentType.addEventListener('change', () => {
+            treatmentType.classList.add('d-none');
+            submitMedicalHistoryForm.classList.remove('d-none');
+            let element = null;
+            if (treatmentType.value == 'prescription') {
+                element = createPrescription();
+            } else if (treatmentType.value == 'scanner') {
+                element = createScanner();
+                medicalHistoryForm.setAttribute('enctype', 'multipart/form-data');
+            }
+            medicalHistoryForm.insertBefore(element, submitMedicalHistoryForm);
+        })
+    </script>
+    <script>
+        function createPrescription() {
+            const div = document.createElement('div');
+            div.classList.add('d-flex', 'flex-column', 'gap-2');
+            const diagnosisInput = document.createElement('input');
+            diagnosisInput.classList.add('form-control');
+            diagnosisInput.setAttribute('type', 'text');
+            diagnosisInput.setAttribute('name', `diagnosis`);
+            diagnosisInput.setAttribute('placeholder', 'Diagnosis');
+            const notesInput = document.createElement('input');
+            notesInput.classList.add('form-control');
+            notesInput.setAttribute('type', 'text');
+            notesInput.setAttribute('name', `notes`);
+            notesInput.setAttribute('placeholder', 'notes');
+            const dateInput = document.createElement('input');
+            dateInput.classList.add('form-control');
+            dateInput.setAttribute('type', 'datetime-local');
+            dateInput.setAttribute('name', `date`);
+            const medicationInput = document.createElement('input');
+            medicationInput.classList.add('form-control');
+            medicationInput.setAttribute('type', 'text');
+            medicationInput.setAttribute('name', `medicine`);
+            medicationInput.setAttribute('placeholder', 'Medication name');
+            const dosageInput = document.createElement('input');
+            dosageInput.classList.add('form-control');
+            dosageInput.setAttribute('type', 'text');
+            dosageInput.setAttribute('name', `dosage`);
+            dosageInput.setAttribute('placeholder', 'Medication dosage');
+            div.appendChild(diagnosisInput);
+            div.appendChild(notesInput);
+            div.appendChild(dateInput);
+            div.appendChild(medicationInput);
+            div.appendChild(dosageInput);
+            return div;
+        }
+        function createScanner() {
+            const div = document.createElement('div');
+            div.classList.add('d-flex', 'flex-column', 'gap-2');
+            const diagnosisInput = document.createElement('input');
+            diagnosisInput.classList.add('form-control');
+            diagnosisInput.setAttribute('type', 'text');
+            diagnosisInput.setAttribute('name', `diagnosis`);
+            diagnosisInput.setAttribute('placeholder', 'Diagnosis');
+            const notesInput = document.createElement('input');
+            notesInput.classList.add('form-control');
+            notesInput.setAttribute('type', 'text');
+            notesInput.setAttribute('name', `notes`);
+            notesInput.setAttribute('placeholder', 'notes');
+            const dateInput = document.createElement('input');
+            dateInput.classList.add('form-control');
+            dateInput.setAttribute('type', 'date');
+            dateInput.setAttribute('name', `date`);
+            const scannerInput = document.createElement('input');
+            scannerInput.classList.add('form-control');
+            scannerInput.setAttribute('type', 'file');
+            scannerInput.setAttribute('name', `photos`);
+            div.appendChild(diagnosisInput);
+            div.appendChild(notesInput);
+            div.appendChild(dateInput);
+            div.appendChild(scannerInput);
+            return div;
+        }
 
     </script>

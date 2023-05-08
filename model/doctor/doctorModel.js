@@ -46,7 +46,8 @@ module.exports.getPatientById = async (req, res) => {
     const patient_recorded_data = recorded_data.rows;
     const {person_id} = req.user;
     const doctor_id = person_id;
-    res.render('users/doctor/patient_full_details', {result, age, patient_recorded_data, doctor_id, Evaluation});
+    const sensors = await Patient.findAllSensorsForOnePatient(patient_id);
+    res.render('users/doctor/patient_full_details', {result, age, patient_recorded_data, doctor_id, Evaluation, sensors});
 }
 
 module.exports.getAllDoctors = async () => {

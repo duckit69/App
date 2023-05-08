@@ -1,22 +1,30 @@
-<nav class="navbar navbar-expand-lg sticky-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/">Navbar</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0 w-100">
-        <li class="nav-item">
-          <a class="nav-link" href="/">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">My Appointments</a>
-        </li>
-        <li CLASS="nav-item ms-auto">
-          <a class="nav-link" href="/users/logout">Logout</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
+<header>
+  <nav class="navbar navbar-expand-lg dark-blue-background-color position-relative px-5">
+      <div class="container-fluid">
+          <nav class="navbar position-absolute">
+              <img src="/pics/ria.svg" style="padding: 0; max-width: auto; height: 75px; object-fit: cover;" alt="">
+          </nav>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+              aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav ms-auto mb-2 mb-lg-0 w-70  d-flex gap-2">
+                  <li class="nav-item">
+                      <a class="nav-link text-white fw-bold" href="/">Home</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link text-white fw-bold" href="/users/doctor/dashboard">My Dashboard</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link text-white fw-bold" href="/users/myAppointments">My Appointments</a>
+                  </li>
+                  <li class="nav-item ms-auto">
+                      <a class="btn red-background nav-link text-white fw-bold" href="/users/logout">Logout</a>
+                  </li>
+              </ul>
+          </div>
+      </div>
+  </nav>
+</header>

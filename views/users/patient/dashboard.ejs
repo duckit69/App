@@ -1,55 +1,34 @@
 <%- layout('layouts/patientBoilerplate') %>
-<div class="container-fluid">
-        <div class="row mt-0">
-            <div class="col-md-2">
-                <h2 class="text-center">My Doctors</h2>
-                <div class="max-profiles-height d-flex flex-column">
-                    <% for(const p of doctors){ %>
-                        <div class="my-2 profileCards" style="max-width: 300px;">
-                            <div class="card text-bg-light">
-                                <div class="card-body p-2">
-                                    <h5 class="text-center">
-                                        <%= p.person_name %>
-                                    </h5>
-                                </div>
-                            </div>
-                            <div class="d-none d-flex justify-content-center gap-1 infoCard">
-                                <a href="/users/patient/doctor_full_details/<%= p.person_id %>"
-                                    class="btn btn-sm btn-primary text-white fw-bold mt-2 patient-ids">Visit Profile</a>
-                                <a href="#" class="btn btn-sm btn-info startChat text-white fw-bold mt-2"
-                                    data-doctor-id="<%= p.person_id %>" data-doctor-name="<%= p.person_name %>">Send a
-                                    message</a>
-                                </div>
-                                
-                            </div>
-                    <% } %>
+<div class="row gap-3">
+    <div class="col-2 green-background d-flex flex-column gap-3 py-4 vh-100 justify-content-start align-items-center text-center">
+        <% for(const d of doctors){ %>
+            <a href="#" class="btn fw-bold white-background-color position-relative profileCards" style="min-height: 2.5rem;">
+                <%= d.person_name %>
+                <div class="d-flex position-absolute white-background-color p-3 gap-1 here infoCard d-none"
+                    style="height: 75px; right: -9rem; top: 0;">
+
+                    <img src="/pics/profile_card.svg" onclick="navigateToUserPage(<%= d.person_id %>)" class="doctors-profiles">
+                    <div class="vh"></div>
+                    <img src="/pics/send_message.svg" class="startChat" data-doctor-id="<%= d.person_id %>" data-doctor-name="<%= d.person_name %>">
                 </div>
-            </div>
-            <div class="col-md-7 mt-4 d-flex flex-column gap-4 height-100">
-                <div class="row mb-2">
-                    <div class="card col-4 offset-1 p-0 sensor-appointment-height">
-                        <h5 class="card-header sticky-top">My Sensors</h5>
-                        <!-- give max height to sensor card -->
-                        <div class="card-body vstack gap-2 overflow-scroll overflow-x-hidden">
-                            <% for(const s of sensors){ %>
-                                <div class="p-2 text-center">
-                                    <h4 class="fs-5 d-inline">
-                                        <%= s.sensor_name %>:
-                                    </h4>
-                                    <span class=" fs-5 text-info">
-                                        <%= s.recorded_data_value %>
-                                    </span>
-                                    <div class="d-flex justify-content-around">
-                                        <form action="/sensor/<%= s.sensor_id %>?_method=PUT" method="POST"
-                                            class="d-none" id="sensorUpdate">
-                                            <div class="mb-3">
-                                                <input type="text" class="form-control" id="name" name="name"
-                                                placeholder="Enter New Name">
-                                                <button class="btn btn-info text-white">Update Name</button>
-                                            </div>
-                                        </form>
+            </a>
+        <% } %>
+    </div>            
+    <div class="col-6 vh-100 d-flex flex-column gap-2 middle" id="middle-section">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-black">MY SENSORS</h5>
+                        <div class="container d-flex gap-2 sensors-container">
+                            <% for(const [index, s] of sensors.entries()){ %>
+                                <% const backgroundColor = (index % 2) ==  0 ? 'green-background' : 'purple-background'; %>
+                                <div class="card <%= backgroundColor%> text-white">
+                                    <div class="card-body">
+                                        <h5 class="card-title fs-4"><%= s.sensor_name %></h5>
+                                        <p class="lead fw-bold fs-6">MAX: 136mmHg</p>
+                                        <p class="lead fw-bold fs-6">MIN: 136mmHg</p>
+                                        <p class="lead fw-bold fs-6">Curr: 136mmHg</p>
                                         <form action="/sensor/<%= s.sensor_id %>?_method=DELETE" method="post"
-                                            id="sensorDelete">
+                                            id="sensorDelete" class="text-center">
                                             <button class="btn btn-md btn-danger">Delete</button>
                                         </form>
                                     </div>
@@ -57,75 +36,91 @@
                             <% } %>
                         </div>
                     </div>
-                        <div class="ms-1 card col-6 p-0 sensor-appointment-height">
-                            <h5 class="card-header sticky-top">My Appointments</h5>
-                            <!-- give max height to sensor card -->
-                            <div class="card-body vstack gap-2 overflow-scroll overflow-x-hidden">
-                                <% for(const a of appointments){ %>
-                                    <% const options ={weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'} %>
-                                    <% const date = new Date(a.appointment_date).toLocaleDateString(undefined, options); %> 
-                                    <% const formDate = date.slice(9) %>    
-                                    <% const test_date = new Date(a.appointment_date); %> 
-                                    <% const display_date = test_date.toLocaleString('en-US', options); %>
-                                    <% const year = test_date.getFullYear() %>
-                                    <% let month = test_date.getMonth() + 1; %>
-                                    <% if(month<10) month = `0${month}`;%> 
-                                    <% let day_e = test_date.getDate(); %>
-                                    <% if(day_e<10) day_e = `0${day_e}`;%>
-                                    <% let hrs = (test_date.getHours() %12)%>
-                                    <% if(hrs<10) hrs = `0${hrs}`;%>
-                                    <% let mns= test_date.getMinutes()%>
-                                    <% if(mns<10) mns = `0${mns}`;%>
-                                    <% const tmp = `${year}-${month}-${day_e}T${hrs}:${mns}`; %>
-                                    <div class="p-2 text-center bg-light">
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-black">My Appointments</h5>
+                        <div class="container appointment-container d-flex gap-2">
+                            <% for(const [i, a] of appointments.entries()){ %>
+                                <% const options ={weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'} %>
+                                <% const date = new Date(a.appointment_date).toLocaleDateString(undefined, options); %> 
+                                <% const formDate = date.slice(9) %>    
+                                <% const test_date = new Date(a.appointment_date); %> 
+                                <% const display_date = test_date.toLocaleString('en-US', options); %>
+                                <% const year = test_date.getFullYear() %>
+                                <% let month = test_date.getMonth() + 1; %>
+                                <% if(month<10) month = `0${month}`;%> 
+                                <% let day_e = test_date.getDate(); %>
+                                <% if(day_e<10) day_e = `0${day_e}`;%>
+                                <% let hrs = (test_date.getHours() %12)%>
+                                <% if(hrs<10) hrs = `0${hrs}`;%>
+                                <% let mns= test_date.getMinutes()%>
+                                <% if(mns<10) mns = `0${mns}`;%>
+                                <% const tmp = `${year}-${month}-${day_e}T${hrs}:${mns}`; %>
+                                <% const orangeBackground = 'orange-background' %>
+                                <% const redBackground = 'red-background' %>
+                                <% const purpleBackground = 'purple-background' %>
+                                <% let backgroundColor = null %>
+                                <% if((i%3) == 0) {backgroundColor = redBackground} else if((i%3) == 1) {backgroundColor = purpleBackground} else {backgroundColor = orangeBackground} %>
+                                <div class="card text-white <%= backgroundColor %>">
+                                    <div class="card-body" data-appointment="<%= a.appointment_id %>" >
                                         <div class="appointmentBody" data-appointment="<%= a.appointment_id %>">
-                                            <h4 class="fs-5 d-inline">
-                                                <%= a.person_name %>
-                                            </h4>
-                                            <p class="lead fs-6 text-info">
-                                                <span>
-                                                    <%= display_date%>
-                                                </span>
-                                                <span class="text-black fs-6">
-                                                    <%= (a.appointment_type).toLowerCase() %>
-                                                </span>
-                                            </p>
+                                            <h5 class="card-title fs-4"><%= a.person_name %></h5>
+                                            <p class="lead fw-bold fs-6"><%= display_date%></p>
                                         </div>
-                                        <div class="d-flex justify-content-around">
+                                        <div class="icons-container d-flex justify-content-between">
                                             <form action="/appointment/<%= a.appointment_id %>?_method=PUT" method="POST"
                                                 class="d-none appointmentUpdate" id="appointmentUpdate" data-appointment="<%= a.appointment_id%>">
-                                                <div class="mb-3">
+                                                <div class="mb-3 d-flex flex-column align-items-center gap-2">
                                                     <input type="datetime-local" class="form-control" id="name" name="date"
                                                         placeholder="Enter New Date" value="<%= tmp %>">
-                                                    <button class="btn btn-md btn-info text-white">Update Date</button>
+                                                    <button class="bg-transparent border-0 m-auto" ><img src="/pics/update_date.svg" style="height: 40px;"></button>
                                                 </div>
                                             </form>
-                                            <a class="btn btn-md btn-info text-white updateAppointmentButton" data-appointment="<%= a.appointment_id %>">Change Date</a>
+                                            <a class="updateAppointmentButton" data-appointment="<%= a.appointment_id %>"><img src="/pics/update_date.svg" style="height: 40px;"></a>
                                             <form action="/appointment/<%= a.appointment_id %>?_method=DELETE" method="post"
                                                 id="appointmentDelete" class="appointmentDelete" data-appointment="<%= a.appointment_id%>">
-                                                <button class="btn btn-md btn-danger">Delete</button>
+                                                <button class="bg-transparent border-0"><img src="/pics/delete_icons.svg" style="height: 40px;"></button>
                                             </form>
-                                            <form action="/appointment/<%= a.appointment_id %>" method="get">
-                                                <button class="btn btn-md btn-success">Visit Room</button>
+                                            <form action="/appointment/<%= a.appointment_id %>" data-appointment="<%= a.appointment_id %>" method="get" class="appointmentVisitRoom">
+                                                <button class="bg-transparent border-0"><img src="/pics/visit_room.svg" style="height: 40px;"></button>
                                             </form>
                                         </div>
+                                        
                                     </div>
+                                </div>
                             <% } %>
                         </div>
-                        </div>
+                    </div>
                 </div>
-                    <div class="card p-0 m-auto w-100 bg-light">
-                        <div class="card-header sticky-top">
-                            <div class="btn btn-light treatment-type">Prescription</div>
-                            <div class="btn btn-light treatment-type">Scanner</div>
-                            <div class="btn btn-light treatment-type">Analyse</div>
-                            <div class="btn btn-light treatment-type">Radio</div>
+                <div class="card">                    
+                    <div class="card-body" >
+                        <div class="container-fluid">
+                            <form action="/medicalHistory/" method="post" class="d-none" id="medicalHistoryForm" style="min-height: 250px;">
+                                <div class="mb-3">
+                                    <select  class="form-select" name="treatment" id="treatmentType">
+                                        <option selected disabled>Select Treatment</option>
+                                        <option value="prescription">Prescription</option>
+                                        <option value="scanner">Scanner</option>
+                                    </select>
+                                </div>
+                                <button class="btn green-background text-white fw-bold d-none mt-3" id="submitMedicalHistoryForm">Add Medical History</button>
+                            </form>
                         </div>
-                        <div class="card-body d-none" id="treatments-box">
+                        <div class="container-fluid d-flex gap-3" id="medicalHistoryBox">
+                            <button class="lead fw-bold fs-6 my-auto border-0 bg-transparent treatment-type">Prescription</button>
+                            <div class="vr"></div>
+                            <button class="lead fw-bold fs-6 my-auto border-0 bg-transparent treatment-type">Scanner</button>
+                            <div class="vr"></div>
+                            <button class="lead fw-bold fs-6 my-auto border-0 bg-transparent treatment-type">Analyse</button>
+                            <div class="vr"></div>
+                            <button class="lead fw-bold fs-6 my-auto border-0 bg-transparent treatment-type">Radio</button>
+                        </div>
+                        <div class="container-fluid mt-4"  id="treatments-box">
                             <div class="row" id="medicalHistoryRow">
                                 <div class="col-5">
                                     <div class="vstack gap-3">
-                                        <div class="card">
+                                        <div class="card" style="min-height: 250px;">
                                             <div class="card-body medical-history-height d-flex flex-column gap-2" id="treatments">
                                                 
                                             </div>
@@ -134,70 +129,55 @@
                                 </div>
                                 <div class="col-6 w-auto" id="search-result"></div>
                             </div>
-                            <div class="row">
-                                <div class="col-6">
-                                    <form action="/medicalHistory/" method="post" class="d-none" id="medicalHistoryForm">
-                                        <div class="mb-3">
-                                            <select  class="form-select" name="treatment" id="treatmentType">
-                                                <option selected disabled>Select Treatment</option>
-                                                <option value="prescription">Prescription</option>
-                                                <option value="scanner">Scanner</option>
-                                            </select>
-                                        </div>
-                                        <button class="btn btn-success d-none" id="submitMedicalHistoryForm">Add</button>
-                                    </form>
-                                </div>
-                            </div>
-
                         </div>
-                        <div class="card-footer">
-                            <a href="#" class="btn btn-primary" id="addMedicalHistory">Add Medical History</a>
-                        </div>
-                    </div>
-            </div>
-            <div class="col-md-3 d-flex flex-column justify-content-between mt-4">
-                <div class="row">
-                    <div class="card col-10 offset-1">
-                        <div class="card-body">
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item">Cardiovascular Risk</li>
-                                <li class="list-group-item d-flex flex-column"> <span class="btn btn-light" id="riskFactorButton"> Risk Factors: <%= Evaluation.counter %></span>
-                                    <div id="riskFactors" class="d-none">
-                                    <% for(const factor in Evaluation.factors) { %>
-                                        <div><%= factor %>:     <%= Evaluation.factors[factor] %></div>    
-                                    <% } %>
-                                    </div>
-                                </li>
-                                <li class="list-group-item">Risk Class: <%= Evaluation.riskClass %></li>
-                            </ul>
+                        <div class="div d-flex justify-content-end align-content-end">
+                            <a class="" id="addMedicalHistory"><img src="/pics/add_medical_history.svg" style="height: 40px;"></a>
                         </div>
                     </div>
                 </div>
-                    <div class="ms-auto align-self-end flex-shrink d-none" id="chatBox">
-                        <div class="card text-center position-relative">
-                            <h4 class="me-5 fw-normal">Chat With doctors</h4>
-                            <div class="position-absolute top-0 end-0 d-flex gap-2 p-1">
-                                <button class="btn btn-sm ms-5 symbol d-block" id="minimizeButton">&#8722;</button>
-                                <button class="btn btn-sm ms-5 symbol d-none" id="boxButton">&#9633;</button>
-                                <button class="btn btn-sm symbol" id="closeButton">&#10005;</button>
-                            </div>
-                            <div class="card-header d-flex gap-1" id="chatBoxHeader">
-        
-                            </div>
-                            <div class="card-body d-block" id="chatBoxBody">
-                                <div class="card-text max-chat-height" id="chatDiv">
-        
+
+    </div>
+    <div class="col-3 d-flex flex-column justify-content-between">
+                <div class="card">
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Cardiovascular Risk</li>
+                            <li class="list-group-item d-flex flex-column"> <span class="btn grey-background text-white fw-bold" id="riskFactorButton"> Risk Factors: <%= Evaluation.counter %></span>
+                                <div id="riskFactors" class="d-none vstack gap-3" style="max-height: 80px; overflow-x: hidden; overflow-y: scroll;">
+                                <% for(const factor in Evaluation.factors) { %>
+                                    <div class="p-2"><%= factor %>:     <%= Evaluation.factors[factor] %></div>    
+                                <% } %>
                                 </div>
-                                <div class="d-flex d-block" id="messageFactory">
-                                    <input id="chatInput" type="text" placeholder="Send a message" class="form-control">
-                                    <button id="chatSend" class="btn btn-primary ms-2 sendBTN">Send</button>
-                                </div>
+                            </li>
+                            <li class="list-group-item">Risk Class: <%= Evaluation.riskClass %></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="align-self-end flex-shrink d-none" id="chatBox">
+                    <div class="card text-center position-relative">
+                        <h4 class="me-5 fw-normal">Chat With doctors</h4>
+                        <div class="position-absolute top-0 end-0 d-flex gap-2 p-1">
+                            <button class="btn btn-sm ms-5 symbol d-block" id="minimizeButton">&#8722;</button>
+                            <button class="btn btn-sm ms-5 symbol d-none" id="boxButton">&#9633;</button>
+                            <button class="btn btn-sm symbol" id="closeButton">&#10005;</button>
+                        </div>
+                        <div class="card-header d-flex gap-1" id="chatBoxHeader">
+    
+                        </div>
+                        <div class="card-body d-block" id="chatBoxBody">
+                            <div class="card-text max-chat-height" id="chatDiv">
+    
+                            </div>
+                            <div class="d-flex d-block" id="messageFactory">
+                                <input id="chatInput" type="text" placeholder="Send a message" class="form-control">
+                                <button id="chatSend" class="btn btn-primary ms-2 sendBTN">Send</button>
                             </div>
                         </div>
                     </div>
-            </div>
-        </div>
+                </div>
     </div>
+            
+</div>
 
     <script>
         const searchTreatment = document.querySelectorAll('.search-treatment');
@@ -256,6 +236,7 @@
         const closeButton = document.querySelector('#closeButton');
         const minimizeButton = document.querySelector('#minimizeButton');
         const boxButton = document.querySelector('#boxButton');
+        const middle_section = document.querySelector('#middle-section'); 
 
         const patient_id = "<%= patientObject.person_id %>";
         const patient_name = "<%= patientObject.person_name %>"
@@ -309,17 +290,25 @@
 
         profileCards.forEach((element) => {
             element.addEventListener('click', () => {
-                let test = element.childNodes[3];
+                let clickedElement = element.childNodes[1];
                 if (!activeElement) {
-                    activeElement = test;
+                    activeElement = clickedElement;
                     activeElement.classList.remove('d-none');
                     activeElement.classList.add('d-block');
+                    middle_section.classList.add('z-1');
                 } else {
+                    if(activeElement == clickedElement) {
+                    clickedElement.classList.remove('d-block');
+                    clickedElement.classList.add('d-none');
+                    activeElement = null;
+                    middle_section.classList.remove('z-1');
+                    } else {
                     activeElement.classList.remove('d-block');
                     activeElement.classList.add('d-none');
-                    activeElement = test;
+                    activeElement = clickedElement;
                     activeElement.classList.remove('d-none');
                     activeElement.classList.add('d-block');
+                    }
                 }
             })
         })
@@ -543,21 +532,25 @@
         const updateAppointmentButtons = document.querySelectorAll('.updateAppointmentButton');
         const appointmentUpdateForm = document.querySelectorAll('.appointmentUpdate');
         const appointmentDeleteForm = document.querySelectorAll('.appointmentDelete');
+        const appointmentVisitRoom = document.querySelectorAll('.appointmentVisitRoom');
         const appointmentBody = document.querySelectorAll('.appointmentBody');
 
         const appointmentBodyArray = Array.from(appointmentBody);
         const appointmentUpdateForms = Array.from(appointmentUpdateForm);
         const appointmentDeleteForms = Array.from(appointmentDeleteForm);
+        const appointmentVisitForms = Array.from(appointmentVisitRoom);
 
         updateAppointmentButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const element = appointmentBodyArray.find(ele => ele.getAttribute('data-appointment') == btn.getAttribute('data-appointment')) 
                 const updateForm = appointmentUpdateForms.find(ele => ele.getAttribute('data-appointment') == btn.getAttribute('data-appointment')) 
                 const deleteForm = appointmentDeleteForms.find(ele => ele.getAttribute('data-appointment') == btn.getAttribute('data-appointment')) 
+                const visitForm = appointmentVisitForms.find(ele => ele.getAttribute('data-appointment') == btn.getAttribute('data-appointment')) 
                 element.classList.add('d-none');
                 btn.classList.add('d-none');
                 updateForm.classList.remove('d-none');
                 deleteForm.classList.add('d-none');
+                visitForm.classList.add('d-none');
             })
         })
         
@@ -566,10 +559,13 @@
         const addMedicalHistoryButton = document.querySelector('#addMedicalHistory');
         const medicalHistoryForm = document.querySelector('#medicalHistoryForm');
         const medicalHistoryRow = document.querySelector('#medicalHistoryRow');
+        const medicalHistoryBox = document.querySelector('#medicalHistoryBox'); 
 
         addMedicalHistoryButton.addEventListener('click', () => {
             addMedicalHistoryButton.classList.add('d-none');
             medicalHistoryRow.classList.add('d-none');
+            medicalHistoryBox.classList.add('d-none');
+            treatment_box.classList.add('d-none');
             medicalHistoryForm.classList.remove('d-none');
         })
     </script>
@@ -757,6 +753,12 @@
     </script>
 
     <script>
+        function navigateToUserPage(person_id) {
+            window.location.href = `/users/patient/doctor_full_details/${person_id}`;
+        }
+    </script>
+
+    <script>
         const riskFactorButton = document.querySelector('#riskFactorButton');
         const riskFactors = document.querySelector('#riskFactors');
 
@@ -764,13 +766,13 @@
             if(riskFactors.classList.contains('d-none')) {
                 riskFactors.classList.remove('d-none');
                 riskFactors.classList.add('d-block');
-                riskFactorButton.classList.remove('btn-light');
-                riskFactorButton.classList.add('btn-success');
+                riskFactorButton.classList.remove('grey-background');
+                riskFactorButton.classList.add('green-background');
             }else {
                 riskFactors.classList.remove('d-block');
                 riskFactors.classList.add('d-none');
-                riskFactorButton.classList.remove('btn-success');
-                riskFactorButton.classList.add('btn-light');
+                riskFactorButton.classList.remove('green-background');
+                riskFactorButton.classList.add('grey-background');
             }
         })
 

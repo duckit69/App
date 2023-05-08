@@ -19,6 +19,7 @@
     "express-flash": "^0.0.2",
     "express-session": "^1.17.3",
     "faker": "^5.5.3",
+    "fullcalendar": "^6.1.6",
     "jspdf": "^2.5.1",
     "method-override": "^3.0.0",
     "mqtt": "^4.3.7",

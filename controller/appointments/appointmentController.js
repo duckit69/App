@@ -118,16 +118,22 @@ module.exports.validateUsersForOneAppointment = async (req, res) => {
         const patient = await Patient.getPatientById(users.patient_id);
         const medical_history = await Patient.findMedicalHistoryForOnePatient(users.patient_id);
         const sensors = await Patient.findAllSensorsForOnePatient(users.patient_id);
+        const Evaluation = await Patient.evaluate(users.patient_id);
         if (req.user.person_id == doctor.person_id) {
             const sender = doctor;
             const receiver = patient;
-            return res.render('appointment', { users, sender, receiver, medical_history, sensors });
+            return res.render('appointment', { users, sender, receiver, medical_history, sensors, Evaluation });
         }else {
             const sender = patient;
             const receiver = doctor;
-            return res.render('appointment', { users, sender, receiver, medical_history, sensors });
+            return res.render('appointment', { users, sender, receiver, medical_history, sensors, Evaluation });
         }
     }
+}
+
+module.exports.getUserAppointments = async (user_id) => {
+    const appointments = await getUserAppointment(user_id);
+    return appointments;
 }
 
 async function checkUsersIdForOneAppointment(appointment_id, user_id) {
@@ -153,4 +159,9 @@ async function updateAppointment(appointment_id, date, time) {
 
 async function deleteAppointment(appointment_id) {
     return await db.query('DELETE FROM appointment WHERE appointment_id = $1', [appointment_id]);
+}
+
+async function getUserAppointment(user_id) {
+    const { rows } = await db.query('SELECT * from appointment where doctor_id = $1 or patient_id = $1', [user_id]);
+    return rows;
 }
