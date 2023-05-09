@@ -131,11 +131,11 @@ app.use('/uploads', express.static('uploads'));
 
 
 app.use('/users', userRoute);
-app.use('/treatment', Utils.checkAuthenticated, treatmentRoute);
-app.use('/appointment', Utils.checkAuthenticated, appointmentRoute);
-app.use('/sensor', Utils.checkAuthenticated, sensorRoute);
-app.use('/medicalHistory', Utils.checkAuthenticated, medicalHistoryRoute);
-app.get('/message', Utils.checkAuthenticated, async(req, res) => {
+app.use('/treatment', treatmentRoute);
+app.use('/appointment', appointmentRoute);
+app.use('/sensor', sensorRoute);
+app.use('/medicalHistory', medicalHistoryRoute);
+app.get('/message', async(req, res) => {
     const {sender, receiver} = req.query;
     const { rows } = await db.query('select * from message where (message_sender = $1 and message_receiver = $2) or (message_sender = $2 and message_receiver = $1) ORDER BY message_date ASC;', [sender, receiver]);
     res.send(rows);

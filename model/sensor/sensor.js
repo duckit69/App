@@ -14,10 +14,18 @@ module.exports.deleteSensor = async (req, res) => {
 }
 // This Must be a CLIENT not POOL BECAUSE IT IS A TRANSACTION
 module.exports.addSensor = async (req, res) => {
+    console.log('Add sensor function 1');
     const { sensorModel, sensorName, sensorType, patientId } = req.body;
     const  { sensor_id }  = await createSensor(sensorName, sensorModel, sensorType);
+    console.log('Add sensor function 2');
+    console.log(sensor_id + " " + patientId);
+
     await createFirstRecord(patientId, sensor_id);
+    console.log('Add sensor function 3');
+
     const test = JSON.stringify(sensor_id);
+    console.log('Add sensor function 4');
+
     res.send(test);
     //res.redirect('/users/patient/dashboard');
 }
@@ -52,8 +60,9 @@ async function createSensor(name, model, type) {
 }
 
 async function createFirstRecord(patientID, sensor_id) {
+    console.log('Create First Record')
     return await db.query('INSERT INTO recorded_data(patient_id, sensor_id) values($1, $2)', [patientID, sensor_id]);
 }
 async function createRecord(patientId, sensorId, recorded_value, time) {
-    return await db.query('UPDATE recorded_data SET recorded_data_date = $1, recorded_data_value = $2 WHERE patient_id = $3 and sensor_id = $4', [time, recorded_value, patientId, sensorId]);
+    return await db.query('INSERT INTO recorded_data(recorded_data_date, recorded_data_value, patient_id, sensor_id) values($1, $2, $3, $4)', [time, recorded_value, patientId, sensorId]);
 }

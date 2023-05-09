@@ -57,7 +57,9 @@ a.white-background-color {
 .grey-background {
   background-color: var(--grey-background);
 }
-
+.text-grey {
+  color: var(--grey-background);
+}
 .black-background {
   background-color: var(--black-background);
 }
@@ -126,4 +128,11 @@ span.green-background:hover, button.green-background:hover {
 }
 a.red-background:hover {
   background-color: var(--red-background);
+}
+
+.sensor-extra-details {
+  max-height: 75px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+
 }

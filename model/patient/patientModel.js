@@ -9,14 +9,15 @@ const salt = 10;
 module.exports.patientDashboard = async (req, res) => {
     console.log("PersonId: " + req.user.person_id)
     const result = await db.query('select d.* from doctor d, treatment t, medical_history m, patient p where d.person_id = t.doctor_id and t.treatment_id = m.treatment_id and m.patient_id = p.person_id and p.person_id = $1;', [req.user.person_id]);
-    const sensors = await Patient.findAllSensorsForOnePatient(req.user.person_id);
+    const sensors = await Patient.findAllSensorsMostRecentDataForOnePatient(req.user.person_id);
+    const recorded_values = await Patient.findAllSensorsForOnePatient(req.user.person_id);
     const appointments = await findMyUpComingAppointments(req.user.person_id);
     const medical_history = await MH.findMedicalHistoryForOnePatient(req.user.person_id);
     const doctors = result.rows;
     const patientObject = req.user;
     const Evaluation = await evaluatePatient(req.user.person_id);
 
-    res.render('users/patient/dashboard', { doctors, patientObject, appointments, medical_history, Evaluation, sensors });
+    res.render('users/patient/dashboard', { doctors, patientObject, appointments, medical_history, Evaluation, sensors, recorded_values });
 };
 
 module.exports.registerPatient = async (req, res) => {
@@ -100,7 +101,12 @@ async function findMyUpComingAppointments(patient_id) {
     return rows;
 }
 module.exports.findAllSensorsForOnePatient = async function findAllSensorsForOnePatient(patient_id) {
-    const { rows } = await db.query('SELECT r.*, s.*, p.* from recorded_data r, sensor s, patient p where r.sensor_id = s.sensor_id and r.patient_id = p.person_id and p.person_id = $1', [patient_id]);
+    const { rows } = await db.query('select * from recorded_data where patient_id = $1 and recorded_data_value is not null order by recorded_data_date DESC', [patient_id]);
+    return rows;
+}
+
+module.exports.findAllSensorsMostRecentDataForOnePatient = async function findAllSensorsMostRecentDataForOnePatient(patient_id) {
+    const { rows } = await db.query('SELECT s.*, p.*, rd.recorded_data_value FROM recorded_data rd JOIN ( SELECT sensor_id, MAX(recorded_data_date) AS max_date FROM recorded_data WHERE recorded_data_value IS NOT NULL GROUP BY sensor_id ) sdm ON rd.sensor_id = sdm.sensor_id AND rd.recorded_data_date = sdm.max_date JOIN sensor s ON rd.sensor_id = s.sensor_id JOIN patient p ON rd.patient_id = p.person_id WHERE rd.patient_id = $1', [patient_id]);
     return rows;
 }
 
@@ -137,22 +143,23 @@ async function findDoctorById(doctor_id) {
 
 async function countCardioVascularRiskFactors(patient_id) {
     let counter = 0;
+    const factors = {};
     const gender = await getGender(patient_id);
     const age = await getAge(patient_id);
     const ATCD = await getATCD(patient_id);
     const cigarettePerDay = await getSmokeState(patient_id);
     const cupPerDay = await getDrinkState(patient_id);
     const minutesPerDay = await getSidentarite(patient_id);
-    const sensors = await Patient.findAllSensorsForOnePatient(patient_id);
+    const sensors = await Patient.findAllSensorsMostRecentDataForOnePatient(patient_id);
     sensors.forEach(element => {
         if(element.sensor_type == 'SugarSensor') {
             const value = parseFloat(element.recorded_data_value.slice(0, 3));
             if (value > 1.2) {
                 counter++;
+                factors['SugarLevel'] = value;
             }
         } 
     })
-    const factors = {};
     if (gender == 'MALE') {
         factors['gender'] = gender;
         counter++;
