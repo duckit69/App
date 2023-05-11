@@ -3,6 +3,7 @@ const Scanner = require('../../controller/treatments/scannerController');
 const db  = require('../../config/db');
 
 module.exports.addMedicalHistory = async (req, res) => {
+    // medicine + dosage
     const patient_id = req.user.person_id;
     const { diagnosis, notes, date,treatment } = req.body;
     let treatment_id= null;

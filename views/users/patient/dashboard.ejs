@@ -20,7 +20,6 @@
                         <h5 class="card-title text-black">MY SENSORS</h5>
                         <div class="container d-flex gap-2 sensors-container">
                             <% for(const [index, s] of sensors.entries()){ %>
-                                <%= console.log("Sensor id: " + s.sensor_id) %>
                                 <% const backgroundColor = (index % 2) ==  0 ? 'green-background' : 'purple-background'; %>
                                 <div class="card <%= backgroundColor%> text-white">
                                     <div class="card-body">
@@ -29,7 +28,6 @@
                                         <p class="lead fw-bold fs-6 sensor-details-title">Display more Details: </p>
                                             <div class="d-none sensor-extra-details" style="max-height: 75px;">
                                                 <% for(const rd of recorded_values) {%>
-                                                    <%= console.log(rd.sensor_id == s.sensor_id) %>
                                                     <% if(s.sensor_id == rd.sensor_id) {%>
                                                     <p class="lead fw-bold fs-6"><%= rd.recorded_data_value %></p>
                                                     <% } %>
@@ -106,7 +104,7 @@
                 <div class="card">                    
                     <div class="card-body" >
                         <div class="container-fluid">
-                            <form action="/medicalHistory/" method="post" class="d-none" id="medicalHistoryForm" style="min-height: 250px;">
+                            <form action="/medicalHistory/" method="post" class="d-none boo" id="medicalHistoryForm" style="min-height: 250px;">
                                 <div class="mb-3">
                                     <select  class="form-select" name="treatment" id="treatmentType">
                                         <option selected disabled>Select Treatment</option>
@@ -188,7 +186,7 @@
     </div>
             
 </div>
-
+    <!-- Search Treatments -->
     <script>
         const searchTreatment = document.querySelectorAll('.search-treatment');
         const searchResult = document.getElementById('search-result');
@@ -210,25 +208,7 @@
         })
 
     </script>
-    <script>
-        const searchForm = document.getElementById('search-form');
-        const searchInput = document.getElementById('search-input');
-        const searchResults = document.getElementById('search-results');
-
-        searchInput.addEventListener('input', async () => {
-            const query = searchInput.value;
-            const patient_id = "<%= patientObject.person_id %>"
-            if (query.length === 0) {
-                searchResults.innerHTML = '';
-            }
-            else {
-                const result = await fetch(`/users/patient/search/doctor?person_name=${query}&patient_id=${patient_id}`);
-                const result2 = await result.text();
-                console.log(result2);
-                searchResults.innerHTML = result2;
-            }
-        })
-    </script>
+    <!-- Socket Related Stuff -->
     <script>
         const socket = new WebSocket('ws://localhost:8080/chat');
 
@@ -520,24 +500,7 @@
         // });
 
     </script>
-    <script>
-        const updateSensorButton = document.querySelector('#updateSensor');
-        const addSensorButton = document.querySelector('#addSensor');
-        const updateSensorForm = document.querySelector('#sensorUpdate');
-        const deleteSensorForm = document.querySelector('#sensorDelete');
-        const addSensorForm = document.querySelector('#sensorAdd');
-        if (updateSensorButton) {
-            updateSensorButton.addEventListener('click', () => {
-                updateSensorButton.classList.add('d-none');
-                updateSensorForm.classList.remove('d-none');
-                deleteSensorForm.classList.add('d-none');
-            });
-        }
-        addSensorButton.addEventListener('click', () => {
-            addSensorButton.classList.add('d-none');
-            addSensorForm.classList.remove('d-none');
-        })
-    </script>
+    <!-- Update Appointment -->
     <script>
         const updateAppointmentButtons = document.querySelectorAll('.updateAppointmentButton');
         const appointmentUpdateForm = document.querySelectorAll('.appointmentUpdate');
@@ -565,6 +528,8 @@
         })
         
     </script>
+
+    <!-- Add medical History Button  -->
     <script>
         const addMedicalHistoryButton = document.querySelector('#addMedicalHistory');
         const medicalHistoryForm = document.querySelector('#medicalHistoryForm');
@@ -580,10 +545,13 @@
         })
     </script>
 
+
+    <!-- Create Medical History  -->
     <script>
          function createPrescription() {
             const div = document.createElement('div');
             div.classList.add('d-flex', 'flex-column', 'gap-2');
+            div.setAttribute('id', 'prescriptionContainer');
             const diagnosisInput = document.createElement('input');
             diagnosisInput.classList.add('form-control');
             diagnosisInput.setAttribute('type', 'text');
@@ -598,21 +566,27 @@
             dateInput.classList.add('form-control');
             dateInput.setAttribute('type', 'datetime-local');
             dateInput.setAttribute('name', `date`);
-            const medicationInput = document.createElement('input');
-            medicationInput.classList.add('form-control');
-            medicationInput.setAttribute('type', 'text');
-            medicationInput.setAttribute('name', `medicine`);
-            medicationInput.setAttribute('placeholder', 'Medication name');
-            const dosageInput = document.createElement('input');
-            dosageInput.classList.add('form-control');
-            dosageInput.setAttribute('type', 'text');
-            dosageInput.setAttribute('name', `dosage`);
-            dosageInput.setAttribute('placeholder', 'Medication dosage');
+            // const medicationInput = document.createElement('input');
+            // medicationInput.classList.add('form-control');
+            // medicationInput.setAttribute('type', 'text');
+            // medicationInput.setAttribute('name', `medicine`);
+            // medicationInput.setAttribute('placeholder', 'Medication name');
+            // const dosageInput = document.createElement('input');
+            // dosageInput.classList.add('form-control');
+            // dosageInput.setAttribute('type', 'text');
+            // dosageInput.setAttribute('name', `dosage`);
+            // dosageInput.setAttribute('placeholder', 'Medication dosage');
+            const buttonAddMedicine = document.createElement('button');
+            buttonAddMedicine.classList.add('btn', 'purple-background', 'text-white', 'fw-bold', 'w-25');
+            buttonAddMedicine.innerText = 'Add Medicine';
+            buttonAddMedicine.setAttribute('id', 'addNewMedicine');
+            buttonAddMedicine.setAttribute('type', 'button')
             div.appendChild(diagnosisInput);
             div.appendChild(notesInput);
             div.appendChild(dateInput);
-            div.appendChild(medicationInput);
-            div.appendChild(dosageInput);
+            // div.appendChild(medicationInput);
+            // div.appendChild(dosageInput);
+            div.appendChild(buttonAddMedicine);
             return div;
         }
         function createScanner() {
@@ -645,6 +619,7 @@
 
     </script>
 
+
     <script>
         const treatmentType = document.querySelector('#treatmentType');
         const submitMedicalHistoryForm = document.querySelector('#submitMedicalHistoryForm');
@@ -659,10 +634,32 @@
                 element = createScanner();
                 medicalHistoryForm.setAttribute('enctype', 'multipart/form-data');
             }
+            function createMedicine() {
+                const div = document.createElement('div')
+                div.classList.add('d-flex', 'gap-2', 'p-2')
+                const medicationInput = document.createElement('input');
+                medicationInput.classList.add('form-control');
+                medicationInput.setAttribute('type', 'text');
+                medicationInput.setAttribute('name', `medicine`);
+                medicationInput.setAttribute('placeholder', 'Medication name');
+                const dosageInput = document.createElement('input');
+                dosageInput.classList.add('form-control', 'w-75');
+                dosageInput.setAttribute('type', 'text');
+                dosageInput.setAttribute('name', `dosage`);
+                dosageInput.setAttribute('placeholder', 'Medication dosage');
+                div.appendChild(medicationInput)
+                div.appendChild(dosageInput);
+                prescriptionContainer.insertBefore(div, addMedicineButton);
+            }
             medicalHistoryForm.insertBefore(element, submitMedicalHistoryForm);
+            const addMedicineButton = document.querySelector('#addNewMedicine');
+            const prescriptionContainer = document.querySelector('#prescriptionContainer');
+            addMedicineButton.addEventListener('click', () => {
+                createMedicine();
+            })
         })
     </script>
-
+    <!-- This Patient's Treatment Types -->
     <script>
         const treatment_type = document.querySelectorAll('.treatment-type');
         const treatments = document.querySelector('#treatments');
@@ -683,22 +680,32 @@
                 const response = await result.json();
                 console.dir(response);
                 treatments.innerHTML = '';
+                console.dir(response);
                 for (const r of response) {
-                    if (r.prescription_dosage) {
-                        treatments.innerHTML += `<div class="btn btn-light pres">${r.medical_history_diagnosis}</div>`;
-                    }else if(!r.image_type) {
+                    if (r.image_name) {
                         treatments.innerHTML += `<div class="btn btn-light scanner">${r.medical_history_diagnosis}</div>`;
-                    }
-                    else if(r.image_type == 'radio') {
-                        treatments.innerHTML += `<div class="btn btn-light radio">${r.medical_history_diagnosis}</div>`;
-                    }
-                    else if(r.image_type == 'analyse') {
-                        treatments.innerHTML += `<div class="btn btn-light analyse">${r.medical_history_diagnosis}</div>`;
+                    } else {
+                        treatments.innerHTML += `<div class="btn btn-light tret" data-treatment-id=${r.treatment_id}>${r.medical_history_diagnosis}</div>`;
                     }
                 }
-                const pres = document.querySelectorAll('.pres');
+                // for (const r of response) {
+                //     if (r.medicine_name) {
+                //         treatments.innerHTML += `<div class="btn btn-light pres">${r.medical_history_diagnosis}</div>`;
+                //     }else if(r.image_type) {
+                //         treatments.innerHTML += `<div class="btn btn-light scanner">${r.medical_history_diagnosis}</div>`;
+                //     }
+                //     else if(r.image_type == 'radio') {
+                //         treatments.innerHTML += `<div class="btn btn-light radio">${r.medical_history_diagnosis}</div>`;
+                //     }
+                //     else if(r.image_type == 'analyse') {
+                //         treatments.innerHTML += `<div class="btn btn-light analyse">${r.medical_history_diagnosis}</div>`;
+                //     }
+                // }
+                const pres = document.querySelectorAll('.tret');
                     pres.forEach(element => {
-                        element.addEventListener('click', () => {
+                        element.addEventListener('click', async () => {
+                            const tret_ID = element.getAttribute('data-treatment-id');
+                            const link = `/treatment/search/${tret_ID}`;
                             if (activeEle) {
                                 activeEle.classList.remove('btn-success');
                                 activeEle.classList.add('btn-light');
@@ -708,19 +715,19 @@
                             activeEle.classList.remove('btn-light');
                             activeEle.classList.add('btn-success');
                             const obj = response.find(e => e.medical_history_diagnosis == activeEle.innerHTML)
+                            const medicines = await fetch(link);
+                            const r = await medicines.json();
+                            console.dir(r.div);
                             searchResult.innerHTML += `
                                 <div class="card-body rounded border border-2"> 
                                     <p class="lead">${obj.medical_history_notes}</p>
-                                    <p class="lead">${obj.prescription_medicine} - ${obj.prescription_dosage}</p>
+                                    ${r.div}
                                     <button class="btn btn-primary dwnld">Download</button> 
                                     <button class="btn btn-danger text-white cls">Close</button>
                                 </div>`;
-                            const cls = searchResult.childNodes[1].childNodes[7];
-                            const dwnld = searchResult.childNodes[1].childNodes[5];
-                            dwnld.addEventListener('click', () => {
-                                const doc = new jsPDF();
-                                doc.save();
-                            })
+                            const cls = searchResult.childNodes[1].childNodes[5];
+                            const dwnld = searchResult.childNodes[1].childNodes[3];
+
                             cls.addEventListener('click', () => {
                                 searchResult.innerHTML = '';
                                 activeEle.classList.remove('btn-success');
@@ -761,13 +768,13 @@
         });
         
     </script>
-
+    <!-- Visit Profile Button -->
     <script>
         function navigateToUserPage(person_id) {
             window.location.href = `/users/patient/doctor_full_details/${person_id}`;
         }
     </script>
-
+    <!-- Risk Factors -->
     <script>
         const riskFactorButton = document.querySelector('#riskFactorButton');
         const riskFactors = document.querySelector('#riskFactors');
@@ -788,7 +795,7 @@
 
     </script>
 
-
+    <!-- Display All Details Of sensor -->
     <script>
         const sensorDetailsButton = document.querySelectorAll('.sensor-details-title');
 
