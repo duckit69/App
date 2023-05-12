@@ -4,18 +4,30 @@ const db  = require('../../config/db');
 
 module.exports.addMedicalHistory = async (req, res) => {
     // medicine + dosage
-    const patient_id = req.user.person_id;
+    let patient_id = null;
+    let redirect = null;
+    let doctor_id = null;
+    if(req.user.doctor_speciality) {
+        patient_id = req.body.from_doctor;
+        redirect = `/users/doctor/patient_full_details/${patient_id}`;
+        doctor_id = req.user.person_id;
+    }
+    else {
+        patient_id = req.user.person_id;
+        redirect = '/users/patient/dashboard';
+    }
     const { diagnosis, notes, date,treatment } = req.body;
     let treatment_id= null;
     if (treatment == 'prescription') {
         const { medicine, dosage } = req.body;
-        treatment_id  = await Prescription.createPrescriptionByPatient(medicine, dosage, date);
+        treatment_id  = await Prescription.createPrescriptionByPatient(medicine, dosage, date, doctor_id);
     } else if (treatment == 'scanner') {
         const { originalname, path } = req.files[0]; 
-        treatment_id = await Scanner.createScannerByPatient(originalname, path, date);
+        treatment_id = await Scanner.createScannerByPatient(originalname, path, date, doctor_id);
     }
+
     await createMedicalHistory(treatment_id, diagnosis, notes, patient_id);
-    res.redirect('/users/patient/dashboard');
+    res.redirect(redirect);
 }
 
 

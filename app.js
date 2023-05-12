@@ -132,7 +132,7 @@ app.use('/uploads', express.static('uploads'));
 
 app.use('/users', userRoute);
 app.use('/treatment', treatmentRoute);
-app.use('/appointment', appointmentRoute);
+app.use('/appointment', Utils.isLoggedIn, appointmentRoute);
 app.use('/sensor', sensorRoute);
 app.use('/medicalHistory', medicalHistoryRoute);
 app.get('/message', async(req, res) => {

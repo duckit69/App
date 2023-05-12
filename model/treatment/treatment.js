@@ -29,13 +29,21 @@ module.exports.findTreatmentById = async (req, res) => {
 }
 
 module.exports.getTreatmentsForOnePatient = async (req, res) => {
+    let person_id = null;
+    if (req.user.doctor_speciality) {
+        console.log(req.query)
+        console.log(req.params)
+        person_id = req.query.patient_id;
+    }else {
+        person_id = req.user.person_id;
+    }
     const type = req.params.treatment_type;
     let result = null;
     let html = null;
     if (type == 'Prescription') {
-        result = await Prescription.getPrescriptionsForOnePatient(req.user.person_id);
+        result = await Prescription.getPrescriptionsForOnePatient(person_id);
     }else if (type == 'Scanner') {
-        result = await Scanner.getScannersForOnePatient(req.user.person_id);
+        result = await Scanner.getScannersForOnePatient(person_id);
         console.log(result);
     }
     res.send(result);

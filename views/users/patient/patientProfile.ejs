@@ -2,26 +2,26 @@
     <div class="row">
         <div class="col-md-5 offset-4">
             <h1>My Medical Informations</h1>
-            <form action="/users/patient/<%= patient.person_id %>?_method=PUT" method="POST" class="w-50">
+            <form action="/users/patient/<%= patientObject.person_id %>?_method=PUT" method="POST" class="w-50">
                 <div class="mb-3">
                     <label for="form-label">Cigarette Consomation: </label>
-                    <input type="text" class="form-control" value="<%= patient.patient_cigaretteconsomation %>" name="cigarette">
+                    <input type="text" class="form-control" value="<%= patientObject.patient_cigaretteconsomation %>" name="cigarette">
                 </div>
                 <div class="mb-3">
                     <label for="form-label">Alchool Consomation: </label>
-                    <input type="text" class="form-control" value="<%= patient.patient_alchoolconsomation %>" name="alchool">
+                    <input type="text" class="form-control" value="<%= patientObject.patient_alchoolconsomation %>" name="alchool">
                 </div>
                 <div class="mb-3">
                     <label for="form-label">Workout (By mins): </label>
-                    <input type="text" class="form-control" value="<%= patient.patient_sedentary %>" name="workout">
+                    <input type="text" class="form-control" value="<%= patientObject.patient_sedentary %>" name="workout">
                 </div>
                 <div class="mb-3">
                     <label for="form-label">Height: </label>
-                    <input type="text" class="form-control" value="<%= patient.patient_height %>" name="height">
+                    <input type="text" class="form-control" value="<%= patientObject.patient_height %>" name="height">
                 </div>
                 <div class="mb-3">
                     <label for="form-label">Weight: </label>
-                    <input type="text" class="form-control" value="<%= patient.patient_weight %>" name="weight">
+                    <input type="text" class="form-control" value="<%= patientObject.patient_weight %>" name="weight">
                 </div>
                 <button class="btn btn-success">Update</button>
             </form>

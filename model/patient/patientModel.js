@@ -46,8 +46,8 @@ module.exports.getMedicalHistoryWithSpecificDoctor = async (req, res) => {
 }
 
 module.exports.getPatientData = async (req, res) => {
-    const patient = await findPatientById(req.user.person_id);
-    res.render('users/patient/patientProfile', {patient});
+    const patientObject = await findPatientById(req.user.person_id);
+    res.render('users/patient/patientProfile', {patientObject});
 }
 module.exports.updatePatientData = async (req, res) => {
     const {cigarette, alchool, workout, height, weight} = req.body;

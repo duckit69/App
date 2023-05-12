@@ -14,25 +14,23 @@
                     <li class="nav-item">
                         <a class="nav-link text-white fw-bold" href="/">Home</a>
                     </li>
+                    <% if(!user.doctor_speciality) {%>
                     <li class="nav-item">
                         <a class="nav-link text-white fw-bold" href="/users/patient/patientProfile">My Profile</a>
                     </li>
+                    <% } %>
                     <li class="nav-item">
                         <a class="nav-link text-white fw-bold" href="/">Our Doctors</a>
+                    </li>   
+                    <li class="nav-item dropdown ms-auto">
+                        <a class="nav-link dropdown-toggle text-white fw-bold" href="#"
+                            role="button" data-bs-toggle="dropdown">
+                            <%= user.person_name %>    
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/users/logout">Logout</a></li>
+                        </ul>
                     </li>
-                    <li class="nav-item ms-auto">
-                        <a class="btn red-background nav-link text-white fw-bold" href="/users/logout">Logout</a>
-                    </li>
-                    <!-- <li class="nav-item dropdown ms-auto">
-                      <a class="nav-link dropdown-toggle text-white fw-bold" href="#" role="button"
-                          data-bs-toggle="dropdown" >
-                          AwesomeUser
-                      </a>
-                      <ul class="dropdown-menu">
-                          <li class="dropdown-item"><a class="dropdown-item" href="#">Profile</a></li>
-                          <li><a class="dropdown-item" href="#">Logout</a></li>
-                      </ul>
-                  </li> -->
                 </ul>
             </div>
         </div>

@@ -9,9 +9,16 @@ module.exports.findTreatmentById = async (req, res) => {
     res.send(html);
 }
 
-module.exports.createTreatment = async (date) => {
-    const { rows } = await db.query('INSERT INTO treatment(treatment_date) values($1) returning treatment_id', [date]);
-    return rows[0].treatment_id;
+module.exports.createTreatment = async (date, doctor_id) => {
+    let array = null;
+    if (doctor_id) {
+        const { rows } = await db.query('INSERT INTO treatment(treatment_date, doctor_id) values($1, $2) returning treatment_id', [date, doctor_id]);
+        array = rows;
+    }else {
+        const { rows } = await db.query('INSERT INTO treatment(treatment_date) values($1) returning treatment_id', [date]);
+        array = rows;
+    }
+    return array[0].treatment_id;
 }
 
 

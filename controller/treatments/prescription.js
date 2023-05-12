@@ -1,8 +1,8 @@
 const Treatment  = require('./treatmentController');
 const db = require('../../config/db');
 
-module.exports.createPrescriptionByPatient = async (medicine, dosage, date) => {
-    const treatmentId = await Treatment.createTreatment(date);
+module.exports.createPrescriptionByPatient = async (medicine, dosage, date, doctor_id) => {
+    const treatmentId = await Treatment.createTreatment(date, doctor_id);
     const { rows } = await db.query('INSERT INTO prescription(treatment_id, treatment_date) values($1, $2) returning treatment_id, prescription_id', [treatmentId, date]);
     const prescription_id = rows[0].prescription_id;
     await createMedicines(medicine, dosage, prescription_id);
