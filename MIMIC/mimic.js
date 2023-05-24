@@ -96,8 +96,6 @@ const mimic = async () => {
   console.log("Start");
   await firstCall();
   await secondCall();
-  console.log("Sugar Id: " + sugarSensorId + "Blood Pressure ID: " + bloodPreassureSensorId);
-  console.log("Middle");
   setInterval(() => {
     console.log("On setInterval func: " + bloodPreassureSensorId + ", " + sugarSensorId);
     // sys + dias(ras) -> 12 _ 8
