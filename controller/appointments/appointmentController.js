@@ -116,17 +116,19 @@ module.exports.validateUsersForOneAppointment = async (req, res) => {
     else if (users.doctor_id == user_id || users.patient_id == user_id) {
         const doctor = await Doctor.getDoctorById(users.doctor_id);
         const patient = await Patient.getPatientById(users.patient_id);
+        const recorded_values = await Patient.findAllSensorsForOnePatient(patient.person_id);
         const medical_history = await Patient.findMedicalHistoryForOnePatient(users.patient_id);
-        const sensors = await Patient.findAllSensorsForOnePatient(users.patient_id);
+        const sensors = await Patient.findAllSensorsMostRecentDataForOnePatient(patient.person_id);
+        const appointment = await getAppointment(appointment_id);
         const Evaluation = await Patient.evaluate(users.patient_id);
         if (req.user.person_id == doctor.person_id) {
             const sender = doctor;
             const receiver = patient;
-            return res.render('appointment', { users, sender, receiver, medical_history, sensors, Evaluation });
+            return res.render('appointment', { users, sender, receiver, medical_history, sensors, Evaluation, recorded_values, appointment });
         }else {
             const sender = patient;
             const receiver = doctor;
-            return res.render('appointment', { users, sender, receiver, medical_history, sensors, Evaluation });
+            return res.render('appointment', { users, sender, receiver, medical_history, sensors, Evaluation, recorded_values, appointment });
         }
     }
 }
@@ -135,7 +137,10 @@ module.exports.getUserAppointments = async (user_id) => {
     const appointments = await getUserAppointment(user_id);
     return appointments;
 }
-
+async function getAppointment(appointment_id) {
+    const { rows } = await db.query('select * from appointment where appointment_id = $1', [appointment_id]);
+    return rows[0];
+}
 async function checkUsersIdForOneAppointment(appointment_id, user_id) {
     const { rows } = await db.query('select * from appointment where appointment_id = $1 and (doctor_id = $2 or patient_id = $2)', [appointment_id, user_id]);
     return rows[0];

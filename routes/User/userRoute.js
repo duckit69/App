@@ -13,8 +13,8 @@ route.get('/logout', User.logout);
 route.get('/login', User.login);
 
 
-route.use('/doctor',doctorRoute);
-route.use('/patient', patientRoute);
+route.use('/doctor',Utils.isLoggedIn, doctorRoute);
+route.use('/patient', Utils.isLoggedIn, patientRoute);
 route.get('/register', User.register);
 route.use(Utils.checkAuthenticated);
 route.use(Utils.checkPersonId);

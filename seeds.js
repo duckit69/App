@@ -52,7 +52,7 @@ const salt = 10;
 // Generate the dummy data and insert it into the database
 const insertDummyData = async () => {
     // Generate 100 patients
-    // for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 100; i++) {
     //     const person_name = faker.name.findName();
     //     const person_gender = faker.random.arrayElement(['Male', 'Female']).toUpperCase();
     //     const person_birth_date = getRandomBirthDate();

@@ -8,7 +8,7 @@ module.exports.addMedicalHistory = async (req, res) => {
     let redirect = null;
     let doctor_id = null;
     if(req.user.doctor_speciality) {
-        patient_id = req.body.from_doctor;
+        patient_id = "371";
         redirect = `/users/doctor/patient_full_details/${patient_id}`;
         doctor_id = req.user.person_id;
     }

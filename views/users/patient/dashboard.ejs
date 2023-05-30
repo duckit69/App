@@ -18,6 +18,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title text-black">MY SENSORS</h5>
+                        <%= console.log("SENSORS"); %>
+                        <%= console.dir(sensors); %>
                         <div class="container d-flex gap-2 sensors-container">
                             <% for(const [index, s] of sensors.entries()){ %>
                                 <% const backgroundColor = (index % 2) ==  0 ? 'green-background' : 'purple-background'; %>
