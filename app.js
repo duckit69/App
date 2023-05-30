@@ -7,6 +7,7 @@ const treatmentRoute = require('./routes/Treatment/treatmentRoute');
 const appointmentRoute = require('./routes/Appointment/appointmentRoute');
 const sensorRoute = require('./routes/Sensor/sensorRoute');
 const medicalHistoryRoute = require('./routes/MedicalHistory/medicalHistoryRoute');
+const keyRoute = require('./routes/keys/keyRoute');
 const ejsMate = require('ejs-mate');
 const methodOverride = require('method-override');
 const multer = require('multer');
@@ -139,11 +140,14 @@ app.get('/message', async(req, res) => {
     const {sender, receiver} = req.query;
     const { rows } = await db.query('select * from message where (message_sender = $1 and message_receiver = $2) or (message_sender = $2 and message_receiver = $1) ORDER BY message_date ASC;', [sender, receiver]);
     res.send(rows);
-})
+});
+app.use('/public_key', keyRoute);
 app.get('/', Utils.isLoggedIn,  async (req, res) => {
     const doctors = await Doctor.getAllDoctors();
     res.render('home', {doctors});
 });
+
+
 
 app.listen(3000, () => {
     console.log('Serving on Port: 3000');

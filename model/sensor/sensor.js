@@ -1,5 +1,7 @@
 const db = require('../../config/db');
+const crypto = require('crypto');
 
+const Key = require('../../controller/Keys/key');
 module.exports.updateSensor = async (req, res) => {
     const sensorNewName  = req.body.name;
     const sensorId = req.params.id;
@@ -30,11 +32,28 @@ module.exports.addSensor = async (req, res) => {
     //res.redirect('/users/patient/dashboard');
 }
 module.exports.addRecord = async (req, res) => {
-    const test = JSON.parse(req.body.message);
-    const {patientId, sensorId, value, time} = test;
+    const encryptedData = req.body.message;
+    
+    // Decrypt the data using the private key
+    const decrypted = crypto.privateDecrypt(Key.privateKey, Buffer.from(encryptedData, 'base64'));
+    const decryptedStr = decrypted.toString('utf8');
+    const parsedData = JSON.parse(decrypted);
+    console.dir(parsedData);
+
+    // Uncomment the following lines and modify them according to your data structure
+    const { patientId, sensorId, value, time } = JSON.parse(parsedData);;
     await createRecord(patientId, sensorId, value, time);
+
     res.send("Updated").status(200);
 }
+
+
+// module.exports.addRecord = async (req, res) => {
+//     const test = JSON.parse(req.body.message);
+//     const {patientId, sensorId, value, time} = test;
+//     await createRecord(patientId, sensorId, value, time);
+//     res.send("Updated").status(200);
+// }
 
 // module.exports.addSensor = async (req, res) => {
 //     const patientID = req.params.id;

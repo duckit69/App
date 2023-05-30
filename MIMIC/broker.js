@@ -1,5 +1,6 @@
 const mqtt = require('mqtt');
 const fetch = require('node-fetch');
+const crypto = require('crypto');
 
 const brokerUrl = 'mqtt://localhost:1883';
 const apiUrl = 'http://localhost:3000/sensor';
@@ -24,36 +25,44 @@ client.on('connect', () => {
     }
   });
 });
+let public_key = null;
+client.on('message', async (topic, message) => {
+  if(!public_key) {
+    const json_public_key = await fetch('http://localhost:3000/public_key');
+    public_key = await json_public_key.json();
+    console.log(public_key);
+  }else {
+    const to_be_crypted = message.toString();
+    const plaintext = JSON.stringify(to_be_crypted);
+    const encrypted = crypto.publicEncrypt(public_key, Buffer.from(plaintext, 'utf8'));
+    if (topic == 'blood-pressure') {
 
-client.on('message', (topic, message) => {
-  const result = message.toString();
-  if (topic == 'blood-pressure') {
-    fetch(`${apiUrl}/blood_pressure`, {
-        method: 'POST',
-        body: JSON.stringify({ topic, message: message.toString() }),
-        //body: JSON.stringify({bloodPressureData}),
-        headers: { 'Content-Type': 'application/json' },
-      })
-        .then((res) => {
-          console.log(`API response: ${res.status} ${res.statusText}`);
+      fetch(`${apiUrl}/blood_pressure`, {
+          method: 'POST',
+          body: JSON.stringify({ topic, message: encrypted.toString('base64') }),
+          //body: JSON.stringify({bloodPressureData}),
+          headers: { 'Content-Type': 'application/json' },
         })
-        .catch((err) => {
-          console.error(`Error sending data to API: ${err}`);
-        });
-  } else {
-    fetch(`${apiUrl}/sugar`, {
-        method: 'POST',
-        body: JSON.stringify({ topic, message: message.toString() }),
-        //body: JSON.stringify({bloodPressureData}),
-        headers: { 'Content-Type': 'application/json' },
-      })
-        .then((res) => {
-          console.log(`API response: ${res.status} ${res.statusText}`);
+          .then((res) => {
+            console.log(`API response: ${res.status} ${res.statusText}`);
+          })
+          .catch((err) => {
+            console.error(`Error sending data to API: ${err}`);
+          });
+    } else {
+      fetch(`${apiUrl}/sugar`, {
+          method: 'POST',
+          body: JSON.stringify({ topic, message: encrypted.toString('base64')  }),
+          //body: JSON.stringify({bloodPressureData}),
+          headers: { 'Content-Type': 'application/json' },
         })
-        .catch((err) => {
-          console.error(`Error sending data to API: ${err}`);
-        });
+          .then((res) => {
+            console.log(`API response: ${res.status} ${res.statusText}`);
+          })
+          .catch((err) => {
+            console.error(`Error sending data to API: ${err}`);
+          });
+    }
   }
-  // Forward the data to the API
   
 });
