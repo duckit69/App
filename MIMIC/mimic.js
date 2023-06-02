@@ -1,6 +1,6 @@
 const mqtt = require('mqtt');
 const client = mqtt.connect('mqtt://localhost:1883');
-const patientId = '371'; // Replace with actual patient ID
+const patientId = '442'; // Replace with actual patient ID
 const sensorType = 'blood-pressure'; // Replace with actual sensor type
 const sensorModel = 'MMq';
 const sensorName = 'BloodPressureSensor'

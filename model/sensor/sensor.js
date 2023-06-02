@@ -38,6 +38,7 @@ module.exports.addRecord = async (req, res) => {
     const decrypted = crypto.privateDecrypt(Key.privateKey, Buffer.from(encryptedData, 'base64'));
     const decryptedStr = decrypted.toString('utf8');
     const parsedData = JSON.parse(decrypted);
+    console.log("HEY: ");
     console.dir(parsedData);
 
     // Uncomment the following lines and modify them according to your data structure

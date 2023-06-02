@@ -26,6 +26,10 @@ a.white-background-color:hover {
 a.white-background-color {
   min-width: 70%;
 }
+a.dark-blue-background-color:hover {
+  background-color: var(--dark-blue-background-color);
+
+}
 
 .dark-blue-background-color {
   background-color: var(--dark-blue-background-color);

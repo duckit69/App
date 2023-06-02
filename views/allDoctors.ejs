@@ -1,0 +1,22 @@
+<%- layout('layouts/BoilerPlate') %>
+
+    <div class="row">
+        <div class="col-md-8 offset-2 row gap-2">
+            <div class="col-12 display-2">Our Doctors: </div>
+            <% for(const d of doctorsArray) {%>
+                <div class="card col-3">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <%= d.person_name %>
+                        </h5>
+                        <p class="card-text">
+                            <%= d.doctor_speciality %>
+                        </p>
+                        <a href="/users/patient/doctor_full_details/<%= d.person_id %>" class="btn dark-blue-background-color text-white fw-bold">Visit
+                            Profile</a>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+
+    </div>

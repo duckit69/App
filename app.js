@@ -142,9 +142,12 @@ app.get('/message', async(req, res) => {
     res.send(rows);
 });
 app.use('/public_key', keyRoute);
+app.get('/allDoctors', async (req, res )=> {
+    const doctorsArray = await Doctor.getAllDoctors();
+    res.render('allDoctors', {doctorsArray})
+})
 app.get('/', Utils.isLoggedIn,  async (req, res) => {
-    const doctors = await Doctor.getAllDoctors();
-    res.render('home', {doctors});
+    res.render('home');
 });
 
 

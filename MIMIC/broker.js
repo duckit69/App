@@ -30,11 +30,12 @@ client.on('message', async (topic, message) => {
   if(!public_key) {
     const json_public_key = await fetch('http://localhost:3000/public_key');
     public_key = await json_public_key.json();
-    console.log(public_key);
   }else {
+    console.log("zkaljelkazjeklazjeklazejzklaejzalkj");
     const to_be_crypted = message.toString();
     const plaintext = JSON.stringify(to_be_crypted);
     const encrypted = crypto.publicEncrypt(public_key, Buffer.from(plaintext, 'utf8'));
+    console.log(topic);
     if (topic == 'blood-pressure') {
 
       fetch(`${apiUrl}/blood_pressure`, {
@@ -64,5 +65,4 @@ client.on('message', async (topic, message) => {
           });
     }
   }
-  
 });
