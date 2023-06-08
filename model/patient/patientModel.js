@@ -7,8 +7,7 @@ const { he } = require('faker/lib/locales');
 const salt = 10;
 
 module.exports.patientDashboard = async (req, res) => {
-    console.log("PersonId: " + req.user.person_id)
-    const result = await db.query('select d.* from doctor d, treatment t, medical_history m, patient p where d.person_id = t.doctor_id and t.treatment_id = m.treatment_id and m.patient_id = p.person_id and p.person_id = $1;', [req.user.person_id]);
+    const result = await db.query('select DISTINCT d.* from doctor d, treatment t, medical_history m, patient p where d.person_id = t.doctor_id and t.treatment_id = m.treatment_id and m.patient_id = p.person_id and p.person_id = $1;', [req.user.person_id]);
     const sensors = await Patient.findAllSensorsMostRecentDataForOnePatient(req.user.person_id);
     const recorded_values = await Patient.findAllSensorsForOnePatient(req.user.person_id);
     const appointments = await findMyUpComingAppointments(req.user.person_id);

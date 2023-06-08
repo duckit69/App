@@ -101,10 +101,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="card">                    
+                <div class="card" style="max-height: 300px; overflow-x: hidden; overflow-y: scroll;">                    
                     <div class="card-body" >
                         <div class="container-fluid">
-                            <form action="/medicalHistory/" method="post" class="d-none boo" id="medicalHistoryForm" style="min-height: 250px;">
+                            <form action="/medicalHistory/" method="post" class="d-none" id="medicalHistoryForm" style="min-height: 250px;">
                                 <div class="mb-3">
                                     <select  class="form-select" name="treatment" id="treatmentType">
                                         <option selected disabled>Select Treatment</option>
@@ -566,16 +566,6 @@
             dateInput.classList.add('form-control');
             dateInput.setAttribute('type', 'datetime-local');
             dateInput.setAttribute('name', `date`);
-            // const medicationInput = document.createElement('input');
-            // medicationInput.classList.add('form-control');
-            // medicationInput.setAttribute('type', 'text');
-            // medicationInput.setAttribute('name', `medicine`);
-            // medicationInput.setAttribute('placeholder', 'Medication name');
-            // const dosageInput = document.createElement('input');
-            // dosageInput.classList.add('form-control');
-            // dosageInput.setAttribute('type', 'text');
-            // dosageInput.setAttribute('name', `dosage`);
-            // dosageInput.setAttribute('placeholder', 'Medication dosage');
             const buttonAddMedicine = document.createElement('button');
             buttonAddMedicine.classList.add('btn', 'purple-background', 'text-white', 'fw-bold', 'w-25');
             buttonAddMedicine.innerText = 'Add Medicine';
@@ -584,8 +574,6 @@
             div.appendChild(diagnosisInput);
             div.appendChild(notesInput);
             div.appendChild(dateInput);
-            // div.appendChild(medicationInput);
-            // div.appendChild(dosageInput);
             div.appendChild(buttonAddMedicine);
             return div;
         }
@@ -688,19 +676,6 @@
                         treatments.innerHTML += `<div class="btn btn-light tret" data-treatment-id=${r.treatment_id}>${r.medical_history_diagnosis}</div>`;
                     }
                 }
-                // for (const r of response) {
-                //     if (r.medicine_name) {
-                //         treatments.innerHTML += `<div class="btn btn-light pres">${r.medical_history_diagnosis}</div>`;
-                //     }else if(r.image_type) {
-                //         treatments.innerHTML += `<div class="btn btn-light scanner">${r.medical_history_diagnosis}</div>`;
-                //     }
-                //     else if(r.image_type == 'radio') {
-                //         treatments.innerHTML += `<div class="btn btn-light radio">${r.medical_history_diagnosis}</div>`;
-                //     }
-                //     else if(r.image_type == 'analyse') {
-                //         treatments.innerHTML += `<div class="btn btn-light analyse">${r.medical_history_diagnosis}</div>`;
-                //     }
-                // }
                 const pres = document.querySelectorAll('.tret');
                     pres.forEach(element => {
                         element.addEventListener('click', async () => {
@@ -802,7 +777,6 @@
         sensorDetailsButton.forEach((element) => {
             element.addEventListener('click', () => {
                 const sibling = element.nextElementSibling;
-                console.dir(sibling);
                 if (sibling.classList.contains('d-none')) {
                     sibling.classList.remove('d-none');
                 }else {

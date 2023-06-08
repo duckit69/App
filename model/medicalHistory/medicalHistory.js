@@ -1,14 +1,23 @@
 const Prescription = require('../../controller/treatments/prescription');
 const Scanner = require('../../controller/treatments/scannerController');
 const db  = require('../../config/db');
+const { URL } = require('url');
+
 
 module.exports.addMedicalHistory = async (req, res) => {
     // medicine + dosage
     let patient_id = null;
     let redirect = null;
     let doctor_id = null;
-    if(req.user.doctor_speciality) {
-        patient_id = "371";
+    const url = new URL(req.headers.referer);
+    const path = url.pathname;
+    if(req.user.doctor_speciality && path == '/appointment/220') {
+        patient_id = '442';
+        redirect = path;
+        doctor_id = req.user.person_id;
+    }
+    else if(req.user.doctor_speciality) {
+        patient_id = '442';
         redirect = `/users/doctor/patient_full_details/${patient_id}`;
         doctor_id = req.user.person_id;
     }

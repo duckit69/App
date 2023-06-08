@@ -22,10 +22,6 @@
                                         </div>
                                     <hr>
                                     <p class="lead fw-bold fs-6">Curr: <%= s.recorded_data_value %></p>
-                                    <form action="/sensor/<%= s.sensor_id %>?_method=DELETE" method="post"
-                                        id="sensorDelete" class="text-center">
-                                        <button class="btn btn-md btn-danger">Delete</button>
-                                    </form>
                                 </div>
                             </div>
                         <% } %>
@@ -36,7 +32,7 @@
             <div class="card">                    
                 <div class="card-body" >
                     <div class="container-fluid">
-                        <form action="/medicalHistory/" method="post" class="d-none boo" id="medicalHistoryForm" style="min-height: 250px;">
+                        <form action="/medicalHistory/" method="post" class="d-none" id="medicalHistoryForm" style="min-height: 250px;">
                             <div class="mb-3">
                                 <select  class="form-select" name="treatment" id="treatmentType">
                                     <option selected disabled>Select Treatment</option>
@@ -184,32 +180,8 @@
             console.log("HERE WITH DATA" + data.content);
             const html = `<p class="lead">${data.sender_name}: ${data.content}</p>`;
             chatDiv.innerHTML += html;
-            // sendBTN.addEventListener('click', () => {
-            //     const message = {
-            //         type: "message",
-            //         sender_id: doctor_id,
-            //         sender_name: sender_name,
-            //         receiver_id: receiver_id,
-            //         role: role,
-            //         content: chatInput.value
-            //     }
-            //     if (chatInput.value !== '') {
-            //         const html = `<p class="lead">You: ${chatInput.value}</p>`;
-            //         chatDiv.innerHTML += html;
-            //         socket.send(JSON.stringify(message));
-            //         chatInput.value = '';
-            //     }
-            // })
-
         }
         );
-
-
-// End
-// socket.addEventListener('close', (event) => {
-//     console.log('WebSocket connection closed');
-// });
-
     </script>
 
 <script>
@@ -318,16 +290,6 @@
             dateInput.classList.add('form-control');
             dateInput.setAttribute('type', 'datetime-local');
             dateInput.setAttribute('name', `date`);
-            // const medicationInput = document.createElement('input');
-            // medicationInput.classList.add('form-control');
-            // medicationInput.setAttribute('type', 'text');
-            // medicationInput.setAttribute('name', `medicine`);
-            // medicationInput.setAttribute('placeholder', 'Medication name');
-            // const dosageInput = document.createElement('input');
-            // dosageInput.classList.add('form-control');
-            // dosageInput.setAttribute('type', 'text');
-            // dosageInput.setAttribute('name', `dosage`);
-            // dosageInput.setAttribute('placeholder', 'Medication dosage');
             const buttonAddMedicine = document.createElement('button');
             buttonAddMedicine.classList.add('btn', 'purple-background', 'text-white', 'fw-bold', 'w-25');
             buttonAddMedicine.innerText = 'Add Medicine';
@@ -336,8 +298,6 @@
             div.appendChild(diagnosisInput);
             div.appendChild(notesInput);
             div.appendChild(dateInput);
-            // div.appendChild(medicationInput);
-            // div.appendChild(dosageInput);
             div.appendChild(buttonAddMedicine);
             return div;
         }
@@ -371,49 +331,9 @@
 
     </script>
 
-
+   <!-- This Patient's Treatment Types -->
     <script>
-        const treatmentType = document.querySelector('#treatmentType');
-        const submitMedicalHistoryForm = document.querySelector('#submitMedicalHistoryForm');
-
-        treatmentType.addEventListener('change', () => {
-            treatmentType.classList.add('d-none');
-            submitMedicalHistoryForm.classList.remove('d-none');
-            let element = null;
-            if (treatmentType.value == 'prescription') {
-                element = createPrescription();
-            }else if (treatmentType.value == 'scanner') {
-                element = createScanner();
-                medicalHistoryForm.setAttribute('enctype', 'multipart/form-data');
-            }
-            function createMedicine() {
-                const div = document.createElement('div')
-                div.classList.add('d-flex', 'gap-2', 'p-2')
-                const medicationInput = document.createElement('input');
-                medicationInput.classList.add('form-control');
-                medicationInput.setAttribute('type', 'text');
-                medicationInput.setAttribute('name', `medicine`);
-                medicationInput.setAttribute('placeholder', 'Medication name');
-                const dosageInput = document.createElement('input');
-                dosageInput.classList.add('form-control', 'w-75');
-                dosageInput.setAttribute('type', 'text');
-                dosageInput.setAttribute('name', `dosage`);
-                dosageInput.setAttribute('placeholder', 'Medication dosage');
-                div.appendChild(medicationInput)
-                div.appendChild(dosageInput);
-                prescriptionContainer.insertBefore(div, addMedicineButton);
-            }
-            medicalHistoryForm.insertBefore(element, submitMedicalHistoryForm);
-            const addMedicineButton = document.querySelector('#addNewMedicine');
-            const prescriptionContainer = document.querySelector('#prescriptionContainer');
-            addMedicineButton.addEventListener('click', () => {
-                createMedicine();
-            })
-        })
-    </script>
-    <!-- This Patient's Treatment Types -->
-    <script>
-        const treatment_type = document.querySelectorAll('.treatment-type');
+         const treatment_type = document.querySelectorAll('.treatment-type');
         const treatments = document.querySelector('#treatments');
         let activeType = null;
         let activeEle = null;
@@ -440,19 +360,6 @@
                         treatments.innerHTML += `<div class="btn btn-light tret" data-treatment-id=${r.treatment_id}>${r.medical_history_diagnosis}</div>`;
                     }
                 }
-                // for (const r of response) {
-                //     if (r.medicine_name) {
-                //         treatments.innerHTML += `<div class="btn btn-light pres">${r.medical_history_diagnosis}</div>`;
-                //     }else if(r.image_type) {
-                //         treatments.innerHTML += `<div class="btn btn-light scanner">${r.medical_history_diagnosis}</div>`;
-                //     }
-                //     else if(r.image_type == 'radio') {
-                //         treatments.innerHTML += `<div class="btn btn-light radio">${r.medical_history_diagnosis}</div>`;
-                //     }
-                //     else if(r.image_type == 'analyse') {
-                //         treatments.innerHTML += `<div class="btn btn-light analyse">${r.medical_history_diagnosis}</div>`;
-                //     }
-                // }
                 const pres = document.querySelectorAll('.tret');
                     pres.forEach(element => {
                         element.addEventListener('click', async () => {
