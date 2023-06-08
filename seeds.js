@@ -185,3 +185,110 @@ insertDummyData().then(() => {
     console.error(error);
     client.end();
 })
+
+
+
+async function evaluatePatient(patient_id) {
+    const riskFactors = await countCardioVascularRiskFactors(patient_id);
+    const { counter, factors } = riskFactors;
+    let riskClass = null;
+    if (counter < 1) {
+        riskClass = 'NO RISK';
+    } else if (counter == 1) {
+        riskClass = 'LOW RISK'
+    } else if (counter == 2) {
+        riskClass = 'MODERATE RISK'
+    } else {
+        riskClass = 'HIGH RISK';
+    }
+    const answer = {
+        counter,
+        riskClass,
+        factors
+    }
+    return answer;
+}
+
+
+async function countCardioVascularRiskFactors(patient_id) {
+    let counter = 0;
+    const factors = {};
+    const gender = await getGender(patient_id);
+    const age = await getAge(patient_id);
+    const ATCD = await getATCD(patient_id);
+    const cigarettePerDay = await getSmokeState(patient_id);
+    const cupPerDay = await getDrinkState(patient_id);
+    const minutesPerDay = await getSidentarite(patient_id);
+    const sensors = await Patient.findAllSensorsMostRecentDataForOnePatient(patient_id);
+    sensors.forEach(element => {
+        if(element.sensor_type == 'SugarSensor') {
+            const value = parseFloat(element.recorded_data_value.slice(0, 3));
+            if (value > 1.2) {
+                counter++;
+                factors['SugarLevel'] = value;
+            }
+        } 
+    })
+    if (gender == 'MALE') {
+        factors['gender'] = gender;
+        counter++;
+        if (age > 50) {
+            factors['age'] = age;
+            counter++;
+        }
+    }
+    if (gender == 'FEMALE')
+        if (age > 60) counter++;
+    if (ATCD.atcd) {
+        counter++;
+        factors['atcd'] = ATCD.atcd;
+    }
+    
+    if (cigarettePerDay.cigaretteperday > 10) {
+        counter++;
+        factors['smoke'] = cigarettePerDay.cigaretteperday;
+    }
+    if (cupPerDay > 3) {
+        counter++;
+        factors['drink'] = cupPerDay;
+    }
+    if (parseInt(minutesPerDay) < 30) {
+        counter++;
+        factors['workout'] = minutesPerDay;
+    }
+    const result = {counter, factors};
+    return result;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
