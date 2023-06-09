@@ -43,11 +43,12 @@ module.exports.getPatientById = async (req, res) => {
     const Evaluation = await Patient.evaluate(patient_id);
     const age = await db.query('SELECT EXTRACT(YEAR FROM age(person_birth_date)) as age from patient where person_id = $1', [req.params.id]);
     const recorded_data = await db.query('SELECT s.*, r.* from sensor s, recorded_data r, patient p where p.person_id = r.patient_id and r.sensor_id = s.sensor_id and p.person_id = $1', [req.params.id]);
+    const recorded_values = await Patient.findAllSensorsForOnePatient(patient_id);
     const patient_recorded_data = recorded_data.rows;
     const {person_id} = req.user;
     const doctor_id = person_id;
-    const sensors = await Patient.findAllSensorsForOnePatient(patient_id);
-    res.render('users/doctor/patient_full_details', {result, age, patient_recorded_data, doctor_id, Evaluation, sensors});
+    const sensors = await Patient.findAllSensorsMostRecentDataForOnePatient(patient_id);
+    res.render('users/doctor/patient_full_details', {result, age, patient_recorded_data, doctor_id, Evaluation, sensors, recorded_values});
 }
 
 module.exports.getAllDoctors = async () => {

@@ -12,22 +12,30 @@
                         </h5>
                         <%= console.log(result.patient[0].person_id)%>
                         <div class="container d-flex gap-2 sensors-container">
+                            <%= console.dir(recorded_values) %>
                             <% for(const [index, s] of sensors.entries()){ %>
-                            <% const backgroundColor=(index % 2)==0 ? 'green-background' : 'purple-background' ; %>
-                                    <div class="card <%= backgroundColor%> text-white">
-                                        <div class="card-body">
-                                            <h5 class="card-title fs-4">
-                                                <%= s.sensor_name %>
-                                            </h5>
-                                            <p class="lead fw-bold fs-6">MAX: 136mmHg</p>
-                                            <p class="lead fw-bold fs-6">MIN: 136mmHg</p>
-                                            <p class="lead fw-bold fs-6">Curr: 136mmHg</p>
-                                            <form action="/sensor/<%= s.sensor_id %>?_method=DELETE" method="post"
-                                                id="sensorDelete" class="text-center">
-                                                <button class="btn btn-md btn-danger">Delete</button>
-                                            </form>
-                                        </div>
+                                <% const backgroundColor = (index % 2) ==  0 ? 'green-background' : 'purple-background'; %>
+                                <div class="card <%= backgroundColor%> text-white">
+                                    <div class="card-body">
+                                        <%= console.log("TEST MESSAGE" + s.sensor_name) %>
+                                        <h5 class="card-title fs-5"><%= s.sensor_name %></h5>
+                                        <hr>
+                                        <p class="lead fw-bold fs-6 sensor-details-title">Display more Details: </p>
+                                            <div class="d-none sensor-extra-details" style="max-height: 75px;">
+                                                <% for(const rd of recorded_values) {%>
+                                                    <% if(s.sensor_id == rd.sensor_id) {%>
+                                                    <p class="lead fw-bold fs-6"><%= rd.recorded_data_value %></p>
+                                                    <% } %>
+                                                <% } %>
+                                            </div>
+                                        <hr>
+                                        <p class="lead fw-bold fs-6">Curr: <%= s.recorded_data_value %></p>
+                                        <form action="/sensor/<%= s.sensor_id %>?_method=DELETE" method="post"
+                                            id="sensorDelete" class="text-center">
+                                            <button class="btn btn-md btn-danger">Delete</button>
+                                        </form>
                                     </div>
+                                </div>
                             <% } %>
                         </div>
                     </div>
@@ -367,5 +375,21 @@ function createPrescription() {
         }
 
     </script>
+    <!-- Display All Details Of sensor -->
 
+<script>
+    const sensorDetailsButton = document.querySelectorAll('.sensor-details-title');
+
+    sensorDetailsButton.forEach((element) => {
+        element.addEventListener('click', () => {
+            const sibling = element.nextElementSibling;
+            if (sibling.classList.contains('d-none')) {
+                sibling.classList.remove('d-none');
+            }else {
+                sibling.classList.add('d-none');
+            }
+        })
+    })
+
+</script>
 
