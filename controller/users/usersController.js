@@ -1,5 +1,6 @@
 const db = require('../../config/db');
 const Appointment = require('../appointments/appointmentController');
+const Doctor = require('../../model/doctor/doctorModel');
 
 module.exports.login = (req, res) => {
     if (req.isAuthenticated()) return res.render('home');

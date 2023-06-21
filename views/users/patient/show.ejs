@@ -59,7 +59,7 @@
             const tmp_date = new Date(tmp);
             const result = await fetch(`/appointment/checkDate/search?patient_id=${patient_id}&doctor_id=${doctor_id}&date=${tmp}`);
             const data = await result.json();
-            // check if this date is Available for this doctor and this patient 
+            // check if this date is Available for this doctor and this patient  with the ability to use wi-fi can be called smart. This is what now is referred to as internet of things (IoT)
             // result must be 0 ========> the doctos has 0 appointments so as the patient
             if (data.status === 'success') {
                 submitFlag = true;
@@ -227,13 +227,13 @@
             const doctor_appointments = await get_doctor_appointments();
 
             const events = [];
-            for(const p of patient_appointments) {
-                let obj = {};
-                obj.title = p.appointment_reason;
-                obj.start = p.appointment_date;
-                obj.allDay = false;
-                events.push(obj);
-            }
+            // for(const p of patient_appointments) {
+            //     let obj = {};
+            //     obj.title = p.appointment_reason;
+            //     obj.start = p.appointment_date;
+            //     obj.allDay = false;
+            //     events.push(obj);
+            // }
             for(const d of doctor_appointments) {
                 let obj = {};
                 obj.title = d.appointment_reason;
